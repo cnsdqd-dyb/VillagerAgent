@@ -1,0 +1,1517 @@
+[
+    {
+        "init": [
+            {
+                "name": "chest",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "facing": "north",
+                "lock_key": "key",
+                "command": "/item replace block _pos_ container.0 with gold_block"
+            }, {
+                "name": "summon_sheep",
+                "position": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "face": "floor",
+                "random": true
+            }
+        ],
+        "condition": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "command": "/give @a[_position_,distance=..2] minecraft:tripwire_hook{display:{Name:'{\"text\":\"key\"}'}}"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {"gold_block": 1},
+        "task_description": "you need to activate all the lever simultaneously to get the key and open the chest, then you can get the gold_block"
+    },
+    {
+        "init": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "face": "floor",
+                "random": true
+            },
+            {
+                "name": "lava",
+                "position": [
+                    0,
+                    -1,
+                    3
+                ]
+            },
+            {
+                "name": "lava",
+                "position": [
+                    -1,
+                    -1,
+                    3
+                ]
+            },
+            {
+                "name": "lava",
+                "position": [
+                    1,
+                    -1,
+                    3
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    -1,
+                    3
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    -1,
+                    -1,
+                    3
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    1,
+                    -1,
+                    3
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "careful lava, activate all the lever simultaneously to remove the lava and escape"
+    },
+    {
+        "init": [
+            {
+                "name": "spruce_fence_gate",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false
+            },
+            {
+                "name": "oak_sign",
+                "position": [
+                    0,
+                    -1,
+                    3
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "gold_block",
+                "position": [
+                    0,
+                    -1,
+                    3
+                ]
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {"gold_block": 1},
+        "out": {},
+        "task_description": "you need to replace the oak_sign with gold_block to open the gate and escape"
+        
+    },{
+        "init": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "command": "/tp @r[_position_,distance=..2] _merge_pos_"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 2,
+        "split": false,
+        "merge": true,
+        "same_room": false,
+        "task_description": "all players need to stand on the all the lever simultaneously to activate it, then all players will be teleported to the same position"
+        
+    },
+    {
+        "init": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "command": "/tp @r[_position_,distance=..2] _split_pos_"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 2,
+        "split": true,
+        "merge": false,
+        "same_room": false,
+        "task_description": "all players need to stand on the all the lever simultaneously to activate it, then all players will be teleported to different positions"
+        
+    },{
+        "init": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "split": false,
+        "merge": false,
+        "same_room": false,
+        "task_description": "all players need to stand on the all the lever simultaneously to activate it, then the gate will open"
+        
+    },
+    {
+        "init": [
+            {
+                "name": "iron_door",
+                "position": [
+                    -1,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "hinge": "right"
+            },
+            {
+                "name": "iron_door",
+                "position": [
+                    1,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "hinge": "left"
+            },
+            {
+                "name": "bedrock",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "bedrock",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            },
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": true
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect":[
+            {
+                "name": "iron_door",
+                "position": [
+                    -1,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "iron_door",
+                "position": [
+                    1,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "you need to jump to the oak_pressure_plate wait for 1s and jump back at the same time",
+        "wait_interval": 1
+    },
+    {
+        "init": [
+            {
+                "name": "iron_door",
+                "position": [
+                    -1,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "hinge": "right"
+            },
+            {
+                "name": "iron_door",
+                "position": [
+                    1,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "hinge": "left"
+            },
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    -1,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "sub_event": "0"
+            },
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    -1,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "sub_event": "final"
+            }
+        ],
+        "effect":[
+            {
+                "name": "iron_door",
+                "position": [
+                    -1,
+                    0,
+                    4
+                ],
+                "open": true,
+                "sub_event": "0"
+            },
+            {
+                "name": "iron_door",
+                "position": [
+                    1,
+                    0,
+                    4
+                ],
+                "open": true,
+                "sub_event": "final"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "only when two oak_pressure_plate are pressed at the same time, the door will open",
+        "wait_interval": 1
+    },
+    {
+        "init": [
+            {
+                "name": "bedrock",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            },
+            {
+                "name": "bedrock",
+                "position": [
+                    0,
+                    3,
+                    -1
+                ]
+            },
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    1,
+                    3
+                ],
+                "face": "wall",
+                "facing": "north"
+            },
+            {
+                "name": "redstone_lamp",
+                "position": [
+                    0,
+                    4,
+                    0
+                ]
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    0,
+                    4,
+                    -1
+                ],
+                "face": "wall",
+                "facing": "north"
+            },
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    -4
+                ],
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    -4
+                ],
+                "powered": true,
+                "activate_mode": "level",
+                "sub_event": "come_in"
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    0,
+                    4,
+                    -1
+                ],
+                "powered": true,
+                "sub_event": "activate"
+            },
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    1,
+                    3
+                ],
+                "powered": true,
+                "sub_event": "final"
+            }
+        ],
+        "effect":[
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    -4
+                ],
+                "command": "/execute as @r[_position_,distance=..2] at @s run tp @s ~ ~6 ~3",
+                "sub_event": "come_in"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "sub_event": "activate"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "sub_event": "final"
+            },
+            {
+                "name": "lever",
+                "position": [
+                    0,
+                    1,
+                    3
+                ],
+                "command": "/tp @e[_position_,distance=..7, type=player, gamemode=survival] _pos_",
+                "sub_event": "final"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "the door can be opened by the button, and the lever can teleport to the exit, but the button is too high, only the player who is teleported can press the button",
+        "wait_interval": 1,
+        "min_player": 2
+    },
+    {
+        "init": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    1,
+                    0,
+                    3
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    -1,
+                    0,
+                    2
+                ],
+                "face": "wall",
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    2
+                ],
+                "powered": true
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    -1,
+                    0,
+                    2
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    1,
+                    0,
+                    3
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {
+        },
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "wait_interval": 4,
+        "type": "and",
+        "min_player": 2,
+        "task_description": "Step on the oak pressure plate and press the stone button to open the iron trapdoor and escape the room to get an emerald."
+    },
+    {
+        "init": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "stone",
+                "position": [
+                    0,
+                    -1,
+                    3
+                ],
+                "random": false
+            },
+            {
+                "name": "stone",
+                "position": [
+                    -1,
+                    -1,
+                    3
+                ],
+                "random": false
+            },
+            {
+                "name": "stone",
+                "position": [
+                    1,
+                    -1,
+                    3
+                ],
+                "random": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true,
+                "facing": "north",
+                "random": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true,
+                "facing": "north",
+                "random": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    -1,
+                    3
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    -1,
+                    -1,
+                    3
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    1,
+                    -1,
+                    3
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the pressure plate to clear the stone blocks and open the trapdoors for escape."
+    },
+    {
+        "init": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    -2,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true,
+                "facing": "north"
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true,
+                "facing": "north"
+            }
+        ],
+        "condition": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    -2,
+                    0,
+                    0
+                ],
+                "powered": true
+            },
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "min_player": 2,
+        "task_description": "Step on all the pressure plates simultaneously to open the trapdoors and escape."
+    },
+    {
+        "init": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_button",
+                "position": [
+                    2,
+                    0,
+                    3
+                ],
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true
+            },
+            {
+                "name": "birch_button",
+                "position": [
+                    2,
+                    0,
+                    3
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "min_player": 2,
+        "task_description": "Step on the oak pressure plate and press the birch button to open the escape path."
+    },
+    {
+        "init": [
+            {
+                "name": "birch_door",
+                "position": [
+                    -1,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "hinge": "right"
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    1,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "hinge": "left"
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_door",
+                "position": [
+                    -1,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    1,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Press the stone button and step on the stone pressure plate simultaneously to open the escape route.",
+        "wait_interval": 3
+    },
+    {
+        "init": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    -2,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "stone",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "random": false
+            },
+            {
+                "name": "stone",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "random": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    -2,
+                    0,
+                    0
+                ],
+                "powered": true
+            },
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on both the stone and birch pressure plates to remove the stone wall and escape.",
+        "wait_interval": 1,
+        "min_player": 2
+    },
+    {
+        "init": [
+            {
+                "name": "iron_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false
+            },
+            {
+                "name": "dark_oak_button",
+                "position": [
+                    -1,
+                    1,
+                    3
+                ],
+                "face": "wall",
+                "facing": "north",
+                "powered": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "redstone_torch",
+                "position": [
+                    0,
+                    1,
+                    2
+                ]
+            },
+            {
+                "name": "redstone_wire",
+                "position": [
+                    0,
+                    0,
+                    3
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "activate_mode": "level",
+                "sub_event": "step_on"
+            },
+            {
+                "name": "dark_oak_button",
+                "position": [
+                    -1,
+                    1,
+                    3
+                ],
+                "powered": true,
+                "sub_event": "press_button"
+            }
+        ],
+        "effect": [
+            {
+                "name": "redstone_wire",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": true,
+                "sub_event": "step_on"
+            },
+            {
+                "name": "iron_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true,
+                "sub_event": "press_button"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "sub_event": "press_button"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the pressure plate to power the redstone, then press the button to open the door and escape.",
+        "wait_interval": 1,
+        "min_player": 1
+    },
+    {
+        "init": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": true
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "open": true
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    3
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "wait_interval": 4,
+        "type": "and",
+        "task_description": "Step on all the oak pressure plates simultaneously to open the path and escape."
+    },
+    {
+        "init": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "facing": "north",
+                "open": true
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false,
+                "random": true
+            },
+            {
+                "name": "redstone_block",
+                "position": [
+                    0,
+                    3,
+                    3
+                ]
+            },
+            {
+                "name": "piston",
+                "position": [
+                    0,
+                    2,
+                    3
+                ],
+                "facing": "down"
+            },
+            {
+                "name": "redstone_torch",
+                "position": [
+                    1,
+                    1,
+                    2
+                ],
+                "facing": "east"
+            },
+            {
+                "name": "redstone_wire",
+                "position": [
+                    0,
+                    1,
+                    2
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "open": false
+            },
+            {
+                "name": "piston",
+                "position": [
+                    0,
+                    2,
+                    3
+                ],
+                "command": "/setblock _pos_ air"
+            },
+            {
+                "name": "redstone_torch",
+                "position": [
+                    1,
+                    1,
+                    2
+                ],
+                "command": "/setblock _pos_ air"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the all the stone pressure plate simultaneously to open the iron trapdoor and deactivate the redstone circuit, allowing escape.",
+        "wait_interval": 4,
+        "type": "and"
+    }
+]

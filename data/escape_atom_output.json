@@ -1,0 +1,3014 @@
+[
+    {
+        "init": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    -2,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "half": "bottom"
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    -2,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "sub_event": "0"
+            },
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "sub_event": "final"
+            }
+        ],
+        "effect": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true,
+                "sub_event": "final"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on both pressure plates at the same time to open the trapdoor and escape.",
+        "wait_interval": 1,
+        "score": 5
+    },
+    {
+        "init": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north"
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": false,
+                "facing": "north"
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the stone pressure plate to remove the birch door blocks and escape.",
+        "wait_interval": 1,
+        "score": 5
+    },
+    {
+        "init": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "open": false,
+                "facing": "north",
+                "random": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "redstone_lamp",
+                "position": [
+                    0,
+                    1,
+                    2
+                ],
+                "powered": false,
+                "random": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "activate_mode": "level"
+            }
+        ],
+        "effect": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "open": true
+            },
+            {
+                "name": "redstone_lamp",
+                "position": [
+                    0,
+                    1,
+                    2
+                ],
+                "powered": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the stone pressure plate to power the redstone lamp and open the trapdoor for escape.",
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "open": false,
+                "facing": "north",
+                "half": "bottom"
+            },
+            {
+                "name": "stone",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "stone",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 2,
+        "task_description": "Step on the birch pressure plate to open the trapdoor and clear the stone blocks for escape.",
+        "score": 3,
+        "wait_interval": 1,
+        "type": "and"
+    },
+    {
+        "init": [
+            {
+                "name": "stone",
+                "position": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    1,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "open": false,
+                "facing": "north"
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    0,
+                    2,
+                    0
+                ],
+                "face": "wall",
+                "facing": "south",
+                "powered": false
+            },
+            {
+                "name": "redstone_block",
+                "position": [
+                    0,
+                    -1,
+                    2
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    1,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "level",
+                "sub_event": "plate_activate"
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    0,
+                    2,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse",
+                "sub_event": "button_press"
+            }
+        ],
+        "effect": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "open": true,
+                "sub_event": "plate_activate"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "sub_event": "button_press"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "sub_event": "button_press"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the stone pressure plate to open the iron trapdoor, then press the stone button to remove the wall blocks and escape.",
+        "wait_interval": 1,
+        "score": 10,
+        "min_player": 1
+    },
+    {
+        "init": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "open": false,
+                "facing": "north"
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_button",
+                "position": [
+                    2,
+                    1,
+                    2
+                ],
+                "face": "wall",
+                "facing": "east",
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            },
+            {
+                "name": "birch_button",
+                "position": [
+                    2,
+                    1,
+                    2
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the stone pressure plate and press the birch button to open the trapdoor and clear the path for escape.",
+        "wait_interval": 1,
+        "score": 3,
+        "type": "and"
+    },
+    {
+        "init": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    0
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": false
+            },
+            {
+                "name": "redstone_torch",
+                "position": [
+                    0,
+                    1,
+                    2
+                ]
+            },
+            {
+                "name": "redstone_wire",
+                "position": [
+                    0,
+                    1,
+                    1
+                ]
+            },
+            {
+                "name": "birch_button",
+                "position": [
+                    1,
+                    1,
+                    0
+                ],
+                "face": "wall",
+                "facing": "west",
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": true,
+                "activate_mode": "level",
+                "sub_event": "step_on"
+            },
+            {
+                "name": "birch_button",
+                "position": [
+                    1,
+                    1,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse",
+                "sub_event": "press_button"
+            }
+        ],
+        "effect": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    0
+                ],
+                "open": true,
+                "sub_event": "step_on"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "sub_event": "press_button"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "sub_event": "press_button"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the stone pressure plate to open the iron trapdoor and press the birch button to remove the wall blocks for escape.",
+        "wait_interval": 1,
+        "min_player": 1,
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": false
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "half": "bottom"
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    1
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "task_description": "Step on the pressure plate to open the trapdoor and escape.",
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    3
+                ],
+                "open": false,
+                "facing": "north"
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    2,
+                    1,
+                    0
+                ],
+                "powered": false,
+                "face": "wall"
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    2,
+                    1,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    3
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "score": 5,
+        "wait_interval": 1,
+        "type": "and",
+        "task_description": "Press the stone pressure plate and the stone button at the same time to open the trapdoor and clear the path for escape."
+    },
+    {
+        "init": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    2,
+                    0
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": false
+            },
+            {
+                "name": "redstone_torch",
+                "position": [
+                    1,
+                    1,
+                    0
+                ],
+                "facing": "east"
+            },
+            {
+                "name": "redstone_wire",
+                "position": [
+                    1,
+                    0,
+                    0
+                ]
+            },
+            {
+                "name": "redstone_wire",
+                "position": [
+                    1,
+                    0,
+                    1
+                ]
+            },
+            {
+                "name": "redstone_wire",
+                "position": [
+                    1,
+                    0,
+                    2
+                ]
+            },
+            {
+                "name": "redstone_wire",
+                "position": [
+                    1,
+                    0,
+                    3
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": true,
+                "activate_mode": "level"
+            }
+        ],
+        "effect": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    2,
+                    0
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the stone pressure plate to open the iron trapdoor and reveal the escape path.",
+        "score": 2,
+        "wait_interval": 1,
+        "min_player": 1
+    },
+    {
+        "init": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    -2,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "half": "bottom"
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    -2,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "sub_event": "0"
+            },
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "sub_event": "final"
+            }
+        ],
+        "effect": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true,
+                "sub_event": "0"
+            },
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true,
+                "sub_event": "final"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Both agents must stand on their respective pressure plates at the same time to open the trapdoor above.",
+        "wait_interval": 1,
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north"
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    1,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north"
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    1,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    1,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "task_description": "Step on the stone pressure plate to open the birch doors and escape.",
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "redstone_torch",
+                "position": [
+                    1,
+                    0,
+                    1
+                ],
+                "facing": "up"
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {
+            "emerald": 1
+        },
+        "task_description": "Step on the stone pressure plate to open the trapdoor and reveal the escape path. Collect the emerald as a reward.",
+        "score": 5
+    },
+    {
+        "init": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "redstone_block",
+                "position": [
+                    0,
+                    -1,
+                    3
+                ]
+            },
+            {
+                "name": "piston",
+                "position": [
+                    0,
+                    1,
+                    3
+                ],
+                "facing": "up",
+                "extended": false
+            },
+            {
+                "name": "redstone_torch",
+                "position": [
+                    1,
+                    1,
+                    3
+                ],
+                "facing": "east"
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "activate_mode": "level"
+            }
+        ],
+        "effect": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "open": true
+            },
+            {
+                "name": "piston",
+                "position": [
+                    0,
+                    1,
+                    3
+                ],
+                "extended": true
+            },
+            {
+                "name": "redstone_torch",
+                "position": [
+                    1,
+                    1,
+                    3
+                ],
+                "powered": false
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {
+            "iron_ingot": 1
+        },
+        "task_description": "Step on the pressure plate to open the trapdoor and deactivate the redstone torch, allowing the piston to extend and clear the path for escape.",
+        "score": 5,
+        "wait_interval": 1,
+        "min_player": 1
+    },
+    {
+        "init": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    2,
+                    1,
+                    0
+                ],
+                "powered": false,
+                "face": "wall",
+                "random": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "random": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "random": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse",
+                "sub_event": "0"
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    2,
+                    1,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse",
+                "sub_event": "final"
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "sub_event": "0"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "sub_event": "final"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "task_description": "Step on the stone pressure plate and press the stone button to open the trapdoors and escape.",
+        "score": 2,
+        "wait_interval": 2,
+        "type": "and"
+    },
+    {
+        "init": [
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true
+            }
+        ],
+        "in": {
+            "stone": 1
+        },
+        "out": {
+            "emerald": 1
+        },
+        "activate_duration": 3,
+        "task_description": "Place a stone on the birch pressure plate to open the iron trapdoors and escape. You will receive an emerald as a reward.",
+        "score": 5
+    },
+    {
+        "init": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "south",
+                "hinge": "right"
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": false,
+                "facing": "south",
+                "hinge": "left"
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false,
+                "random": false
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    2,
+                    0,
+                    3
+                ],
+                "powered": false,
+                "face": "wall",
+                "facing": "west"
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "sub_event": "0"
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    2,
+                    0,
+                    3
+                ],
+                "powered": true,
+                "sub_event": "final"
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true,
+                "sub_event": "0"
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true,
+                "sub_event": "final"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "sub_event": "final"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "sub_event": "final"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the stone pressure plate and press the stone button to open the birch doors and clear the path.",
+        "wait_interval": 1,
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    -2,
+                    0,
+                    2
+                ],
+                "face": "wall",
+                "facing": "east",
+                "powered": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    2,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "sub_event": "plate_activate"
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    -2,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "sub_event": "button_press"
+            }
+        ],
+        "effect": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "open": true,
+                "sub_event": "plate_activate"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "sub_event": "button_press"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "sub_event": "button_press"
+            }
+        ],
+        "in": {},
+        "out": {
+            "emerald": 1
+        },
+        "task_description": "Step on the stone pressure plate to open the trapdoor and press the stone button to clear the escape path.",
+        "wait_interval": 1,
+        "min_player": 2,
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": false,
+                "face": "wall"
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    2,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {
+            "stone": 1
+        },
+        "out": {
+            "emerald": 1
+        },
+        "activate_duration": 3,
+        "task_description": "Place a stone on the pressure plate and press the button to open the trapdoors and escape. An emerald awaits the successful escaper.",
+        "score": 5,
+        "wait_interval": 2,
+        "type": "and"
+    },
+    {
+        "init": [
+            {
+                "name": "dark_oak_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    0
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    0,
+                    2,
+                    1
+                ],
+                "face": "wall",
+                "facing": "south",
+                "powered": false
+            },
+            {
+                "name": "bedrock",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "bedrock",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "dark_oak_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    0
+                ],
+                "open": true,
+                "sub_event": "access_button"
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    0,
+                    2,
+                    1
+                ],
+                "powered": true,
+                "sub_event": "escape_route"
+            }
+        ],
+        "effect": [
+            {
+                "name": "dark_oak_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    0
+                ],
+                "sub_event": "access_button",
+                "command": "/setblock _pos_ air"
+            },
+            {
+                "name": "stone_button",
+                "position": [
+                    0,
+                    2,
+                    1
+                ],
+                "sub_event": "escape_route",
+                "command": "/setblock 0 1 4 air"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Open the trapdoor to access the button. Pressing the button will open the escape route.",
+        "wait_interval": 1,
+        "score": 5,
+        "min_player": 1
+    },
+    {
+        "init": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "zombie",
+                "position": [
+                    2,
+                    0,
+                    2
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "task_description": "Step on the pressure plate to open the trapdoor and escape the room. Beware of the zombie!",
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    -1,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    -1,
+                    0,
+                    0
+                ],
+                "powered": true
+            },
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 5,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "score": 3,
+        "wait_interval": 4,
+        "type": "and",
+        "task_description": "Step on both pressure plates to open the trapdoors and escape through the wall."
+    },
+    {
+        "init": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "chest",
+                "position": [
+                    -1,
+                    0,
+                    1
+                ],
+                "facing": "east",
+                "lock_key": ""
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "diamond",
+                "position": [
+                    -1,
+                    0,
+                    1
+                ],
+                "command": "/item replace block _pos_ container.0 with diamond 3"
+            }
+        ],
+        "in": {},
+        "out": {
+            "diamond": 3
+        },
+        "activate_duration": 3,
+        "task_description": "Step on the stone pressure plate to open the trapdoor and escape. Check the chest for a reward.",
+        "score": 5
+    },
+    {
+        "init": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "bedrock",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "bedrock",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 2,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "task_description": "Step on the stone pressure plate to remove the bedrock wall and escape.",
+        "score": 3
+    },
+    {
+        "init": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": false
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "half": "bottom"
+            }
+        ],
+        "condition": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    2,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "task_description": "Step on the pressure plate to open the trapdoor and escape through the ceiling.",
+        "score": 5
+    },
+    {
+        "init": [
+            {
+                "name": "dark_oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "dark_oak_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "facing": "north",
+                "open": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "dark_oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "dark_oak_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 5,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "task_description": "Step on the pressure plate to open the trapdoor and escape through the opening.",
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north"
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "oak_button",
+                "position": [
+                    -1,
+                    1,
+                    1
+                ],
+                "powered": false,
+                "face": "wall",
+                "facing": "east"
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    2
+                ],
+                "powered": true
+            },
+            {
+                "name": "oak_button",
+                "position": [
+                    -1,
+                    1,
+                    1
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "task_description": "Step on the stone pressure plate and press the oak button to open the birch door and escape.",
+        "score": 2,
+        "wait_interval": 1,
+        "type": "and"
+    },
+    {
+        "init": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north"
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "redstone_lamp",
+                "position": [
+                    0,
+                    1,
+                    2
+                ],
+                "lit": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "redstone_lamp",
+                "position": [
+                    0,
+                    1,
+                    2
+                ],
+                "lit": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "task_description": "Step on the stone pressure plate to power the redstone lamp and open the birch door for escape.",
+        "score": 2
+    },
+    {
+        "init": [
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    2,
+                    4
+                ],
+                "open": false,
+                "facing": "north"
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_button",
+                "position": [
+                    1,
+                    2,
+                    3
+                ],
+                "face": "wall",
+                "facing": "north",
+                "powered": false
+            },
+            {
+                "name": "redstone_lamp",
+                "position": [
+                    0,
+                    2,
+                    0
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "activate_mode": "pulse",
+                "sub_event": "light_on"
+            },
+            {
+                "name": "birch_button",
+                "position": [
+                    1,
+                    2,
+                    3
+                ],
+                "powered": true,
+                "sub_event": "open_trapdoor"
+            }
+        ],
+        "effect": [
+            {
+                "name": "redstone_lamp",
+                "position": [
+                    0,
+                    2,
+                    0
+                ],
+                "command": "/setblock _pos_ redstone_lamp[lit=true]",
+                "sub_event": "light_on"
+            },
+            {
+                "name": "oak_trapdoor",
+                "position": [
+                    0,
+                    2,
+                    4
+                ],
+                "open": true,
+                "sub_event": "open_trapdoor"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "sub_event": "open_trapdoor"
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "sub_event": "open_trapdoor"
+            }
+        ],
+        "in": {},
+        "out": {},
+        "task_description": "Step on the pressure plate to light the lamp, then press the button to open the trapdoor and escape.",
+        "wait_interval": 1,
+        "score": 3,
+        "min_player": 1
+    },
+    {
+        "init": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ]
+            },
+            {
+                "name": "redstone_block",
+                "position": [
+                    -1,
+                    0,
+                    2
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": true
+            },
+            {
+                "name": "redstone_block",
+                "position": [
+                    -1,
+                    0,
+                    2
+                ]
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {
+            "redstone_block": 1
+        },
+        "out": {},
+        "activate_duration": 3,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "score": 2,
+        "task_description": "Place a redstone block next to the stone pressure plate and step on it to open the birch door and escape."
+    },
+    {
+        "init": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "half": "bottom"
+            }
+        ],
+        "condition": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "task_description": "Step on the pressure plate to open the trapdoor above, allowing escape through the ceiling.",
+        "score": 3
+    },
+    {
+        "init": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    2,
+                    3
+                ],
+                "facing": "north",
+                "open": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    1,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "redstone_block",
+                "position": [
+                    -1,
+                    0,
+                    3
+                ]
+            },
+            {
+                "name": "redstone_torch",
+                "position": [
+                    1,
+                    0,
+                    3
+                ],
+                "facing": "west"
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    1,
+                    2
+                ],
+                "powered": true,
+                "activate_mode": "level"
+            }
+        ],
+        "effect": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    2,
+                    3
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "task_description": "Step on the stone pressure plate to open the iron trapdoor and create an escape path through the wall at position 0 0 4.",
+        "score": 10,
+        "wait_interval": 2,
+        "min_player": 1
+    },
+    {
+        "init": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    2
+                ],
+                "powered": false
+            },
+            {
+                "name": "redstone_lamp",
+                "position": [
+                    1,
+                    1,
+                    2
+                ]
+            }
+        ],
+        "condition": [
+            {
+                "name": "oak_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "level"
+            },
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    1,
+                    0,
+                    2
+                ],
+                "powered": true,
+                "activate_mode": "level"
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_door",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "redstone_lamp",
+                "position": [
+                    1,
+                    1,
+                    2
+                ],
+                "powered": true
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "score": 2,
+        "wait_interval": 2,
+        "type": "and",
+        "task_description": "Step on the oak pressure plate to power it, then step on the stone pressure plate to light up the redstone lamp and open the birch door for escape."
+    },
+    {
+        "init": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": false
+            },
+            {
+                "name": "birch_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "half": "bottom"
+            }
+        ],
+        "condition": [
+            {
+                "name": "stone_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "powered": true,
+                "activate_mode": "pulse"
+            }
+        ],
+        "effect": [
+            {
+                "name": "birch_trapdoor",
+                "position": [
+                    0,
+                    1,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    0,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "task_description": "Step on the stone pressure plate to open the trapdoor above and escape through the ceiling.",
+        "score": 2,
+        "wait_interval": 1
+    },
+    {
+        "init": [
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": false
+            },
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false
+            }
+        ],
+        "condition": [
+            {
+                "name": "birch_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "iron_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "task_description": "Step on the birch pressure plate to open the iron trapdoor and escape.",
+        "score": 2
+    },
+    
+    {
+        "init": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": false
+            },
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": false,
+                "facing": "north",
+                "half": "bottom"
+            }
+        ],
+        "condition": [
+            {
+                "name": "spruce_pressure_plate",
+                "position": [
+                    0,
+                    0,
+                    3
+                ],
+                "powered": true
+            }
+        ],
+        "effect": [
+            {
+                "name": "spruce_trapdoor",
+                "position": [
+                    0,
+                    0,
+                    4
+                ],
+                "open": true
+            },
+            {
+                "name": "air",
+                "position": [
+                    0,
+                    1,
+                    4
+                ]
+            }
+        ],
+        "in": {},
+        "out": {},
+        "activate_duration": 3,
+        "split": false,
+        "merge": false,
+        "same_room": true,
+        "task_description": "Step on the pressure plate to open the trapdoor and escape through the opening.",
+        "score": 2
+    }
+]
