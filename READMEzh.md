@@ -1,4 +1,4 @@
-# 🏰 VillagerBench：Minecraft 世界中的团队合作基准测试 🌍
+# 🏰 VillagerAgent：Minecraft 世界中的团队合作基准测试 🌍
 
 <img src="img/VillagerBench.png" width="100%" />
 

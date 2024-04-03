@@ -1,4 +1,4 @@
-# 🏰 VillagerBench: Benchmarking Teamwork in the World of Minecraft 🌍
+# 🏰 VillagerAgent: A Graph-Based Multi-Agent Framework for Coordinating Complex Task Dependencies in Minecraft 🌍
 
 <img src="img/VillagerBench.png" width="100%" /> 
 
