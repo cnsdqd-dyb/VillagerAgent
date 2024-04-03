@@ -5,7 +5,7 @@
 
 Welcome to VillagerBench, where the blocky world of Minecraft isn't just for fun and games—it's a testing ground for the cutting-edge of multi-agent collaboration! 🤖 Our benchmark suite is designed to push the boundaries of what virtual agents can achieve together, tackling everything from construction projects 🏗️ to culinary quests 🍳 and escape room puzzles 🔐.
 
-Customize your private tasks in your Minecraft server with our DAGent multi-agent framework, designed for personalized gameplay experiences! 🌟 
+Customize your private tasks in your Minecraft server with our VillagerAgent multi-agent framework, designed for personalized gameplay experiences! 🌟 
 点击此处查看 [中文版 README](READMEzh.md)。
 <p align="center">
     <a href='https://arxiv.org/'>
@@ -39,7 +39,7 @@ Customize your private tasks in your Minecraft server with our DAGent multi-agen
 ### Installation Steps
 1. Clone the repository 📦:
    ```bash
-   git clone https://github.com/DAGent.git
+   git clone https://github.com/VillagerAgent.git
    ```
 2. Opt for a virtual environment 🧹:
    ```bash
@@ -123,9 +123,9 @@ if __name__ == "__main__":
 
 
 ### Docker 🐳
-- Build your Docker image with `docker build -t dagent .` 🏗.
-- Launch the Docker container with `docker run dagent` 🚀.
-- Note: If you need to open specific ports for API connectivity, you may need to modify the Dockerfile accordingly and launch with `docker run -p <your_port>:<app_port> dagent` 🌐.
+- Build your Docker image with `docker build -t VillagerAgent .` 🏗.
+- Launch the Docker container with `docker run VillagerAgent` 🚀.
+- Note: If you need to open specific ports for API connectivity, you may need to modify the Dockerfile accordingly and launch with `docker run -p <your_port>:<app_port> VillagerAgent` 🌐.
 
 ## Overview 📜
 
@@ -135,8 +135,8 @@ Dive into VillagerBench, powered by Mineflayer, to explore the dynamics of coope
 <img src="img/benchmark.png" width="55%" /> 
 <img src="img/radar.png" width="43.2%" /> 
 
-### DAGENT Framework
-Meet DAGENT, our multi-agent maestro 🎼, orchestrating a symphony of tasks with its four core components: Task Decomposer, Agent Controller, State Manager, and Base Agents. It's like a conductor for AI, turning individual actions into a masterpiece of collaboration.
+### VillagerAgent Framework
+Meet VillagerAgent, our multi-agent maestro 🎼, orchestrating a symphony of tasks with its four core components: Task Decomposer, Agent Controller, State Manager, and Base Agents. It's like a conductor for AI, turning individual actions into a masterpiece of collaboration.
 
 <img src="img/framework.png" width="100%" /> 
 

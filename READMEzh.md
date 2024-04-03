@@ -4,7 +4,7 @@
 
 欢迎来到VillagerBench，在这个由方块构成的 Minecraft 世界中，不仅仅是为了娱乐和游戏——这里是多智能体合作前沿技术的试验场！🤖 我们的基准测试套件旨在挑战虚拟智能体共同完成的极限，从建筑项目 🏗️ 到烹饪任务 🍳，再到逃脱房间的谜题 🔐。
 
-在您的 Minecraft 服务器中使用我们的 DAGent 多智能体框架自定义您的私人任务，为您打造个性化的游戏体验！🌟
+在您的 Minecraft 服务器中使用我们的 VillagerAgent 多智能体框架自定义您的私人任务，为您打造个性化的游戏体验！🌟
 
 Click here to view the [English version of the README](README.md).
 
@@ -41,7 +41,7 @@ Click here to view the [English version of the README](README.md).
 ### 安装步骤
 1. 克隆仓库以获取项目 📦：
    ```bash
-   git clone https://github.com/DAGent.git
+   git clone https://github.com/VillagerAgent.git
    ```
 2. 选择使用虚拟环境 🧹：
    ```bash
@@ -124,9 +124,9 @@ if __name__ == "__main__":
 - 使用 `start with config.py` 开始自动化批量测试 🤖。
 
 ### Docker 🐳
-- 使用 `docker build -t dagent .` 构建您的 Docker 镜像 🏗。
-- 使用 `docker run dagent` 启动 Docker 容器 🚀。
-- 提示：使用 `docker run -p <your_port>:<app_port> dagent` 启动容器来开放特定端口以实现 API 连接，并可能需要相应地修改 Dockerfile 🌐。
+- 使用 `docker build -t VillagerAgent .` 构建您的 Docker 镜像 🏗。
+- 使用 `docker run VillagerAgent` 启动 Docker 容器 🚀。
+- 提示：使用 `docker run -p <your_port>:<app_port> VillagerAgent` 启动容器来开放特定端口以实现 API 连接，并可能需要相应地修改 Dockerfile 🌐。
 
 ## 概览 📜
 
@@ -136,8 +136,8 @@ if __name__ == "__main__":
 <img src="img/benchmark.png" width="55%" /> 
 <img src="img/radar.png" width="43.2%" /> 
 
-### DAGENT 框架
-认识 DAGENT，我们的多智能体大师 🎼，它的四大核心组件：任务分解器、智能体控制器、状态管理器和基础智能体，就像是 AI 的指挥家，将个体行动转化为协作的杰作。
+### VillagerAgent 框架
+认识 VillagerAgent，我们的多智能体大师 🎼，它的四大核心组件：任务分解器、智能体控制器、状态管理器和基础智能体，就像是 AI 的指挥家，将个体行动转化为协作的杰作。
 
 <img src="img/framework.png" width="100%" />
 
