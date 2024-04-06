@@ -601,7 +601,7 @@ def craft():
     item_name, count = data.get('item_name'), data.get('count')
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(
-        interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, 'crafting', get_item_name=item_name, count=count))
+        interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, 'crafting_table', get_item_name=item_name, count=count))
     return jsonify({'message': tag, 'status': flag, 'data': data})
 
 
