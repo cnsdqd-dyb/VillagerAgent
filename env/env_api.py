@@ -772,7 +772,6 @@ def find_everything_(bot, Vec3, envs_info, mcData, name="", distance=32, count=1
             for block in blocks:
                 block_list.append(block)
 
-            bot.chat(f"len(block_list) {len(block_list)}")
             new_blocks = []
             block_dict = {}
             for block in block_list:
@@ -838,8 +837,8 @@ async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
     if axis not in ['x', 'y', 'z', 'A', 'W', 'E', 'S', 'N', None]:
         return False, f"can not place block, the axis {axis} is not valid"
     
-    if bot.heldItem:
-        bot.chat(f"I have {bot.heldItem.name} in my hand")
+    # if bot.heldItem:
+    #     bot.chat(f"I have {bot.heldItem.name} in my hand")
     # bot.chat('#equip item_name slot(hand,head,torso,legs,feet,off-hand)')
     done = True
     if bot.heldItem is None or bot.heldItem.name != item_name:
