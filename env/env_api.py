@@ -1992,35 +1992,47 @@ def findSomething(bot, mcData, name, type='None'):
         return None, f"cannot find {name}, try to get more infos or help"
     return ID, f" find {name}"
 
+import Levenshtein
+
 def findSimilarName(name):
     max_similar = 0
     similar_name = ""
 
-    import difflib
+    # 预处理输入名称，分割成子字符串
+    name_parts = name.split('_')
 
-    def string_similar(s1, s2):
-        return difflib.SequenceMatcher(None, s1, s2).quick_ratio()
-
-    # load mcData find the similar name
+    # 加载数据
     with open('data/mcData.json', 'r', encoding='utf-8') as f:
         mc_data_json = json.load(f)
 
+    # 遍历实体和物品
     for item in mc_data_json['entities'] + mc_data_json['items']:
-        # find similar name
         try:
-            similar = string_similar(name, item[0])
-            if similar > max_similar:
-                max_similar = similar
-                similar_name = item[0]
+            item_name = item[0]
+            item_parts = item_name.split('_')
+
+            # 计算所有子字符串的平均Levenshtein相似度
+            total_similar = 0
+            for part in name_parts:
+                part_similar = max([1 - Levenshtein.distance(part, item_part) / max(len(part), len(item_part)) for item_part in item_parts])
+                total_similar += part_similar
+
+            avg_similar = total_similar / len(name_parts)
+
+            if avg_similar > max_similar:
+                max_similar = avg_similar
+                similar_name = item_name
         except Exception as e:
-            # bot.chat(f'findSomething error: {e} {name} {item} ')
+            # 错误处理，这里简单忽略
             pass
+
+    # 设置一个合理的相似度阈值
     if max_similar > 0.55:
-        name = similar_name
-        return name, f" find {name}"
+        return similar_name, f"find {similar_name}"
 
     else:
         return "", f"cannot find {name} this is not a valid name, try to get more infos or help"
+
 
 
 def read_mcData():
@@ -2046,84 +2058,7 @@ def read_mcData():
         json.dump(_mcData, f, ensure_ascii=False, indent=4)
 
 
-# def building_material_load(path, bot, Vec3, envs_info, mcData):
-#     import json
-#     with open(path, 'r') as f:
-#         map = json.load(f)
-
-#     material_pair = {}
-#     for block in map["blocks"]:
-#         if block["name"] == "water" or block["name"] == "lava":
-#             continue
-#         if block["name"] in material_pair:
-#             material_pair[block["name"]] += 1
-#         else:
-#             material_pair[block["name"]] = 1
-
-#     # find nearest chest
-#     chest_pos = find_nearest_(bot, Vec3, envs_info, mcData, 'chest')
-#     if chest_pos is None:
-#         # bot.chat('can not find chest, try to get more infos or help')
-#         return
-
-#     slot = 0
-#     # [DEBUG] print(material_pair)
-#     unStackable_items = ["bed"]
-#     for k, v in material_pair.items():
-#         name = k
-#         amount = v
-#         while amount > 0:
-#             print(k, v)
-#             hit = False
-#             if "potted" in name:
-#                 name = name.replace("potted_", "")
-#                 bot.chat(
-#                     f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {64}')
-#                 # [DEBUG] print(f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {64}')
-#                 slot += 1
-#                 name = "flower_pot"
-#                 bot.chat(
-#                     f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {64}')
-#                 # [DEBUG] print(f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {64}')
-#                 amount -= 64
-#             elif "_wall_" in name:
-#                 name = name.replace("_wall_", "_")
-#                 if "banner" in name:
-#                     bot.chat(
-#                         f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {16}')
-#                     # [DEBUG] print(f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {16}')
-#                     amount -= 16
-#                 else:
-#                     bot.chat(
-#                         f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {64}')
-#                     # [DEBUG] print(f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {64}')
-#                     amount -= 64
-#             else:
-#                 for tag in unStackable_items:
-#                     if tag in name:
-#                         hit = True
-#                         break
-#                 if hit:
-#                     bot.chat(
-#                         f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {1}')
-#                     # [DEBUG] print(f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {1}')
-#                     amount -= 1
-#                 elif "banner" in name:
-#                     bot.chat(
-#                         f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {16}')
-#                     # [DEBUG] print(f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {16}')
-#                     amount -= 16
-#                 else:
-#                     bot.chat(
-#                         f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {64}')
-#                     # [DEBUG] print(f'/item replace block {chest_pos.x} {chest_pos.y} {chest_pos.z} container.{slot} with minecraft:{name} {64}')
-#                     amount -= 64
-#             slot += 1
-#             if slot >= 27:
-#                 bot.chat('chest is full')
-#                 return
-#     # bot.chat(f'building material loaded to chest at {chest_pos.x} {chest_pos.y} {chest_pos.z}')
-
+ 
 
 def collect(bot, pathfinder, Vec3, mcData, block_name, distance=5, count=1):
     for _ in range(count):
