@@ -615,8 +615,8 @@ def get_entity_by(qtype, env_info, name, username=""):
             continue
         if env_info['entities'][int(id)] == None or env_info['entities'][int(id)]['username'] == username:
             continue
-        elif name == env_info['entities'][int(id)][qtype].split("_")[-1] or name == env_info['entities'][int(id)][
-            qtype]:
+        elif name.lower() == env_info['entities'][int(id)][qtype].split("_")[-1].lower() or name.lower() == env_info['entities'][int(id)][
+            qtype].lower():
             # #[DEBUG] print(env_info['entities'][int(id)][qtype],name)
             get_entities.append(env_info['entities'][int(id)])
     # sort by position
