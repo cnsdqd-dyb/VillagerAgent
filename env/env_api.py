@@ -685,112 +685,95 @@ def find_nearest_(bot, Vec3, envs_info, mcData, name):  # X
         return None
 
 
-# 作为cache减少一下缓存时间
-blocks_queue = []  # {position:Vec3, name:str, result:[]}
-max_queue_len = 100
+def find_everything_(bot, Vec3, envs_info, mcData, name="", distance=32, count=1, optimize=False, visible_only=True):
+    # 第一步判断name是否存在，如果不存在或者all, everything,则直接返回数量允许的所有物体
+    # 第二步进行文本匹配，找到最相似的name
+    # 第三步如果是entity,则直接返回entity的位置
+    # 第四步如果是block,则进行搜索
 
-
-def find_everything_(bot, Vec3, envs_info, mcData, name="", distance=32, count=1, optimize=False, visible_only=True):  # √
-    # bot.chat(f"find_everything_ {name} {distance} {count}")
-    global blocks_queue
-    pos_list = []
-    if optimize:
-        # 进行优化减少搜索时间
-        for block in blocks_queue:
-            if distanceTo(block['position'], bot.entity.position) < distance // 4 and block['name'] == name:
-                if len(block['result']) >= count:
-                    return name, block['result'][:count]
-                elif count < 0 and len(block['result']):
-                    return name, block['result']
-                else:
-                    pos_list += block['result']
-
-        if len(blocks_queue) > max_queue_len:
-            blocks_queue.pop(0)
-        # 优化结束
-
-    if name == "everything" or name == "all":
-        name = ""
-
-    distance = max(distance, 16)
-    distance = min(distance, 64)
-
-    pos = None
-    try:
-        entities = get_entity_by('username', envs_info, name, bot.entity.username)
-        if len(entities) > 0:
-            pos = entities[0]['position']
-            pos_list.append(pos)
-    except Exception as e:
-        # [DEBUG] print(f'find_everything_ username error: {e}')
-        pos = None
-    if pos is None:
-        try:
-            entities = get_entity_by('name', envs_info, name, bot.entity.username)
-            for entity in entities:
-                pos_list.append(entity['position'])
-        except Exception as e:
-            # [DEBUG] print(f'find_everything_ name error: {e}')
-            pos = None
-    if len(pos_list) > 0 and pos:
-        # #[DEBUG] print("find entity",pos_list)
-        blocks_queue.append({'position': bot.entity.position, 'name': name, 'result': pos_list})
-        return name, pos_list
-    
-    if count < 0:
-        count = 16
-    # [DEBUG] print("try search blocks and items")
-    ID, msg = findSomething(bot, mcData, name)
-    if not ID:
-        name = ""
-        
-    if visible_only:
-        blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=32, max_time=1, max_same_block=3, max_block_num=24, visible_only=True)
-        
-        if name != "":
-            pos_list = [ Vec3(block["position"][0],block["position"][1],block["position"][2]) for block in blocks if name in block["name"] ]
-        else:
-            pos_list = [ Vec3(block["position"][0],block["position"][1],block["position"][2]) for block in blocks ]
-        return name, pos_list[:count]
-    
-        # [DEBUG] print('nothing named ' + name)
-    if len(pos_list) < count or count <= 0:
-        # bot.chat(f"findBlocks block {name} {distance} {count} {findSomething(bot, mcData, name, 'block')[0]}")
+    if name == "everything" or name == "all" or name == "":
+        # 返回所有物体
+        block_list = []
         try:
             blocks = bot.findBlocks(
                 {
                     "point": bot.entity.position,
                     "matching": findSomething(bot, mcData, name, 'block')[0],
                     "maxDistance": distance,
-                    "count": count,
                 }
             )
             for block in blocks:
-                pos_list.append(block)
+                block_list.append(block)
+
+            # 去除相同名字超过三个的方块
+            new_blocks = []
+            block_dict = {}
+            for block in block_list:
+                if block["name"] in block_dict:
+                    block_dict[block["name"]] += 1
+                    if block_dict[block["name"]] > 3:
+                        continue
+                else:
+                    block_dict[block["name"]] = 1
+                new_blocks.append(block)
         except Exception as e:
-            bot.chat(f"findBlocks block error")
             # [DEBUG] print(f'findBlocks block error: {e}')
             ...
+        return "nearby blocks", block_list[:count]
+    
+    name_find, tag = findSimilarName(name)
+    type_ = is_entity_or_item(name_find)
+    # 有可能是entity的名字
+    entities_pos = []
+    # 直接返回entity的位置
+    entities = get_entity_by('username', envs_info, name, bot.entity.username)
+    if len(entities) > 0:
+        pos = entities[0]['position']
+        entities_pos.append(pos)
+        return name, entities_pos
+    if type_ == "error":
+        return "Cannot find anything named " + name, []
 
-    if len(pos_list) < count or count <= 0:
-        # bot.chat(f"BlocksSearch  {name} {distance} {count}") # [DEBUG]
+    if type_ == "entity":
+        entities_pos = []
         try:
-            Vec3 = require("vec3")
-            blocks = BlocksSearch(bot, Vec3, mcData, distance, name, count=count)
-            for block in blocks:
-                pos_list.append(block['position'])
-                name = block['name']
+            entities = get_entity_by('name', envs_info, name_find, bot.entity.username)
+            for entity in entities:
+                entities_pos.append(entity['position'])
+            return name_find, entities_pos
         except Exception as e:
-            # [DEBUG] print(f'BlocksNearby block error: {e}')
-            ...
-    # shuffle(pos_list)
-    random.shuffle(pos_list)
-    if count == -1:
-        blocks_queue.append({'position': bot.entity.position, 'name': name, 'result': pos_list})
-        return name, pos_list
-    blocks_queue.append({'position': bot.entity.position, 'name': name, 'result': pos_list})
-    return name, pos_list[:count]
+            # [DEBUG] print(f'find_everything_ name error: {e}')
+            pos = None
+        return "Cannot find any entity named " + name, []
+    
+    if type_ == "item":
+        # 直接返回item的位置
+        block_list = []
+        try:
+            blocks = bot.findBlocks(
+                {
+                    "point": bot.entity.position,
+                    "matching": findSomething(bot, mcData, name_find, 'block')[0],
+                    "maxDistance": distance,
+                }
+            )
+            for block in blocks:
+                block_list.append(block)
 
+            bot.chat(f"len(block_list) {len(block_list)}")
+            new_blocks = []
+            block_dict = {}
+            for block in block_list:
+                if block["name"] in block_dict:
+                    block_dict[block["name"]] += 1
+                    if block_dict[block["name"]] > 5:
+                        continue
+                else:
+                    block_dict[block["name"]] = 1
+                new_blocks.append(block)
+            return name_find, new_blocks
+        except Exception as e:
+            return "Cannot find any block named " + name, []
 
 def move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, RANGE_GOAL, name):  # √
     pos = find_nearest_(bot,  Vec3, envs_info, mcData, name)

@@ -266,27 +266,16 @@ def find():
     """find name distance count: find tag in the distance, and count is the number of items you want to find."""
     data = request.get_json()
     name, distance, count = data.get('name'), data.get('distance'), data.get('count')
-    orgin_name = name
-    name = name_check(bot, Vec3, mcData, name)
     center_pos = bot.entity.position
     # 随机移动一下 防止卡住
     random_x = randint(-4, 4)
     random_z = randint(-4, 4)
     move_to(pathfinder, bot, Vec3, 3, Vec3(center_pos.x+random_x, center_pos.y, center_pos.z+random_z))
+
     distance = min(32, max(16, distance)) # 限制在16-32之间
-    # bot.chat(f"name_check {name}")
     envs_info = get_envs_info(bot, distance)
-    entities = get_entity_by('name', envs_info, name, bot.entity.username)
-    pos_list = []
-    for entity in entities:
-        pos_list.append(entity['position'])
-    if len(pos_list) > 0:
-        str_pos_list = f'I found {name} '
-        for pos in pos_list:
-            str_pos_list += f'at {floor(pos.x + .5)} {floor(pos.y + .5)} {floor(pos.z + .5)},'
-        return jsonify({'message': str_pos_list, 'status': True})
     if name == "":
-        bot.chat(f"can not find anything match '{data.get('name')}'")
+        # bot.chat(f"can not find anything match '{data.get('name')}'")
         msg = get_envs_info2str(bot, RENDER_DISTANCE=16, same_entity_num=3)
         blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=distance, max_same_block=3,visible_only=VISIBLE_ONLY)
         hint = readNearestSign(bot, Vec3, mcData, max_distance=5)
@@ -305,8 +294,11 @@ def find():
                         pos[2] - bot.entity.position.z) ** 2 < 25:
                     msg += f"the env in the room: {c['state']}"
         return jsonify({'message': f"can not find anything match '{name}', environment: "+ msg, 'status': False, 'data':[]})
+    
     observation = ""
-    name, pos_list_raw = find_everything_(bot, Vec3, get_envs_info(bot, 128), mcData, name, distance, count, visible_only=VISIBLE_ONLY)
+    # 耗时操作
+    name, pos_list_raw = find_everything_(bot, Vec3, envs_info, mcData, name, distance, count, visible_only=VISIBLE_ONLY)
+  
     # remove duplicate
     # bot.chat(f"pos_list_raw {pos_list_raw}")
     pos_list = []
@@ -319,6 +311,7 @@ def find():
             pos_list.append(pos)
 
     pos_data = []
+
     if len(pos_list) > 0:
         str_pos_list = f'I found {name} '
         # if pos_list is dict:
@@ -334,10 +327,10 @@ def find():
         done = True
         return jsonify({'message': observation, 'status': done, 'data':pos_data})
     else:
-        observation += f"can not find item with name '{orgin_name}'"
+        observation += f"can not find item with name '{name}'"
         done = False
         return jsonify({'message': observation, 'status': done, 'data':[]})
-    
+ 
 @app.route('/post_hand', methods=['POST'])
 @log_activity(bot)
 def hand():
