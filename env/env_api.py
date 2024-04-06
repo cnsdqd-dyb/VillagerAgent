@@ -683,7 +683,19 @@ def find_nearest_(bot, Vec3, envs_info, mcData, name):  # X
         return pos_list[0]
     else:
         return None
+    
+def is_entity_or_item(name):
+    # 已经确定是合法的名字但是不知道是实体还是方块
+    with open('data/mcData.json', 'r', encoding='utf-8') as f:
+        mc_data_json = json.load(f)
+    for item in mc_data_json['entities']:
+        if name == item[0]:
+            return 'entity'
+    for item in mc_data_json['items']:
+        if name == item[0]:
+            return 'item'
 
+    return 'error'
 
 def find_everything_(bot, Vec3, envs_info, mcData, name="", distance=32, count=1, optimize=False, visible_only=True):
     # 第一步判断name是否存在，如果不存在或者all, everything,则直接返回数量允许的所有物体
@@ -2005,6 +2017,10 @@ def findSimilarName(name):
     with open('data/mcData.json', 'r', encoding='utf-8') as f:
         mc_data_json = json.load(f)
 
+    # 如果本身就是一个合法的名字，直接返回
+    if is_entity_or_item(name) != 'error':
+        return name, f"find {name}"
+    
     # 遍历实体和物品
     for item in mc_data_json['entities'] + mc_data_json['items']:
         try:
