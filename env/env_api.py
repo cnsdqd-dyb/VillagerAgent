@@ -1626,7 +1626,9 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
                     furnace.close()
                     return f"{fuel_item_name} is not a valid fuel", False, {"furnace_info":fuel_data}
             
-                while not furnace.outputItem():
+                max_wait = 30
+                while not furnace.outputItem() and max_wait > 0:
+                    max_wait -= 1
                     time.sleep(1)
                     bot.chat(f'waiting for {get_item_name} to be produced')
                     
