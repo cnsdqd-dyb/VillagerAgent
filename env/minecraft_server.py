@@ -343,10 +343,10 @@ def hand():
     tag, msg = move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 2, target_name)
     if not tag:
         return jsonify({'message': msg, 'status': False})
-    entities = get_entity_by('username', envs_info, target_name, bot.entity.username)
+    entities = get_entity_by('username', envs_info, target_name)
     if not entities:
         return jsonify({'message': f"{target_name} is not valid", 'status': False})
-    entities = get_entity_by('username', envs_info, from_name, bot.entity.username)
+    entities = get_entity_by('username', envs_info, from_name)
     if not entities:
         return jsonify({'message': f"{from_name} is not valid", 'status': False})
     if countInventoryItems(bot, item_name)[1] < count and (not bot.heldItem or bot.heldItem.name != item_name.lower().replace(" ", "_")):
