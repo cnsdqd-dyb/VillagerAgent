@@ -1455,17 +1455,17 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
             if not get_item_name:
                 return f" open crafting table {name}, what do you want to craft?", True, recipe_data
             recipe = bot.recipesFor(mcData.itemsByName[get_item_name].id, None, count, craftingTable)[0]
-            time.sleep(1)
-            # [DEBUG] print(recipe)
-            # input()
-            _recipe = bot.recipesAll(mcData.itemsByName[get_item_name].id, None, craftingTable)[0]
+            _recipes = []
+            for r in bot.recipesAll(mcData.itemsByName[get_item_name].id, None, craftingTable):
+                _recipes.append(r)
+            _recipe = random.choice(_recipes)
             # [DEBUG] print(_recipe)
             # input()
             if _recipe is None:
                 return f"There is no recipe for {get_item_name} in crafting table, what do you want to craft?", False, recipe_data
             try:
                 result_id = _recipe['result']['id']
-                recipe_str = "the recipe is:"
+                recipe_str = "one example recipe is:"
                 for item in _recipe['delta']:
                     # id to name
                     if item['id'] == result_id:
@@ -1475,7 +1475,7 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
                     recipe_data.append({'name': mcData.items[item['id']]['name'], 'count': abs(item['count'])})
 
                 if recipe is None:
-                    return f'I cannot make {get_item_name}, maybe you should get more. {recipe_str}', False, recipe_data
+                    return f'I cannot make {get_item_name} now, check your inventory. {recipe_str}', False, recipe_data
 
                 bot.craft(recipe, count, craftingTable)
                 return f"I made {get_item_name} X {count}.", True, recipe_data

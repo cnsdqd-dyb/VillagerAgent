@@ -478,7 +478,10 @@ class TaskManager:
             subtask.milestones = subtask_data["milestones"]
             subtask.candidate_list = subtask_data["assigned agents"]
             subtask.number = len(subtask_data["assigned agents"])
-            subtask._pre_idxs = [int(idx) for idx in subtask_data["required subtasks"]]
+            _pre_idxs = [int(idx) for idx in subtask_data["required subtasks"]]
+            for idx in _pre_idxs:
+                if idx > 0 and idx < len(subtask_list):
+                    subtask._pre_idxs.append(idx)
             subtask_list.append(subtask)
 
         self.graph = self.query_graph(subtask_list)
