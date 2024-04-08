@@ -3,7 +3,7 @@ import os
 sys.path.append(os.getcwd())
 import time
 import logging
-from env.env import MaMcEnv
+from env.env import VillagerBench
 from type_define.graph import Task
 from pipeline.data_manager import DataManager
 from pipeline.utils import *
@@ -29,7 +29,7 @@ class AgentFeedback:
 #     ### ChatPlugin is the plugin for the agent to chat with the environment
 #     # TODO: still need to be implemented
 #     '''
-#     def __init__(self, llm:OpenAILanguageModel, env:MaMcEnv, logger:logging.Logger = None, silent = False, **kwargs):
+#     def __init__(self, llm:OpenAILanguageModel, env:VillagerBench, logger:logging.Logger = None, silent = False, **kwargs):
 #         self.llm = llm
 #         self.logger = logger
 #         if self.logger is None:
@@ -62,7 +62,7 @@ class BaseAgent:
     to_json: return the json format of the agent
     '''
     _virtual_debug = False
-    def __init__(self, llm:OpenAILanguageModel , env:MaMcEnv, data_manager:DataManager, name:str, logger:logging.Logger = None, silent = False, **kwargs):
+    def __init__(self, llm:OpenAILanguageModel , env:VillagerBench, data_manager:DataManager, name:str, logger:logging.Logger = None, silent = False, **kwargs):
         self.env = env
         self.name = name
         self.data_manager = data_manager
@@ -254,6 +254,6 @@ class BaseAgent:
             "final_answer": final_answer,
         }
         
-        self.data_manager.update_database(AgentFeedback(task, detail, MaMcEnv.virtual_env(self.name)).to_json())
+        self.data_manager.update_database(AgentFeedback(task, detail, VillagerBench.virtual_env(self.name)).to_json())
         # self.data_manager.save()
         return final_answer, {"input": input, "action_list": action_list, "final_answer": final_answer}

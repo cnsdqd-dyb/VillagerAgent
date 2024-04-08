@@ -17,9 +17,9 @@ class env_type:
     none = 3
 
 
-class MaMcEnv:
+class VillagerBench:
     '''
-    MaMcEnv is the environment for the Minecraft task
+    VillagerBench is the environment for the Minecraft task
     
     Args:
     - env_type: int, the type of the environment, 0 for construction, 1 for farming, 2 for puzzle, 3 for none (this is for pure agent environment, no judger will be launched)
@@ -175,7 +175,7 @@ class MaMcEnv:
         if self.running:
             return [self.agent_status(agent.name) for agent in self.agent_pool]
         else:
-            return [MaMcEnv.virtual_env(agent.name) for agent in self.agent_pool]
+            return [VillagerBench.virtual_env(agent.name) for agent in self.agent_pool]
 
     def reset_token(self):
         tokens = {}
@@ -387,7 +387,7 @@ if __name__ == "__main__":
 
     try:
 
-        env = MaMcEnv(env_type.construction, 0)
+        env = VillagerBench(env_type.construction, 0)
         agent_tool = [Agent.place_item, Agent.open_container, Agent.dig_block, Agent.find_item]
         env.agent_register(agent_tool=agent_tool, agent_number=2)
         agent_tool = [Agent.place_item, Agent.open_container, Agent.dig_block, Agent.find_item]

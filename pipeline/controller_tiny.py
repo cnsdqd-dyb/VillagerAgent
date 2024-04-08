@@ -14,7 +14,7 @@ from pipeline.data_manager import DataManager
 from pipeline.agent import BaseAgent
 from pipeline.utils import *
 from pipeline.controller_prompt import *
-from env.env import MaMcEnv
+from env.env import VillagerBench
 import logging
 
 
@@ -28,11 +28,11 @@ class GlobalController:
     - llm_config (dict): Configuration for the language model.
     - task_manager (TaskManager): TaskManager object.
     - data_manager (DataManager): DataManager object.
-    - env (MaMcEnv): MaMcEnv object.
+    - env (VillagerBench): VillagerBench object.
     - silent (bool): Whether to suppress the log output. Default is False.
     - max_workers (int): The maximum number of workers in the thread pool. Default is 4.
     '''
-    def __init__(self, llm_config: dict, task_manager: TaskManager, data_manager: DataManager, env: MaMcEnv,
+    def __init__(self, llm_config: dict, task_manager: TaskManager, data_manager: DataManager, env: VillagerBench,
                  silent: bool = False, max_workers=4):
 
         self.task_manager = task_manager

@@ -14,7 +14,7 @@ from pipeline.data_manager import DataManager
 from pipeline.agent import BaseAgent
 from pipeline.utils import *
 from pipeline.controller_prompt import *
-from env.env import MaMcEnv
+from env.env import VillagerBench
 import logging
 
 
@@ -26,12 +26,12 @@ class GlobalController:
     - llm_config: dict, language model configuration
     - task_manager: TaskManager, task manager
     - data_manager: DataManager, data manager
-    - env: MaMcEnv, environment
+    - env: VillagerBench, environment
     - silent: bool, whether to print logs
     - max_workers: int, the maximum number of threads to use
     
     '''
-    def __init__(self, llm_config: dict, task_manager: TaskManager, data_manager: DataManager, env: MaMcEnv,
+    def __init__(self, llm_config: dict, task_manager: TaskManager, data_manager: DataManager, env: VillagerBench,
                  silent: bool = False, max_workers=4):
         self.task_manager = task_manager
 

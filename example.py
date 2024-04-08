@@ -2,7 +2,7 @@
 ### You can modify the code to fit your own environment and task.
 ### You can also refer to the doc/api_library.md to add more agent tools.
 
-from env.env import MaMcEnv, env_type, Agent
+from env.env import VillagerBench, env_type, Agent
 from pipeline.controller import GlobalController
 from pipeline.data_manager import DataManager
 from pipeline.task_manager import TaskManager
@@ -10,7 +10,7 @@ import json
 if __name__ == "__main__":
 
     # Set Environment
-    env = MaMcEnv(env_type.construction, task_id=0, _virtual_debug=False, dig_needed=False)
+    env = VillagerBench(env_type.construction, task_id=0, _virtual_debug=False, dig_needed=False)
 
     # Set Agent
     api_key_list = json.load(open("API_KEY_LIST", "r"))["OPENAI"] # use OPENAI as an example

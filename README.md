@@ -66,7 +66,7 @@ Customize your private tasks in your Minecraft server with our VillagerAgent mul
 ## QuickStart 🚀
 
 ```python
-from env.env import MaMcEnv, env_type, Agent
+from env.env import VillagerBench, env_type, Agent
 from pipeline.controller import GlobalController
 from pipeline.data_manager import DataManager
 from pipeline.task_manager import TaskManager
@@ -75,7 +75,7 @@ import json
 if __name__ == "__main__":
 
     # 🌍 Set Environment
-    env = MaMcEnv(env_type.construction, task_id=0, _virtual_debug=False, dig_needed=False)
+    env = VillagerBench(env_type.construction, task_id=0, _virtual_debug=False, dig_needed=False)
 
     # 🤖 Set Agent
     api_key_list = json.load(open("API_KEY_LIST", "r"))["OPENAI"]  # 🗝️ Use OPENAI as an example
@@ -142,7 +142,7 @@ Meet VillagerAgent, our multi-agent maestro 🎼, orchestrating a symphony of ta
 
 ## Core Components 🌟
 
-- **MaMcEnv**: The virtual sandbox where agents interact and learn 🤹.
+- **VillagerBench**: The virtual sandbox where agents interact and learn 🤹.
 - **TaskManager**: The master planner, keeping tasks on track and agents in the know 📊.
 - **DataManager**: The keeper of knowledge, holding all the data cards close to its chest 🗃️.
 - **GlobalController**: The overseer, ensuring every agent plays their part to perfection 🎯.

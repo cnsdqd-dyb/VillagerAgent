@@ -68,7 +68,7 @@ Click here to view the [English version of the README](README.md).
 ## 快速启动 🚀
 
 ```python
-from env.env import MaMcEnv, env_type, Agent
+from env.env import VillagerBench, env_type, Agent
 from pipeline.controller import GlobalController
 from pipeline.data_manager import DataManager
 from pipeline.task_manager import TaskManager
@@ -77,7 +77,7 @@ import json
 if __name__ == "__main__":
 
     # 🌍 Set Environment
-    env = MaMcEnv(env_type.construction, task_id=0, _virtual_debug=False, dig_needed=False)
+    env = VillagerBench(env_type.construction, task_id=0, _virtual_debug=False, dig_needed=False)
 
     # 🤖 Set Agent
     api_key_list = json.load(open("API_KEY_LIST", "r"))["OPENAI"]  # 🗝️ Use OPENAI as an example
@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
 ## 核心组件 🌟
 
-- **MaMcEnv**：智能体互动和学习的虚拟沙盒 🤹。
+- **VillagerBench**：智能体互动和学习的虚拟沙盒 🤹。
 - **TaskManager**：任务图的策划者，确保任务按计划进行，智能体了解情况 📊。
 - **DataManager**：知识的守护者，紧握所有数据牌 🗃️。
 - **GlobalController**：全局监督者，确保每个智能体完美发挥其角色 🎯。

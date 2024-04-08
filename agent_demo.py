@@ -1,5 +1,5 @@
 import time
-from env.env import MaMcEnv, env_type, Agent
+from env.env import VillagerBench, env_type, Agent
 from pipeline.agent import BaseAgent
 from pipeline.controller import GlobalController
 from pipeline.data_manager import DataManager
@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     # llm = OpenAILanguageModel(api_model="gpt-3.5-turbo-1106")
 
-    env = MaMcEnv(env_type.none, 1, _virtual_debug=False, host = "10.21.31.18", port=25565, dig_needed=True)
+    env = VillagerBench(env_type.none, 1, _virtual_debug=False, host = "10.21.31.18", port=25565, dig_needed=True)
 
     agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
             Agent.UseItemOnEntity, Agent.sleep, Agent.wake,

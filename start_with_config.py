@@ -5,7 +5,7 @@ import random
 import psutil
 
 import time
-from env.env import MaMcEnv, env_type, Agent
+from env.env import VillagerBench, env_type, Agent
 
 start_time = time.time()
 from pipeline.controller_tiny import GlobalController
@@ -28,11 +28,11 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
     # 设置env
     if task_type == "construction":
-        env = MaMcEnv(env_type=env_type.construction, task_id=task_idx, dig_needed=dig_needed, host=host, port=port, max_task_num=max_task_num, task_name=task_name, _virtual_debug=False)
+        env = VillagerBench(env_type=env_type.construction, task_id=task_idx, dig_needed=dig_needed, host=host, port=port, max_task_num=max_task_num, task_name=task_name, _virtual_debug=False)
     elif task_type == "farming":
-        env = MaMcEnv(env_type=env_type.farming, task_id=task_idx, dig_needed=False, host=host, port=port, max_task_num=max_task_num, task_name=task_name, _virtual_debug=False)
+        env = VillagerBench(env_type=env_type.farming, task_id=task_idx, dig_needed=False, host=host, port=port, max_task_num=max_task_num, task_name=task_name, _virtual_debug=False)
     elif task_type == "puzzle":
-        env = MaMcEnv(env_type=env_type.puzzle, task_id=task_idx, dig_needed=False, host=host, port=port, max_task_num=max_task_num, task_name=task_name, _virtual_debug=False)
+        env = VillagerBench(env_type=env_type.puzzle, task_id=task_idx, dig_needed=False, host=host, port=port, max_task_num=max_task_num, task_name=task_name, _virtual_debug=False)
     else:
         raise NotImplementedError
 
@@ -50,7 +50,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
     else:
         raise NotImplementedError
 
-    print(f"MaMcEnv Time taken: {time.time() - start_time}")
+    print(f"VillagerBench Time taken: {time.time() - start_time}")
     start_time = time.time()
 
     # 设置agent_pool
