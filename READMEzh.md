@@ -41,7 +41,7 @@ Click here to view the [English version of the README](README.md).
 ### 安装步骤
 1. 克隆仓库以获取项目 📦：
    ```bash
-   git clone https://github.com/VillagerAgent.git
+   git clone https://github.com/cnsdqd-dyb/VillagerAgent.git
    ```
 2. 选择使用虚拟环境 🧹：
    ```bash

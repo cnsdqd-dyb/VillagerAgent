@@ -39,7 +39,7 @@ Customize your private tasks in your Minecraft server with our VillagerAgent mul
 ### Installation Steps
 1. Clone the repository 📦:
    ```bash
-   git clone https://github.com/VillagerAgent.git
+   git clone https://github.com/cnsdqd-dyb/VillagerAgent.git
    ```
 2. Opt for a virtual environment 🧹:
    ```bash
