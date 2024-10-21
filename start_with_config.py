@@ -23,7 +23,8 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
     # 设置agent，都使用gpt-4-0125-preview
     Agent.model = "gpt-4-1106-preview"
     # Agent.model = "gpt-3.5-turbo-1106"
-    Agent.base_url = "https://api.openai.com/v1/"
+    # Agent.base_url = "https://api.openai.com/v1/"
+    Agent.base_url = "https://api.chatanywhere.tech/v1"
     Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 
     # 设置env
@@ -33,6 +34,8 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         env = VillagerBench(env_type=env_type.farming, task_id=task_idx, dig_needed=False, host=host, port=port, max_task_num=max_task_num, task_name=task_name, _virtual_debug=False)
     elif task_type == "puzzle":
         env = VillagerBench(env_type=env_type.puzzle, task_id=task_idx, dig_needed=False, host=host, port=port, max_task_num=max_task_num, task_name=task_name, _virtual_debug=False)
+    elif task_type == "meta":
+        env = VillagerBench(env_type=env_type.meta, task_id=task_idx, dig_needed=False, host=host, port=port, max_task_num=max_task_num, task_name=task_name, _virtual_debug=False)
     else:
         raise NotImplementedError
 
@@ -47,6 +50,10 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
     elif task_type == "puzzle":
         agent_tool = [Agent.placeBlock, Agent.fetchContainerContents, Agent.MineBlock, Agent.scanNearbyEntities, Agent.equipItem,
                       Agent.navigateTo, Agent.withdrawItem, Agent.ToggleAction, Agent.handoverBlock]
+    elif task_type == "meta":
+        agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.UseItemOnEntity, Agent.sleep, Agent.wake, 
+                      Agent.MineBlock, Agent.placeBlock, Agent.equipItem, Agent.handoverBlock, Agent.SmeltingCooking, Agent.withdrawItem, 
+                      Agent.storeItem, Agent.craftBlock, Agent.enchantItem, Agent.trade, Agent.repairItem, Agent.eat, Agent.fetchContainerContents, Agent.ToggleAction]
     else:
         raise NotImplementedError
 
@@ -93,7 +100,8 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
             llm_config = {
                 "api_model": api_model,
-                "api_base": "https://api.openai.com/v1/",
+                # "api_base": "https://api.openai.com/v1/",
+                "api_base": "https://api.chatanywhere.tech/v1",
                 "api_key_list": api_key_list
             }
         elif "gemini" in api_model:
@@ -124,7 +132,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
 if __name__ == "__main__":
 
-    with open("gpt-4-1106-preview_launch_config_construction.json", "r") as f:
+    with open("meta_test_config.json", "r") as f:
         launch_config = json.load(f)
     for i, config in enumerate(launch_config):
 

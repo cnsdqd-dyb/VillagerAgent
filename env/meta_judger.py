@@ -67,29 +67,13 @@ if not os.path.exists("result"):
 last_time = time.time()
 start_time = None
 
-max_action_time = 0
-max_time = 0
+max_action_time = 60
+max_time = 300
 
 # metrics
 complexity_score = 0
 efficiency = 0
 balance = 0
-
-
-def calculate_score(state_tree):
-    done_task = 0
-    for task in state_tree.task_list:
-        if task.done:
-            done_task += 1
-        else:
-            satisfied = 0
-            total = 0
-            for event in task.events:
-                satisfied += event.current_max_satisfy_num
-                total += len(event.state_dict)
-            done_task += satisfied / total
-    return done_task / len(state_tree.task_list)
-
 
 @On(bot, 'spawn')
 def handleViewer(*args):
@@ -98,50 +82,50 @@ def handleViewer(*args):
         bot.chat(f'/op {name}')
         time.sleep(.2)
 
-    bot.chat("/gamemode spectator")
-    bot.chat("/gamerule doDaylightCycle false")
-    bot.chat("/gamerule doWeatherCycle false")
-    bot.chat("/time set day")
-    bot.chat("/weather clear")
-    bot.chat("/tp 0 -60 0")
-    bot.chat("/tp @e[gamemode=survival] @s")
-    bot.chat("/clear @e[distance=..10,type=player,gamemode=survival]")
-    bot.chat("/kill @e[type=!minecraft:player]")
-    bot.chat("/kill @e[type=!minecraft:player]")
-    
     room_width = 15
     room_height = 15
     wall_width = 1
 
-    origin_point_x = 0
-    origin_point_y = -60
-    origin_point_z = 0
+    orx = 0     #origin_point
+    ory = -61
+    orz = 0
 
-    bot.chat(f"/fill {origin_point_x} {origin_point_y} {origin_point_z} {origin_point_x + room_width + 2 * wall_width} {origin_point_y + room_height + 2 * wall_width} {origin_point_z + room_width + 2 * wall_width} glass hollow")
-    bot.chat(f"/fill {origin_point_x} {origin_point_y} {origin_point_z} {origin_point_x + room_width + 2 * wall_width} {origin_point_y} {origin_point_z + room_width + 2 * wall_width} grass_block")
+    print("start setting environment", flush = True)
+
+    bot.chat("/gamemode spectator")
+    time.sleep(.5)
+    bot.chat("/gamerule doDaylightCycle false")
+    time.sleep(.5)
+    bot.chat("/gamerule doWeatherCycle false")
+    time.sleep(.5)
+    bot.chat("/time set day")
+    time.sleep(.5)
+    bot.chat("/weather clear")
+    time.sleep(.5)
+    bot.chat(f"/tp @s {orx + room_width//2 + 1} {ory + room_height // 2} {orz + wall_width} 0 -45")
+    time.sleep(.5)
+    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 1} {orz + 2} 0 0")
+    time.sleep(.5)
+    bot.chat("/clear @e[distance=..10,type=player,gamemode=survival]")
+    time.sleep(.5)
+    bot.chat("/kill @e[type=!minecraft:player]")
+    time.sleep(.5)
+    bot.chat("/kill @e[type=!minecraft:player]")
+    time.sleep(.5)
+
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + 2 * wall_width} {ory + room_height + 2 * wall_width} {orz + room_width + 2 * wall_width} glass hollow")
+    time.sleep(.5)
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + 2 * wall_width} {ory} {orz + room_width + 2 * wall_width} grass_block")
+    time.sleep(.5)
     # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
+    bot.chat(f"/setblock {orx + room_width // 2 + 1} {ory + 1} {orz + room_width // 2 + 1} oak_planks")
 
-    # TODOlist: 1. 测试生成空间是否成功
-    #           2. 内部填充物
-    #           3. metric
-    
+    print("environment set", flush = True)
+
     global max_action_time, max_time
-    max_action_time = state_tree.complexity * 30 + 60
-    max_time = len(state_tree.task_list) * 60 + 360
 
     with open(".cache/load_status.cache", "w") as f:
         json.dump({"status": "loaded"}, f, indent=4)
-    for i in range(-3, 4):
-        for j in range(-3, 4):
-            if (i + j) % 2 == 0:
-                bot.chat(f"/setblock {130 + i} {y_b} {140 + j} minecraft:white_wool")
-            else:
-                bot.chat(f"/setblock {130 + i} {y_b} {140 + j} minecraft:black_wool")
-            time.sleep(.01)
-    bot.chat(f"/setblock 130 {y_b + 1} 140 minecraft:chest[facing=north]")
-    bot.chat(f"/setblock 130 {y_b + 1} 141 minecraft:red_banner[rotation=8]")
-    
-    bot.chat("/clear @e[type=player,gamemode=survival] minecraft:red_banner")
     
     global start_time
     start_time = time.time()
@@ -203,35 +187,8 @@ def handleViewer(*args):
             global complexity_score, efficiency, balance
             now_time = time.time()
             if now_time - last_time > 1:
-                tag = state_tree.update()
+                agent = bot.player[agent_names[0]]
                 
-                score = calculate_score(state_tree)
-                bot.chat(f"{score}")
-                complexity_score = state_tree.complexity * score
-                balance = calculate_balance()
-                bot.chat(f"{state_tree.complexity} {score}")
-
-                if tag:
-                    if calculate_action_time() == 0:
-                        efficiency = 1
-                    else:
-                        efficiency = max_action_time / calculate_action_time()
-                    # 给出结束信号和写入文件
-                    if not os.path.exists("result/" + task_name):
-                        os.mkdir(os.path.join("result", task_name))
-                    with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
-                        json.dump({
-                            "complete_score": score,
-                            "complexity_score": complexity_score,
-                            "efficiency": efficiency,
-                            "balance": balance,
-                            "use_time": calculate_action_time(),
-                            "end_reason": "complete task",
-                            "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_time))
-                        }, f, indent=4)
-                    with open(".cache/load_status.cache", "w") as f:
-                        json.dump({"status": "end"}, f, indent=4)
-
                 if calculate_action_time() > max_action_time:
                     efficiency = 1
                     # 给出结束信号和写入文件
