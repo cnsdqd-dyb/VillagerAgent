@@ -18,6 +18,10 @@ Click here to view the [English version of the README](README.md).
 </p>
 
 ---
+
+## 最新进展
+我们正在尝试使用经过微调的开源LLM来代替VillagerAgent中的LLM以提升智能体执行任务的性能和效率。
+
 ## 设置和配置 🛠️
 
 ### 要求
