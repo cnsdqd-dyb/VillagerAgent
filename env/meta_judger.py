@@ -71,6 +71,9 @@ max_action_time = 60
 max_time = 300
 
 # metrics
+
+score = 0
+
 complexity_score = 0
 efficiency = 0
 balance = 0
@@ -90,8 +93,6 @@ def handleViewer(*args):
     ory = -61
     orz = 0
 
-    print("start setting environment", flush = True)
-
     bot.chat("/gamemode spectator")
     time.sleep(.5)
     bot.chat("/gamerule doDaylightCycle false")
@@ -102,9 +103,9 @@ def handleViewer(*args):
     time.sleep(.5)
     bot.chat("/weather clear")
     time.sleep(.5)
-    bot.chat(f"/tp @s {orx + room_width//2 + 1} {ory + room_height // 2} {orz + wall_width} 0 -45")
-    time.sleep(.5)
     bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 1} {orz + 2} 0 0")
+    time.sleep(.5)
+    bot.chat(f"/tp @s {orx + room_width//2 + 1} {ory + room_height // 2} {orz + wall_width} 0 45")
     time.sleep(.5)
     bot.chat("/clear @e[distance=..10,type=player,gamemode=survival]")
     time.sleep(.5)
@@ -120,10 +121,8 @@ def handleViewer(*args):
     # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
     bot.chat(f"/setblock {orx + room_width // 2 + 1} {ory + 1} {orz + room_width // 2 + 1} oak_planks")
 
-    print("environment set", flush = True)
-
     global max_action_time, max_time
-
+    
     with open(".cache/load_status.cache", "w") as f:
         json.dump({"status": "loaded"}, f, indent=4)
     
@@ -131,100 +130,171 @@ def handleViewer(*args):
     start_time = time.time()
     
 
-    @On(bot, "time")
-    def handle(this):
-        def calculate_balance():
-            # 计算每个agent的时间
-            if not os.path.exists('data/action_log.json'):
-                return 0
-            with open('data/action_log.json', 'r') as f:
-                data = json.load(f)
-            agent_time = []
-            for name, actions in data.items():
-                total_time = 0
-                for action in actions:
-                    total_time += action['duration']
-                agent_time.append(total_time)
-            for i in range(agent_num - len(agent_time)):
-                agent_time.append(0)
-            time_array = np.array(agent_time)
-            
-            # 对时间进行归一化处理
-            time_array = (time_array - np.min(time_array)) / (np.max(time_array) - np.min(time_array) + 1e-8)
-            
-            # 计算并返回 Balanced Agent Utilization Score (BAUS)
-            return 1 - np.sqrt(np.sum((time_array - np.mean(time_array))**2)) / (len(time_array) * np.mean(time_array) + 1e-8)
+@On(bot, "time")
+def handle(this):
+    def calculate_balance():
+        # 计算每个agent的时间
+        if not os.path.exists('data/action_log.json'):
+            return 0
+        with open('data/action_log.json', 'r') as f:
+            data = json.load(f)
+        agent_time = []
+        for name, actions in data.items():
+            total_time = 0
+            for action in actions:
+                total_time += action['duration']
+            agent_time.append(total_time)
+        for i in range(agent_num - len(agent_time)):
+            agent_time.append(0)
+        time_array = np.array(agent_time)
+        
+        # 对时间进行归一化处理
+        time_array = (time_array - np.min(time_array)) / (np.max(time_array) - np.min(time_array) + 1e-8)
+        
+        # 计算并返回 Balanced Agent Utilization Score (BAUS)
+        return 1 - np.sqrt(np.sum((time_array - np.mean(time_array))**2)) / (len(time_array) * np.mean(time_array) + 1e-8)
 
-        def calculate_action_time():
-            if not os.path.exists('data/action_log.json'):
-                return 0
-            with open('data/action_log.json', 'r') as f:
-                data = json.load(f)
-            time_list = []
-            for name, actions in data.items():
-                for action in actions:
-                    start = time.mktime(time.strptime(action['start_time'], "%Y-%m-%d %H:%M:%S"))
-                    end = time.mktime(time.strptime(action['end_time'], "%Y-%m-%d %H:%M:%S"))
-                    time_list.append((start, end))
-            if len(time_list) == 0:
-                return 0
+    def calculate_action_time():
+        if not os.path.exists('data/action_log.json'):
+            return 0
+        with open('data/action_log.json', 'r') as f:
+            data = json.load(f)
+        time_list = []
+        for name, actions in data.items():
+            for action in actions:
+                start = time.mktime(time.strptime(action['start_time'], "%Y-%m-%d %H:%M:%S"))
+                end = time.mktime(time.strptime(action['end_time'], "%Y-%m-%d %H:%M:%S"))
+                time_list.append((start, end))
+        if len(time_list) == 0:
+            return 0
 
-            # 计算覆盖的总时间
-            total_time = 0  # 单位：秒
-            time_list.sort(key=lambda x: x[0])  # 按照开始时间排序
-            start, end = time_list[0]
-            for i in range(1, len(time_list)):
-                if time_list[i][0] < end:
-                    end = max(end, time_list[i][1])
-                else:
-                    total_time += end - start
-                    start, end = time_list[i]
-            total_time += end - start
+        # 计算覆盖的总时间
+        total_time = 0  # 单位：秒
+        time_list.sort(key=lambda x: x[0])  # 按照开始时间排序
+        start, end = time_list[0]
+        for i in range(1, len(time_list)):
+            if time_list[i][0] < end:
+                end = max(end, time_list[i][1])
+            else:
+                total_time += end - start
+                start, end = time_list[i]
+        total_time += end - start
 
-            return total_time
-        global last_time, start_time
-        if start_time is not None:
-            global complexity_score, efficiency, balance
-            now_time = time.time()
-            if now_time - last_time > 1:
-                agent = bot.player[agent_names[0]]
-                
-                if calculate_action_time() > max_action_time:
+        return total_time
+    global last_time, start_time, score
+    if start_time is not None:
+        global complexity_score, efficiency, balance
+        now_time = time.time()
+
+        # bot.chat(f'now_time = {now_time}    last_time = {last_time}')
+
+        if now_time - last_time > 20:
+            bot.chat("wow")
+            bot.chat(f'/data get entity hlpzz')
+            if score == 100:
+                if not os.path.exists("result" + task_name):
+                    os.mkdir(os.path.join("result/", task_name))
+                with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
+                    json.dump({
+                        "score": score,
+                        "use_time": calculate_action_time(),
+                        "end_reason": "task completed",
+                        "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_time))
+                    }, f, indent=4)
+                with open(".cache/load_status.cache", "w") as f:
+                    json.dump({"status": "end"}, f, indent=4)
+            #todo list:
+            #1. 任务的json格式
+            #2. 可能需要的信息 player.entity.heldItem, player.entity.position,  方块信息
+            #3. action log格式
+
+            if calculate_action_time() > max_action_time:
+                efficiency = 1
+                # 给出结束信号和写入文件
+                if not os.path.exists("result" + task_name):
+                    os.mkdir(os.path.join("result/", task_name))
+                with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
+                    json.dump({
+                        "complexity_score": complexity_score,
+                        "efficiency": efficiency,
+                        "balance": balance,
+                        "use_time": calculate_action_time(),
+                        "end_reason": "action_time out",
+                        "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_time))
+                    }, f, indent=4)
+                with open(".cache/load_status.cache", "w") as f:
+                    json.dump({"status": "end"}, f, indent=4)
+
+            if now_time - start_time > max_time:
+                action_time = calculate_action_time()
+                if action_time == 0:
                     efficiency = 1
-                    # 给出结束信号和写入文件
-                    if not os.path.exists("result" + task_name):
-                        os.mkdir(os.path.join("result/", task_name))
-                    with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
-                        json.dump({
-                            "complexity_score": complexity_score,
-                            "efficiency": efficiency,
-                            "balance": balance,
-                            "use_time": calculate_action_time(),
-                            "end_reason": "action_time out",
-                            "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_time))
-                        }, f, indent=4)
-                    with open(".cache/load_status.cache", "w") as f:
-                        json.dump({"status": "end"}, f, indent=4)
+                else:
+                    efficiency = max_action_time / action_time
+                # 给出结束信号和写入文件
+                if not os.path.exists("result/" + task_name):
+                    os.mkdir(os.path.join("result", task_name))
+                with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
+                    json.dump({
+                        "complexity_score": complexity_score,
+                        "efficiency": efficiency,
+                        "balance": balance,
+                        "use_time": calculate_action_time(),
+                        "end_reason": "max time out",
+                        "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_time))
+                    }, f, indent=4)
+                with open(".cache/load_status.cache", "w") as f:
+                    json.dump({"status": "end"}, f, indent=4)
 
-                if now_time - start_time > max_time:
-                    action_time = calculate_action_time()
-                    if action_time == 0:
-                        efficiency = 1
+            last_time = now_time
+
+@On(bot, 'messagestr')
+def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
+    def calculate_score(inventory):
+        for item in inventory:
+            if item['name'] == 'oak_planks':
+                return 100
+        return 0
+    global score
+    if start_time is not None:
+        pattern = "(.*) has the following entity data: (.*)"
+        match = re.search(pattern, message)
+        if match:
+            agent_name = match.group(1)
+            data_str = match.group(2)
+        else:
+            agent_name = None
+            data_str = None
+        if agent_name is not None and data_str is not None:
+            # 修复json字符串中的缺失的双引号，有小bug，但是不影响需要的字段
+            splits = re.split(r'[\[\]{}]|,\s|:\s', data_str)
+            replace_dicts = []
+            for split in splits:
+                if split != "":
+                    if split.startswith("'") and split.endswith("'"):
+                        replace_dicts.append((split, f'{split[1:-1]}'))
+                    elif not ((split.startswith('"')) and split.endswith('"')):
+                        replace_dicts.append((split, f'"{split}"'))
+            start = 0
+            for replace_dict in replace_dicts:
+                while True:
+                    pos = data_str.find(replace_dict[0], start)
+                    if pos == -1:
+                        break  # 其实不会发生
                     else:
-                        efficiency = max_action_time / action_time
-                    # 给出结束信号和写入文件
-                    if not os.path.exists("result/" + task_name):
-                        os.mkdir(os.path.join("result", task_name))
-                    with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
-                        json.dump({
-                            "complexity_score": complexity_score,
-                            "efficiency": efficiency,
-                            "balance": balance,
-                            "use_time": calculate_action_time(),
-                            "end_reason": "max time out",
-                            "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_time))
-                        }, f, indent=4)
-                    with open(".cache/load_status.cache", "w") as f:
-                        json.dump({"status": "end"}, f, indent=4)
+                        if pos > 0 and data_str[pos - 1] == '"':
+                            start = pos + 1
+                            continue
+                        if pos < len(data_str) - 1 and data_str[pos + 1] == '"':
+                            start = pos + 1
+                            continue
+                        data_str = data_str[:pos] + replace_dict[1] + data_str[pos + len(replace_dict[0]):]
+                        start = pos + len(replace_dict[1])
+                        break
 
-                last_time = now_time
+            data = json.loads(data_str)
+
+            inventory = data.get("Inventory", [])
+            score = calculate_score(inventory)
+            bot.chat(f'score: {score}')
+
