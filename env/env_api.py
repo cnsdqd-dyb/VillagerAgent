@@ -647,21 +647,33 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
         return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z} your pos: {bot.entity.position.x} {bot.entity.position.y} {bot.entity.position.z}, the position is too far away"
 
     max_steps = int(distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z))) + 10
+    ori_x,ori_y,ori_z = bot.entity.position.x , bot.entity.position.y, bot.entity.position.z
+    tiks = 0
     while distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL and max_steps > 0 and distanceTo(
             bot.entity.position, Vec3(pos.x, pos.y, pos.z)) > 1:
         try_num = 3
         while try_num > 0:
             try:
                 bot.pathfinder.setGoal(pathfinder.goals.GoalNear(pos.x, pos.y, pos.z, 0.0))
+                x,y,z = bot.entity.position.x , bot.entity.position.y, bot.entity.position.z
+                tiks += 1
+                abs_dis = max(abs(ori_x-x), abs(ori_y-y), abs(ori_z-z))
+                mean_v = abs_dis / tiks
                 break
             except Exception as e:
                 # #[DEBUG] print(e)
+                # bot.chat('exception')
                 try_num -= 1
                 time.sleep(1)
-
+                x,y,z = bot.entity.position.x , bot.entity.position.y, bot.entity.position.z
+                tiks += 1
+                abs_dis = max(abs(ori_x-x), abs(ori_y-y), abs(ori_z-z))
+                mean_v = abs_dis / tiks
         # time.sleep(1)
-        # bot.chat('moving')
-        max_steps -= 1
+        # bot.chat(f'moving {max_steps}')
+        if mean_v < 0.2:
+            max_steps -= 1
+            # bot.chat(f'bot seems like in an idle state.')
 
     if max_steps <= 0 and distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL + 1.4:
         # # bot.chat('can not reach the position')

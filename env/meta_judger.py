@@ -188,9 +188,8 @@ def handle(this):
 
         # bot.chat(f'now_time = {now_time}    last_time = {last_time}')
 
-        if now_time - last_time > 20:
-            bot.chat("wow")
-            bot.chat(f'/data get entity hlpzz')
+        if now_time - last_time > 5:
+            bot.chat(f'/data get entity Alice')
             if score == 100:
                 if not os.path.exists("result" + task_name):
                     os.mkdir(os.path.join("result/", task_name))
@@ -252,7 +251,7 @@ def handle(this):
 def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
     def calculate_score(inventory):
         for item in inventory:
-            if item['name'] == 'oak_planks':
+            if item['id'] == 'minecraft:oak_planks':
                 return 100
         return 0
     global score
@@ -293,7 +292,29 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                         break
 
             data = json.loads(data_str)
-
+            # cache_dir = '.cache'
+            # file_path = os.path.join(cache_dir, 'message.json')
+            # if not os.path.exists(cache_dir):
+            #     os.makedirs(cache_dir)
+        
+            # # 初始化消息列表
+            # messages = []
+            
+            # # 如果文件存在，读取已有内容
+            # if os.path.exists(file_path):
+            #     with open(file_path, 'r', encoding='utf-8') as f:
+            #         try:
+            #             messages = json.load(f)
+            #         except json.JSONDecodeError:
+            #             # 文件可能为空或格式不正确，忽略读取错误
+            #             pass
+            
+            # # 添加新消息到消息列表
+            # messages.append(data)
+            
+            # # 将消息列表写回文件
+            # with open(file_path, 'w', encoding='utf-8') as f:
+            #     json.dump(messages, f, ensure_ascii=False, indent=4)
             inventory = data.get("Inventory", [])
             score = calculate_score(inventory)
             bot.chat(f'score: {score}')
