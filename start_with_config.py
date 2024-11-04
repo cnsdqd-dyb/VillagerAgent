@@ -141,7 +141,9 @@ if __name__ == "__main__":
             continue
         print(f"task {i} start")
         print("config:", config)
-
+        if config["task_type"] == "meta":
+            with open(".cache/meta_setting.json", "w") as f:
+               json.dump(config, f, indent=4)
         with open(".cache/load_status.cache", "w") as f:
             json.dump({"status": "start"}, f, indent=4)
         if os.path.exists(".cache/heart_beat.cache"):

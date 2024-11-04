@@ -9,6 +9,7 @@ import os
 import argparse
 from minecraft_define import *
 from env_api import *
+import random
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--idx', type=int, default=0, help='the index of the escape test to be judged')
@@ -69,7 +70,9 @@ start_time = None
 
 max_action_time = 60
 max_time = 300
-
+info_count = 0
+config = {}
+agent_name = agent_names[0] if len(agent_names) > 0 else "Alice"
 # metrics
 
 score = 0
@@ -78,12 +81,35 @@ complexity_score = 0
 efficiency = 0
 balance = 0
 
+def aligned_item_name(item): #去掉可能的物品名前缀
+    if item.startswith("minecraft:"):
+        aligned_goal_item = item[len("minecraft:"):]
+        return aligned_goal_item
+    else:
+        return item
+
 @On(bot, 'spawn')
 def handleViewer(*args):
 
+    def random_position(x1, y1, z1, x2, y2, z2):
+        randx = random.randint(x1, x2)
+        randy = random.randint(y1, y2)
+        randz = random.randint(z1, z2)
+        return randx, randy, randz
+    
+    def generate_recipe_hint(goal_item):
+        recipe_hint = []
+        with open("data/recipes.json", "r") as f:
+            recipes = json.load(f)
+            for recipe in recipes:
+                if recipe["result"]["name"] == goal_item:
+                    recipe_hint.append(recipe)
+        with open("data/recipe_hint.json", "w") as f:
+            json.dump(recipe_hint, f, indent=4)
+
     for name in agent_names:
         bot.chat(f'/op {name}')
-        time.sleep(.2)
+        time.sleep(.2) 
 
     room_width = 15
     room_height = 15
@@ -103,9 +129,7 @@ def handleViewer(*args):
     time.sleep(.5)
     bot.chat("/weather clear")
     time.sleep(.5)
-    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 1} {orz + 2} 0 0")
-    time.sleep(.5)
-    bot.chat(f"/tp @s {orx + room_width//2 + 1} {ory + room_height // 2} {orz + wall_width} 0 45")
+    bot.chat(f"/tp @s {orx + room_width//2 + 1} {ory + 1} {orz + wall_width} 0 0")
     time.sleep(.5)
     bot.chat("/clear @e[distance=..10,type=player,gamemode=survival]")
     time.sleep(.5)
@@ -114,12 +138,67 @@ def handleViewer(*args):
     bot.chat("/kill @e[type=!minecraft:player]")
     time.sleep(.5)
 
-    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + 2 * wall_width} {ory + room_height + 2 * wall_width} {orz + room_width + 2 * wall_width} glass hollow")
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass hollow")
     time.sleep(.5)
-    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + 2 * wall_width} {ory} {orz + room_width + 2 * wall_width} grass_block")
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory} {orz + room_width + wall_width} grass_block")
     time.sleep(.5)
     # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
-    bot.chat(f"/setblock {orx + room_width // 2 + 1} {ory + 1} {orz + room_width // 2 + 1} oak_planks")
+    global config
+
+    with open(".cache/meta_setting.json", "r") as f:
+        config = json.load(f)
+    
+    material_positon = 1 # 东西放在什么地方，0在箱子，1在身上
+
+    if config["task_scenario"] == "dig":
+        # randx, randy, randz = random_position(orx + wall_width, ory + 1, orz + wall_width, orx + wall_width + room_width - 1, ory + 3, orz + wall_width + room_width - 1)
+        block = aligned_item_name(config["evaluation_item"])
+        pos_list = config["evaluation_place"]
+        bot.chat(f"/setblock {pos_list[0]} {pos_list[1]} {pos_list[2]} {block}")
+    elif config["task_scenario"] == "craft":
+        goal_item = aligned_item_name(config["evaluation_item"])
+        generate_recipe_hint(goal_item)
+
+        chest_x, chest_y, chest_z = random_position(orx + wall_width, ory + 1, orz + wall_width, orx + wall_width + room_width - 1, ory + 3, orz + wall_width + room_width - 1)
+        craft_x, craft_y, craft_z = random_position(orx + wall_width, ory + 1, orz + wall_width, orx + wall_width + room_width - 1, ory + 3, orz + wall_width + room_width - 1)
+        while chest_x == craft_x and chest_z == craft_z and (chest_y == craft_y or chest_y == craft_y-1):
+            craft_x, craft_y, craft_z = random_position(orx + wall_width, ory + 1, orz + wall_width, orx + wall_width + room_width - 1, ory + 3, orz + wall_width + room_width - 1)
+        
+        if material_positon == 0: # 材料在随机位置的箱子里
+            ingredients_str = "{Items:["
+
+            with open("data/recipes.json", "r") as f:
+                recipes = json.load(f)
+                for item in recipes:
+                    if item["result"]["name"] == goal_item:
+                        for i, ingredients in enumerate(item["ingredients"]):
+                            if i > 0:
+                                ingredients_str += ","
+                            ingredients_str += "{Slot:" + str(i) + ",id:" + ingredients["name"] + ",Count:" + str(ingredients["count"]) + "}"
+                        break
+            ingredients_str += "]}"
+
+            bot.chat(f"/setblock {chest_x} {chest_y} {chest_z} chest{ingredients_str}")
+        elif material_positon == 1: # 材料在Agent身上
+            with open("data/recipes.json", "r") as f:
+                recipes = json.load(f)
+                for item in recipes:
+                    if item["result"]["name"] == goal_item:
+                        for ingredients in item["ingredients"]:
+                            bot.chat(f"/give {agent_name} {ingredients['name']} {ingredients['count']}")
+                        break
+        else:
+            bot.chat("/tellraw @a {\"text\":\"INVALID MATERIAL POSITION!\", \"color\":\"red\"}")
+
+        bot.chat(f"/setblock {craft_x} {craft_y} {craft_z} crafting_table")
+    elif config["task_scenario"] == "place":
+        goal_item = aligned_item_name(config["evaluation_item"])
+        bot.chat(f"/give {agent_name} {goal_item} 1")
+    else:
+        bot.chat("/tellraw @a {\"text\":\"INVALID SCENARIO!\", \"color\":\"red\"}")
+
+
+    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 4} {orz + 2} 0 0")
 
     global max_action_time, max_time
     
@@ -181,15 +260,61 @@ def handle(this):
         total_time += end - start
 
         return total_time
+
+    def check_block(pos_list, goal_item):
+        Block = bot.blockAt(Vec3(pos_list[0], pos_list[1], pos_list[2]))
+        if aligned_item_name(Block["name"]) == "air" or aligned_item_name(Block["name"]) == "water" or aligned_item_name(Block["name"]) == "lava":
+            return False
+        if aligned_item_name(Block["name"]) == goal_item:
+            if len(pos_list) > 3:
+                facing = pos_list[3]
+                if Block._properties["facing"] and facing in ["W", "E", "S", "N"]:
+                    if Block._properties["facing"] == "east" and facing == "E":
+                        return True
+                    if Block._properties["facing"] == "west" and facing == "W":
+                        return True
+                    if Block._properties["facing"] == "south" and facing == "S":
+                        return True
+                    if Block._properties["facing"] == "north" and facing == "N":
+                        return True
+                if Block._properties["axis"] and facing in ["x", "y", "z"]:
+                    if Block._properties["axis"] == "x" and facing == "x":
+                        return True
+                    if Block._properties["axis"] == "y" and facing == "y":
+                        return True
+                    if Block._properties["axis"] == "z" and facing == "z":
+                        return True
+                return False
+            else:
+                return True
+
     global last_time, start_time, score
     if start_time is not None:
-        global complexity_score, efficiency, balance
+        global complexity_score, efficiency, balance, config, info_count
         now_time = time.time()
 
         # bot.chat(f'now_time = {now_time}    last_time = {last_time}')
 
-        if now_time - last_time > 5:
-            bot.chat(f'/data get entity Alice')
+        if now_time - last_time > 1:
+            if config["task_scenario"] == "craft":
+                bot.chat(f'/data get entity {agent_name}')
+            elif config["task_scenario"] == "dig":
+                goal_item = aligned_item_name(config["evaluation_item"])
+                pos_list = config["evaluation_place"]
+                Block = bot.blockAt(Vec3(pos_list[0], pos_list[1], pos_list[2]))
+                if now_time - start_time  > 10 and aligned_item_name(Block["name"]) != goal_item:
+                    score = 100
+                info_count += 1
+                if info_count % 20 == 0:
+                    bot.chat(f'score: {score}')
+            elif config["task_scenario"]  == "place":
+                goal_item = aligned_item_name(config["evaluation_item"])
+                pos_list = config["evaluation_place"]
+                if check_block(pos_list, goal_item):
+                    score = 100
+                info_count += 1
+                if info_count % 20 == 0:
+                    bot.chat(f'score: {score}')
             if score == 100:
                 if not os.path.exists("result" + task_name):
                     os.mkdir(os.path.join("result/", task_name))
@@ -202,11 +327,6 @@ def handle(this):
                     }, f, indent=4)
                 with open(".cache/load_status.cache", "w") as f:
                     json.dump({"status": "end"}, f, indent=4)
-            #todo list:
-            #1. 任务的json格式
-            #2. 可能需要的信息 player.entity.heldItem, player.entity.position,  方块信息
-            #3. action log格式
-
             if calculate_action_time() > max_action_time:
                 efficiency = 1
                 # 给出结束信号和写入文件
@@ -249,12 +369,16 @@ def handle(this):
 
 @On(bot, 'messagestr')
 def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
-    def calculate_score(inventory):
-        for item in inventory:
-            if item['id'] == 'minecraft:oak_planks':
-                return 100
-        return 0
-    global score
+    global score, info_count, config
+    def calculate_score(inventory, message):
+        if config["task_scenario"] == "craft":
+            goal_item = aligned_item_name(config["evaluation_item"])
+            for item in inventory:
+                if aligned_item_name(item['id']) == goal_item:
+                    return 100
+            return 0
+        else:   
+            return 0
     if start_time is not None:
         pattern = "(.*) has the following entity data: (.*)"
         match = re.search(pattern, message)
@@ -292,7 +416,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                         break
 
             data = json.loads(data_str)
-            # cache_dir = '.cache'
+            # cache_dir = 'tmp'
             # file_path = os.path.join(cache_dir, 'message.json')
             # if not os.path.exists(cache_dir):
             #     os.makedirs(cache_dir)
@@ -316,6 +440,8 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             # with open(file_path, 'w', encoding='utf-8') as f:
             #     json.dump(messages, f, ensure_ascii=False, indent=4)
             inventory = data.get("Inventory", [])
-            score = calculate_score(inventory)
-            bot.chat(f'score: {score}')
+            score = calculate_score(inventory, message)
+            info_count += 1
+            if info_count % 20 == 0:
+                bot.chat(f'score: {score}')
 

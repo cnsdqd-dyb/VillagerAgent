@@ -1,0 +1,21 @@
+{
+    "api_model": "gpt-4-1106-preview",
+    "api_base": "https://api.chatanywhere.tech/v1",
+    "task_type": "meta",
+    "task_idx": 0,
+    "agent_num": 1,
+    "dig_needed": false,
+    "max_task_num": 0,
+    "task_goal": "dig a oak_planks at (8, -60, 8), dig it directly and don't need to use any tool.",
+    "task_scenario": "dig",
+    "evaluation_item": "oak_planks",
+    "evaluation_place": [
+        8,
+        -60,
+        8
+    ],
+    "document_file": "data\\recipe_hint.json",
+    "host": "10.192.61.179",
+    "port": 25565,
+    "task_name": "meta_test_task0"
+}

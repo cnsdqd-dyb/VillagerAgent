@@ -41,3 +41,5 @@ package-lock.json
 package.json
 /.vscode/*
 *config*.json
+
+tmp/*
