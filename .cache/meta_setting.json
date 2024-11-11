@@ -6,16 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "dig a oak_planks at (8, -60, 8), dig it directly and don't need to use any tool.",
-    "task_scenario": "dig",
-    "evaluation_item": "oak_planks",
-    "evaluation_place": [
-        8,
-        -60,
-        8
-    ],
+    "task_goal": "Use crafting_table to make a diamond_pickaxe, the ingredients are in the chest.",
+    "task_scenario": "craft",
+    "evaluation_arg": {
+        "target": "diamond_pickaxe",
+        "x": 8,
+        "y": -60,
+        "z": 8,
+        "facing": "",
+        "item_position": "chest",
+        "tool": null,
+        "action": null,
+        "step": 1,
+        "other_arg": []
+    },
     "document_file": "data\\recipe_hint.json",
-    "host": "10.192.61.179",
+    "host": "10.192.40.144",
     "port": 25565,
     "task_name": "meta_test_task0"
 }

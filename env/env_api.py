@@ -646,7 +646,7 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
     if int(distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z))) >= 50:
         return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z} your pos: {bot.entity.position.x} {bot.entity.position.y} {bot.entity.position.z}, the position is too far away"
 
-    max_steps = int(distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z))) + 10
+    max_steps = int(distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z))) + 30
     ori_x,ori_y,ori_z = bot.entity.position.x , bot.entity.position.y, bot.entity.position.z
     tiks = 0
     while distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL and max_steps > 0 and distanceTo(
