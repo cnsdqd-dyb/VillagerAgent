@@ -70,14 +70,17 @@ start_time = None
 
 max_action_time = 60
 max_time = 300
+
 environment_set_time = 10
 info_count = 0
 config = {}
+interact_type = "default"
+interact_arg = 0
 
 # evaluation_arg 
 # dig    : target, x, y, z, tool
 # craft  : target, item_position, step
-# place  : target, x, y, z, facing
+# place  : target, x, y, z, item_position, facing
 # useitem: target, item_position, action
 # move   : x, y, z
 # interact(entity): target, tool, action
@@ -195,36 +198,38 @@ def handleViewer(*args):
         bot.chat(f"/setblock {chest_x} {chest_y} {chest_z} chest{item_str}")
     
     bot.chat("/gamemode spectator")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat("/gamerule doDaylightCycle false")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat("/gamerule doWeatherCycle false")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat("/time set day")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat("/weather clear")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat("/clear @e[distance=..10,type=player,gamemode=survival]")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat("/kill @e[type=!minecraft:player]")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat("/kill @e[type=!minecraft:player]")
-    time.sleep(.3)
+    time.sleep(.2)
 
     bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass hollow")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory} {orz + room_width + wall_width} grass_block")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat(f"/setblock {orx + wall_width} {ory + room_height // 2 - 1} {orz + wall_width} glass")
-    time.sleep(.3)
+    time.sleep(.2)
     bot.chat(f"/tp @s {orx + wall_width} {ory + room_height // 2} {orz + wall_width} -45 45")
     
     peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
     hill_height = 3
-    generate_hill(peakx, peakz, hill_height)
+    # generate_hill(peakx, peakz, hill_height)
 
     # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
-    global config
+    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 4} {orz + 2} 0 0")
+
+    global config, interact_arg, interact_type
 
     with open(".cache/meta_setting.json", "r") as f:
         config = json.load(f)
@@ -299,6 +304,7 @@ def handleViewer(*args):
             set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 5}])
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+
     elif config["task_scenario"] == "move":
         if arg_dict["item_position"] == "inventory":
             bot.chat(f"/give {agent_name} dirt 10")
@@ -309,10 +315,38 @@ def handleViewer(*args):
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
+    elif config["task_scenario"] == "useitem":
+        goal_item = aligned_item_name(arg_dict["target"])
+        if arg_dict["item_position"] == "inventory":
+            bot.chat(f"/give {agent_name} {goal_item} 1")
+        elif arg_dict["item_position"] == "chest":
+            set_chest([], [{"name": goal_item, "count": 1}])
+        else:
+            bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+
+    elif config["task_scenario"] == "interact":
+        target = aligned_item_name(arg_dict["target"])
+        if arg_dict["item_position"] == "inventory":
+            bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+        elif arg_dict["item_position"] == "chest":
+            set_chest([], [{"name": arg_dict['tool'], "count": 1}])
+        else:
+            bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+
+        with open("data/animals.json", "r") as f:
+            animal_list = json.load(f)
+            for animal in animal_list:
+                if animal["name"] == target:   
+                    interact_type = "animal"
+                    break
+            
+        if interact_type == "animal":
+            bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
+
     else:
         bot.chat("/tellraw @a {\"text\":\"INVALID SCENARIO!\", \"color\":\"red\"}")
 
-    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 4} {orz + 2} 0 0")
+
 
     global max_action_time, max_time
     
@@ -404,7 +438,7 @@ def handle(this):
 
     global last_time, start_time, score
     if start_time is not None:
-        global complexity_score, efficiency, balance, config, info_count, environment_set_time
+        global complexity_score, efficiency, balance, config, info_count, environment_set_time, interact_type
         now_time = time.time()
         arg_dict = config["evaluation_arg"]
 
@@ -413,7 +447,7 @@ def handle(this):
             if info_count % 20 == 0:
                 bot.chat(f'score: {score}')
 
-            if config["task_scenario"] == "craft" or config["task_scenario"] == "move":
+            if config["task_scenario"] == "craft" or config["task_scenario"] == "move" or config["task_scenario"] == "useitem":
                 bot.chat(f'/data get entity {agent_name}')
             
             elif config["task_scenario"] == "dig":
@@ -428,14 +462,15 @@ def handle(this):
                 if arg_dict["facing"]:
                     pos_list.append(arg_dict["facing"])
                 if check_block(pos_list, goal_item):
-                    score = 100
+                    score = 100 
 
-            # elif config["task_scenario"] == "move":
-            #     player_data = bot.players.get(agent_name)
-            #     if player_data and player_data.entity:
-            #         position = player_data.entity.position
-            #         if abs(position.x - arg_dict['x']) < 1 and abs(position.y - arg_dict['y']) < 1 and abs(position.z - arg_dict['z']) < 1:
-            #             score = 100
+            elif config["task_scenario"]  == "interact":
+                target = aligned_item_name(arg_dict["target"]) 
+                if interact_type == "animal":
+                    
+                    if arg_dict["action"] == "attack":
+                        bot.chat(f"/data get entity @e[type={target},limit=1,sort=nearest]")
+
 
             if score == 100:
                 if not os.path.exists("result" + task_name):
@@ -491,8 +526,18 @@ def handle(this):
 
 @On(bot, 'messagestr')
 def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
-    global score, info_count, config
+    global score, info_count, config, interact_type
     arg_dict = config["evaluation_arg"]
+
+    def calculate_score_animal(health):
+        global interact_arg
+        number_health = float(health[:-1])
+        if arg_dict["action"] == "attack":
+            if interact_arg == 0:
+                interact_arg = number_health
+            elif interact_arg > number_health:
+                return 100
+        return 0
 
     def calculate_score(inventory, pos):
         if config["task_scenario"] == "craft":
@@ -508,18 +553,48 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             if abs(x - arg_dict['x']) < 1 and abs(y - arg_dict['y']) < 1 and abs(z - arg_dict['z']) < 1:
                 return 100 
             
+        elif config["task_scenario"] == "useitem":
+            goal_item = aligned_item_name(arg_dict["target"])
+            for item in inventory:
+                if aligned_item_name(item['id']) == goal_item and int(item['Slot'][:-1]) >= 100:
+                    return 100
+            
         return 0
     
     if start_time is not None:
         pattern = "(.*) has the following entity data: (.*)"
         match = re.search(pattern, message)
         if match:
-            agent_name = match.group(1)
+            entity_name = match.group(1)
             data_str = match.group(2)
         else:
-            agent_name = None
+            entity_name = None
             data_str = None
-        if agent_name is not None and data_str is not None:
+        # cache_dir = 'tmp'
+        # file_path = os.path.join(cache_dir, 'message.json')
+        # if not os.path.exists(cache_dir):
+        #     os.makedirs(cache_dir)
+    
+        # # 初始化消息列表
+        # messages = []
+        
+        # # 如果文件存在，读取已有内容
+        # if os.path.exists(file_path):
+        #     with open(file_path, 'r', encoding='utf-8') as f:
+        #         try:
+        #             messages = json.load(f)
+        #         except json.JSONDecodeError:
+        #             # 文件可能为空或格式不正确，忽略读取错误
+        #             pass
+        
+        # # 添加新消息到消息列表
+        # messages.append(message)
+        
+        # # 将消息列表写回文件
+        # with open(file_path, 'w', encoding='utf-8') as f:
+        #     json.dump(messages, f, ensure_ascii=False, indent=4)
+
+        if entity_name is not None and data_str is not None:
             # 修复json字符串中的缺失的双引号，有小bug，但是不影响需要的字段
             splits = re.split(r'[\[\]{}]|,\s|:\s', data_str)
             replace_dicts = []
@@ -547,6 +622,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                         break
                         
             data = json.loads(data_str)
+
             # cache_dir = 'tmp'
             # file_path = os.path.join(cache_dir, 'message.json')
             # if not os.path.exists(cache_dir):
@@ -570,9 +646,15 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             # # 将消息列表写回文件
             # with open(file_path, 'w', encoding='utf-8') as f:
             #     json.dump(messages, f, ensure_ascii=False, indent=4)
-            inventory = data.get("Inventory", [])
-            pos = data.get("Pos", [])
-            score = calculate_score(inventory, pos)
+
+            if config["task_scenario"] == "craft" or config["task_scenario"] == "move" or config["task_scenario"] == "useitem":
+                inventory = data.get("Inventory", [])
+                pos = data.get("Pos", [])
+                score = calculate_score(inventory, pos)
+            elif config["task_scenario"] == "interact":
+                if interact_type == "animal":
+                    health = data.get("Health", [])
+                    score = calculate_score_animal(health)
             # info_count += 1
             # if info_count % 20 == 0:
             #     bot.chat(f'score: {score}')

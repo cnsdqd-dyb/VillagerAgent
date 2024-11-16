@@ -1,0 +1,272 @@
+[
+    {
+        "id": 4,
+        "internalId": 4,
+        "name": "axolotl",
+        "displayName": "Axolotl",
+        "width": 0.75,
+        "height": 0.42,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 6,
+        "internalId": 6,
+        "name": "bee",
+        "displayName": "Bee",
+        "width": 0.7,
+        "height": 0.6,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 10,
+        "internalId": 10,
+        "name": "cat",
+        "displayName": "Cat",
+        "width": 0.6,
+        "height": 0.7,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 12,
+        "internalId": 12,
+        "name": "chicken",
+        "displayName": "Chicken",
+        "width": 0.4,
+        "height": 0.7,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 14,
+        "internalId": 14,
+        "name": "cow",
+        "displayName": "Cow",
+        "width": 0.9,
+        "height": 1.4,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 17,
+        "internalId": 17,
+        "name": "donkey",
+        "displayName": "Donkey",
+        "width": 1.3964844,
+        "height": 1.5,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 31,
+        "internalId": 31,
+        "name": "fox",
+        "displayName": "Fox",
+        "width": 0.6,
+        "height": 0.7,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 32,
+        "internalId": 32,
+        "name": "frog",
+        "displayName": "Frog",
+        "width": 0.5,
+        "height": 0.5,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 37,
+        "internalId": 37,
+        "name": "goat",
+        "displayName": "Goat",
+        "width": 0.9,
+        "height": 1.3,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 39,
+        "internalId": 39,
+        "name": "hoglin",
+        "displayName": "Hoglin",
+        "width": 1.3964844,
+        "height": 1.4,
+        "type": "animal",
+        "category": "Hostile mobs"
+    },
+    {
+        "id": 40,
+        "internalId": 40,
+        "name": "horse",
+        "displayName": "Horse",
+        "width": 1.3964844,
+        "height": 1.6,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 49,
+        "internalId": 49,
+        "name": "llama",
+        "displayName": "Llama",
+        "width": 0.9,
+        "height": 1.87,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 60,
+        "internalId": 60,
+        "name": "mule",
+        "displayName": "Mule",
+        "width": 1.3964844,
+        "height": 1.6,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 61,
+        "internalId": 61,
+        "name": "mooshroom",
+        "displayName": "Mooshroom",
+        "width": 0.9,
+        "height": 1.4,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 62,
+        "internalId": 62,
+        "name": "ocelot",
+        "displayName": "Ocelot",
+        "width": 0.6,
+        "height": 0.7,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 64,
+        "internalId": 64,
+        "name": "panda",
+        "displayName": "Panda",
+        "width": 1.3,
+        "height": 1.25,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 65,
+        "internalId": 65,
+        "name": "parrot",
+        "displayName": "Parrot",
+        "width": 0.5,
+        "height": 0.9,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 67,
+        "internalId": 67,
+        "name": "pig",
+        "displayName": "Pig",
+        "width": 0.9,
+        "height": 0.9,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 71,
+        "internalId": 71,
+        "name": "polar_bear",
+        "displayName": "Polar Bear",
+        "width": 1.4,
+        "height": 1.4,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 74,
+        "internalId": 74,
+        "name": "rabbit",
+        "displayName": "Rabbit",
+        "width": 0.4,
+        "height": 0.5,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 77,
+        "internalId": 77,
+        "name": "sheep",
+        "displayName": "Sheep",
+        "width": 0.9,
+        "height": 1.3,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 82,
+        "internalId": 82,
+        "name": "skeleton_horse",
+        "displayName": "Skeleton Horse",
+        "width": 1.3964844,
+        "height": 1.6,
+        "type": "animal",
+        "category": "Hostile mobs"
+    },
+    {
+        "id": 91,
+        "internalId": 91,
+        "name": "strider",
+        "displayName": "Strider",
+        "width": 0.9,
+        "height": 1.7,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 98,
+        "internalId": 98,
+        "name": "trader_llama",
+        "displayName": "Trader Llama",
+        "width": 0.9,
+        "height": 1.87,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 100,
+        "internalId": 100,
+        "name": "turtle",
+        "displayName": "Turtle",
+        "width": 1.2,
+        "height": 0.4,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 110,
+        "internalId": 110,
+        "name": "wolf",
+        "displayName": "Wolf",
+        "width": 0.6,
+        "height": 0.85,
+        "type": "animal",
+        "category": "Passive mobs"
+    },
+    {
+        "id": 113,
+        "internalId": 113,
+        "name": "zombie_horse",
+        "displayName": "Zombie Horse",
+        "width": 1.3964844,
+        "height": 1.6,
+        "type": "animal",
+        "category": "Hostile mobs"
+    }
+]
