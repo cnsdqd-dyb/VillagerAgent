@@ -2,6 +2,7 @@ import json
 import argparse
 import os
 import random
+import string
 
 room_width = 15
 room_height = 15
@@ -235,7 +236,51 @@ def generate_config(task, api_model, host, port, agent_num=2):
             config_list.append(config)
 
     elif task == "useitem":
-        pass
+        
+        # material = ["chainmail", "iron", "diamond", "golden", "netherite"]
+        # equipment = ["helmet", "chestplate", "leggings", "boots"]
+        # if task_number > len(material) * len(equipment):
+        #     print("TASK NUMBER IS TOO BIG!")
+        #     return
+        # for i in range(task_number):
+        #     config = template.copy()
+        #     arg_dict = arg_template.copy()
+        #     target = random.choice(material) + "_" + random.choice(equipment)
+        #     arg_dict["target"] = target
+        #     arg_dict["action"] = "equip"
+        #     # # #
+        #     arg_dict["item_position"] = "inventory"
+        #     # # #
+        #     config["task_type"] = "meta"
+        #     config["task_idx"] = i
+        #     config["agent_num"] = 1 
+        #     config["task_scenario"] = "useitem"
+        #     config["evaluation_arg"] = arg_dict
+        #     config["task_goal"] = ""
+        #     config["host"] = host
+        #     config["port"] = port
+        #     config["task_name"] = f"useitem_{target}_id{i}"
+        #     config_list.append(config)
+        charset = string.ascii_letters + string.digits
+        for i in range(task_number):
+            config = template.copy()
+            arg_dict = arg_template.copy()
+            arg_dict["target"] = "oak_sign"
+            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+            arg_dict["y"] = random.randint(ory + 1, ory + 3)
+            text_len = random.randint(5, 8)
+            arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
+            config["task_type"] = "meta"
+            config["task_idx"] = i
+            config["agent_num"] = 1
+            config["task_scenario"] = "useitem"
+            config["evaluation_arg"] = arg_dict
+            config["task_goal"] = ""
+            config["host"] = host
+            config["port"] = port
+            config["task_name"] = f"useitem_{arg_dict['target']}_id{i}"
+            config_list.append(config)
 
     elif task == "move":
         for i in range(task_number):
@@ -257,8 +302,36 @@ def generate_config(task, api_model, host, port, agent_num=2):
             config_list.append(config)
             
     elif task == "interact":
-        pass
+        animal_list = [{"name": "sheep", "food": ["wheat"]}, {"name": "cow", "food": ["wheat"]}, {"name": "rabbit", "food": ["carrot"]}, 
+                       {"name": "pig", "food": ["potato", "beetroot", "carrot"]}, {"name": "chicken", "food": ["wheat_seeds", "melon_seeds", "pumpkin_seeds", "beetroot_seeds"]}, ]
+        cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
 
+        for i in range(task_number):
+            action = random.choice(["attack", "feed", "cook"])
+            target = random.choice(cooked_list) if action == "cook" else random.choice(animal_list)
+            config = template.copy()
+            arg_dict = arg_template.copy()
+            arg_dict["target"] = "furnace" if action == "cook" else target["name"]
+            arg_dict["action"] = action
+            if action == "attack":
+                arg_dict["tool"] = "iron_sword"
+            if action == "feed":
+                arg_dict["tool"] = random.choice(target["food"])
+            if action == "cook":
+                arg_dict["other_arg"] = ["coal", target]
+            # # #
+            arg_dict["item_position"] = "inventory"
+            # # #
+            config["task_type"] = "meta"
+            config["task_idx"] = i
+            config["agent_num"] = 1
+            config["task_scenario"] = "interact"
+            config["evaluation_arg"] = arg_dict
+            config["host"] = host
+            config["port"] = port
+            config["task_name"] = f"interact_id{i}"
+            config_list.append(config)
+            
     with open(f"{api_model}_launch_config_{task}.json", "w") as f:
         json.dump(config_list, f, indent=4)
 

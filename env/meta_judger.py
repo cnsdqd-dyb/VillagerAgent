@@ -74,7 +74,7 @@ max_time = 300
 environment_set_time = 10
 info_count = 0
 config = {}
-interact_type = "default"
+interact_type = "block"
 interact_arg = 0
 
 # evaluation_arg 
@@ -319,29 +319,41 @@ def handleViewer(*args):
         goal_item = aligned_item_name(arg_dict["target"])
         if arg_dict["item_position"] == "inventory":
             bot.chat(f"/give {agent_name} {goal_item} 1")
+            bot.chat(f"/give {agent_name} dirt 5")
         elif arg_dict["item_position"] == "chest":
-            set_chest([], [{"name": goal_item, "count": 1}])
+            set_chest([], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 5}])
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
     elif config["task_scenario"] == "interact":
         target = aligned_item_name(arg_dict["target"])
-        if arg_dict["item_position"] == "inventory":
-            bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
-        elif arg_dict["item_position"] == "chest":
-            set_chest([], [{"name": arg_dict['tool'], "count": 1}])
-        else:
-            bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
-
         with open("data/animals.json", "r") as f:
             animal_list = json.load(f)
             for animal in animal_list:
                 if animal["name"] == target:   
                     interact_type = "animal"
                     break
-            
         if interact_type == "animal":
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
+            if arg_dict["item_position"] == "inventory":
+                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+            elif arg_dict["item_position"] == "chest":
+                set_chest([], [{"name": arg_dict['tool'], "count": 1}])
+            else:
+                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+        elif interact_type == "block":
+            if arg_dict["action"] == "cook":
+                furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)        
+                item_list = [{"name": item, "count": 1} for item in arg_dict['other_arg']]
+                if arg_dict["item_position"] == "inventory":
+                    for item in item_list:                    
+                        bot.chat(f"/give {agent_name} {item['name']} {item['count']}")
+                        time.sleep(.1)
+                elif arg_dict["item_position"] == "chest":
+                    set_chest([(furnace_x, furnace_y, furnace_z)], item_list)
+                else:
+                    bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+                bot.chat(f"/setblock {furnace_x} {furnace_y} {furnace_z} furnace")
 
     else:
         bot.chat("/tellraw @a {\"text\":\"INVALID SCENARIO!\", \"color\":\"red\"}")
@@ -447,9 +459,14 @@ def handle(this):
             if info_count % 20 == 0:
                 bot.chat(f'score: {score}')
 
-            if config["task_scenario"] == "craft" or config["task_scenario"] == "move" or config["task_scenario"] == "useitem":
+            if config["task_scenario"] in ["craft", "move"] or (config["task_scenario"] == "useitem" and "sign" not in arg_dict["target"]):
                 bot.chat(f'/data get entity {agent_name}')
-            
+
+            elif config["task_scenario"] == "useitem":
+                goal_item = arg_dict["target"]
+                if "sign" in goal_item:
+                    bot.chat(f'/data get block {arg_dict["x"]} {arg_dict["y"]} {arg_dict["z"]}')
+
             elif config["task_scenario"] == "dig":
                 goal_item = aligned_item_name(arg_dict["target"])
                 Block = bot.blockAt(Vec3(arg_dict['x'], arg_dict['y'], arg_dict['z']))
@@ -466,9 +483,11 @@ def handle(this):
 
             elif config["task_scenario"]  == "interact":
                 target = aligned_item_name(arg_dict["target"]) 
+                if interact_type == "block":
+                    if arg_dict["action"] == "cook":
+                        bot.chat(f'/data get entity {agent_name}')
                 if interact_type == "animal":
-                    
-                    if arg_dict["action"] == "attack":
+                    if arg_dict["action"] == "feed":
                         bot.chat(f"/data get entity @e[type={target},limit=1,sort=nearest]")
 
 
@@ -529,16 +548,6 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
     global score, info_count, config, interact_type
     arg_dict = config["evaluation_arg"]
 
-    def calculate_score_animal(health):
-        global interact_arg
-        number_health = float(health[:-1])
-        if arg_dict["action"] == "attack":
-            if interact_arg == 0:
-                interact_arg = number_health
-            elif interact_arg > number_health:
-                return 100
-        return 0
-
     def calculate_score(inventory, pos):
         if config["task_scenario"] == "craft":
             goal_item = aligned_item_name(arg_dict["target"])
@@ -558,17 +567,28 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             for item in inventory:
                 if aligned_item_name(item['id']) == goal_item and int(item['Slot'][:-1]) >= 100:
                     return 100
-            
+        
+        elif config["task_scenario"] == "interact":
+            if aligned_item_name(arg_dict["other_org"][-1]) != "potato":
+                goal_item = "cooked_" + aligned_item_name(arg_dict["other_arg"][-1])  # 设置最后一个位置是放置需要烤的东西
+            else:
+                goal_item = "baked_potato" + aligned_item_name(arg_dict["other_arg"][-1])
+            for item in inventory:
+                if aligned_item_name(item['id']) == goal_item:
+                    return 100    
+                
         return 0
     
     if start_time is not None:
-        pattern = "(.*) has the following entity data: (.*)"
+        pattern = "(.*) has the following (.*) data: (.*)"
         match = re.search(pattern, message)
         if match:
             entity_name = match.group(1)
-            data_str = match.group(2)
+            block_entity = match.group(2)
+            data_str = match.group(3)
         else:
             entity_name = None
+            block_entity = None
             data_str = None
         # cache_dir = 'tmp'
         # file_path = os.path.join(cache_dir, 'message.json')
@@ -594,7 +614,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
         # with open(file_path, 'w', encoding='utf-8') as f:
         #     json.dump(messages, f, ensure_ascii=False, indent=4)
 
-        if entity_name is not None and data_str is not None:
+        if entity_name is not None and data_str is not None and block_entity is not None:
             # 修复json字符串中的缺失的双引号，有小bug，但是不影响需要的字段
             splits = re.split(r'[\[\]{}]|,\s|:\s', data_str)
             replace_dicts = []
@@ -647,15 +667,30 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             # with open(file_path, 'w', encoding='utf-8') as f:
             #     json.dump(messages, f, ensure_ascii=False, indent=4)
 
-            if config["task_scenario"] == "craft" or config["task_scenario"] == "move" or config["task_scenario"] == "useitem":
+            if config["task_scenario"] in ["craft", "move"] or (config["task_scenario"] == "interact" and arg_dict["action"] == "cook") or (config["task_scenario"] == "useitem" and "sign" not in arg_dict["target"]):
                 inventory = data.get("Inventory", [])
                 pos = data.get("Pos", [])
                 score = calculate_score(inventory, pos)
-            elif config["task_scenario"] == "interact":
-                if interact_type == "animal":
-                    health = data.get("Health", [])
-                    score = calculate_score_animal(health)
+            elif config["task_scenario"] == "interact" and arg_dict["action"] == "feed":
+                inlove = data.get("InLove", 0)
+                if int(inlove) > 0:
+                    score = 100
+            elif config["task_scenario"] == "useitem" and "sign" in arg_dict["target"]:
+                for i in range(1, 5):
+                    if f"Text{i}" in data:
+                        if data[f"Text{i}"]["text"] == arg_dict["other_arg"][0]:
+                            score = 100
             # info_count += 1
             # if info_count % 20 == 0:
             #     bot.chat(f'score: {score}')
 
+@On(bot, "entityHurt")
+def handleAttack(_, entity):
+    global environment_set_time, config, score
+    arg_dict = config["evaluation_arg"]
+    if arg_dict["action"] == "attack":
+        if start_time is not None:
+            now_time = time.time()
+            if now_time - start_time  > environment_set_time:
+                if aligned_item_name(arg_dict["target"]) == aligned_item_name(entity.name):
+                    score = 100

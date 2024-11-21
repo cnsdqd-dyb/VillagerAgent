@@ -6,19 +6,21 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use iron_sword to attack the sheep, the iron_sword is in your inventory.",
-    "task_scenario": "interact",
+    "task_goal": "Place an oak_sign at (8 -60, 8), and write '123' on it. the oak_sign is in your inventory",
+    "task_scenario": "useitem",
     "evaluation_arg": {
-        "target": "sheep",
+        "target": "oak_sign",
         "x": 8,
         "y": -60,
         "z": 8,
         "facing": "",
         "item_position": "inventory",
-        "tool": "iron_sword",
-        "action": "attack",
+        "tool": "",
+        "action": "",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "123"
+        ]
     },
     "document_file": "data\\recipe_hint.json",
     "host": "10.192.40.144",

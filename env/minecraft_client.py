@@ -585,7 +585,7 @@ class Agent():
     @tool
     @timeit
     def fetchContainerContents(player_name: str, item_name: str, position=[0, 0, 0]):
-        """Get the details of item_name 'chest' | 'container' | 'furnace' position is optional, return ('message': msg, 'status': True/False, 'data':[('name':name, 'count':count),...])"""
+        """Get the details of item_name 'chest' | 'container' | 'furnace', arg position is [x, y, z], return ('message': msg, 'status': True/False, 'data':[('name':name, 'count':count),...])"""
         if item_name not in ["chest", "inventory", "furnace", "container"]:
             return {'data': [], 'message': 'Failed item name not in ["chest", "inventory", "furnace", "container"]', 'status': False}
         if position != [0, 0, 0]:

@@ -1291,12 +1291,12 @@ async def attack(bot, envs_info, mcData, mobName=None):
         if mobName == None:
             pass
         else:
-            # try:
-            #     entities = get_entity_by('username', envs_info, mobName, bot.entity.username)
-            #     if len(entities) > 0:
-            #         entity = entities[0]
-            # except Exception as e:
-            #     bot.chat(f'find_everything_ username error: {e}')
+            try:
+                entities = get_entity_by('name', envs_info, mobName, bot.entity.username)
+                if len(entities) > 0:
+                    entity = entities[0]
+            except Exception as e:
+                bot.chat(f'find_everything_ username error: {e}')
             if entity == None:
                 try:
                     entities = get_entity_by('name', envs_info, mobName, bot.entity.username)
@@ -1329,6 +1329,7 @@ async def attack(bot, envs_info, mcData, mobName=None):
         attack_creatures = [
             "rabbit",
             "bat",
+            "sheep",
             "cat",
             "chicken",
             "cod",
