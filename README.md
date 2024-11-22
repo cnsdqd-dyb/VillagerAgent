@@ -15,11 +15,13 @@ Customize your private tasks in your Minecraft server with our VillagerAgent mul
       <img src='https://img.shields.io/badge/Project-Page-blue?style=for-the-badge&logo=Web&logoColor=white' alt='Project Page'>
     </a>
 </p>
+
 ---
 
 ## News
 \[2024.10.23\] We are trying to replace the LLM in VillagerAgent with finetuned open source LLMs to improve the performance and efficiency of the agent's task execution.
 
+\[2024.10.04\] 🎉Our minecraft multi-agent framework VillagerAgent has been accepted by ACL 2024.
 ## Setup and Configuration 🛠️
 
 ### Requirements
@@ -251,6 +253,19 @@ Meet VillagerAgent, our multi-agent maestro 🎼, orchestrating a symphony of ta
 - Keep the server's Java version up to date for optimal performance and security.
 
 The steps above provide a basic tutorial for setting up a Minecraft server. Depending on your specific needs and configuration, more advanced settings may be required.
+
+## Citation
+🌟 If you find our work helpful, please leave us a star and cite our paper.
+```
+@inproceedings{dong2024villageragent,
+  title={VillagerAgent: A Graph-Based Multi-Agent Framework for Coordinating Complex Task Dependencies in Minecraft},
+  author={Dong, Yubo and Zhu, Xukun and Pan, Zhengzhe and Zhu, Linchao and Yang, Yi},
+  booktitle={Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year={2024},
+  url={https://arxiv.org/abs/2406.05720}
+}
+
+```
 
 ## Contribution Guide 🤝
 
