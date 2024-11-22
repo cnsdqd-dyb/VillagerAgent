@@ -2,6 +2,8 @@
 
 <img src="img/VillagerBench.png" width="100%" />
 
+我们希望打造一个更加智能的多智能体与玩家实时合作的我的世界游戏体验，同时研究其中的LLM任务合作与推理能力。
+
 欢迎来到VillagerBench，在这个由方块构成的 Minecraft 世界中，不仅仅是为了娱乐和游戏——这里是多智能体合作前沿技术的试验场！🤖 我们的基准测试套件旨在挑战虚拟智能体共同完成的极限，从建筑项目 🏗️ 到烹饪任务 🍳，再到逃脱房间的谜题 🔐。
 
 在您的 Minecraft 服务器中使用我们的 VillagerAgent 多智能体框架自定义您的私人任务，为您打造个性化的游戏体验！🌟
@@ -9,7 +11,7 @@
 Click here to view the [English version of the README](README.md).
 
 <p align="center">
-    <a href='https://arxiv.org/'>
+    <a href='https://arxiv.org/abs/2406.05720'>
       <img src='https://img.shields.io/badge/Paper-PDF-green?style=for-the-badge&logo=arXiv&logoColor=green' alt='Paper PDF'>
     </a>
     <a href='https://cnsdqd-dyb.github.io/VillagerAgent.github.io/2024/04/01/VillagerAgent.html'>
@@ -21,6 +23,8 @@ Click here to view the [English version of the README](README.md).
 
 ## 最新进展
 我们正在尝试使用经过微调的开源LLM来代替VillagerAgent中的LLM以提升智能体执行任务的性能和效率。
+
+论文VillagerAgent被ACL2024接收。
 
 ## 设置和配置 🛠️
 
