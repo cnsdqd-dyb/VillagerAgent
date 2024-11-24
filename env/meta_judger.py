@@ -76,7 +76,8 @@ info_count = 0
 config = {}
 interact_type = "block"
 interact_arg = 0
-
+arg_host = args.host
+arg_port = args.port
 # evaluation_arg 
 # dig    : target, x, y, z, tool
 # craft  : target, item_position, step
@@ -327,12 +328,15 @@ def handleViewer(*args):
 
     elif config["task_scenario"] == "interact":
         target = aligned_item_name(arg_dict["target"])
-        with open("data/animals.json", "r") as f:
-            animal_list = json.load(f)
-            for animal in animal_list:
-                if animal["name"] == target:   
-                    interact_type = "animal"
-                    break
+        if target == "Bob":
+            interact_type = "player"
+        else:
+            with open("data/animals.json", "r") as f:
+                animal_list = json.load(f)
+                for animal in animal_list:
+                    if animal["name"] == target:   
+                        interact_type = "animal"
+                        break
         if interact_type == "animal":
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
             if arg_dict["item_position"] == "inventory":
@@ -354,6 +358,21 @@ def handleViewer(*args):
                 else:
                     bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
                 bot.chat(f"/setblock {furnace_x} {furnace_y} {furnace_z} furnace")
+        elif interact_type == "player":
+            global arg_host, arg_port
+            npcbot = mineflayer.createBot({
+                "host": arg_host,
+                "port": arg_port,
+                'username': "Bob",
+                'checkTimeoutInterval': 600000,
+                'auth': 'offline',
+                'version': "1.19.2",
+            })
+            npc_x, npc_y, npc_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
+            bot.chat(f"/clear Bob")
+            bot.chat(f"/tp Bob {npc_x} {npc_y} {npc_z}")
+            if arg_dict["action"] == "handover":
+                bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]}")
 
     else:
         bot.chat("/tellraw @a {\"text\":\"INVALID SCENARIO!\", \"color\":\"red\"}")
@@ -489,6 +508,9 @@ def handle(this):
                 if interact_type == "animal":
                     if arg_dict["action"] == "feed":
                         bot.chat(f"/data get entity @e[type={target},limit=1,sort=nearest]")
+                if interact_type == "player":
+                    if arg_dict["action"] == "handover":
+                        bot.chat(f'/data get entity {arg_dict["target"]}')
 
 
             if score == 100:
@@ -569,14 +591,20 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                     return 100
         
         elif config["task_scenario"] == "interact":
-            if aligned_item_name(arg_dict["other_org"][-1]) != "potato":
-                goal_item = "cooked_" + aligned_item_name(arg_dict["other_arg"][-1])  # 设置最后一个位置是放置需要烤的东西
-            else:
-                goal_item = "baked_potato" + aligned_item_name(arg_dict["other_arg"][-1])
-            for item in inventory:
-                if aligned_item_name(item['id']) == goal_item:
-                    return 100    
-                
+            if arg_dict["action"] == "cook":
+                if aligned_item_name(arg_dict["other_org"][-1]) != "potato":
+                    goal_item = "cooked_" + aligned_item_name(arg_dict["other_arg"][-1])  # 设置最后一个位置是放置需要烤的东西
+                else:
+                    goal_item = "baked_potato" + aligned_item_name(arg_dict["other_arg"][-1])
+                for item in inventory:
+                    if aligned_item_name(item['id']) == goal_item:
+                        return 100    
+            elif arg_dict["action"] == "handover":
+                goal_item = arg_dict["other_arg"][0]
+                for item in inventory:
+                    if aligned_item_name(item['id']) == goal_item:
+                        return 100
+                    
         return 0
     
     if start_time is not None:
@@ -667,7 +695,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             # with open(file_path, 'w', encoding='utf-8') as f:
             #     json.dump(messages, f, ensure_ascii=False, indent=4)
 
-            if config["task_scenario"] in ["craft", "move"] or (config["task_scenario"] == "interact" and arg_dict["action"] == "cook") or (config["task_scenario"] == "useitem" and "sign" not in arg_dict["target"]):
+            if config["task_scenario"] in ["craft", "move"] or (config["task_scenario"] == "interact" and arg_dict["action"] in ["handover","cook"]) or (config["task_scenario"] == "useitem" and "sign" not in arg_dict["target"]):
                 inventory = data.get("Inventory", [])
                 pos = data.get("Pos", [])
                 score = calculate_score(inventory, pos)

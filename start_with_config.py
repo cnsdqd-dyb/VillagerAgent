@@ -139,7 +139,7 @@ if __name__ == "__main__":
         if os.path.exists(f"result/{config['task_name']}"):
             print(f"task {config['task_name']} exists")
             continue
-        print(f"task {i} start")
+        print(f"task {i}/{len(launch_config)} start")
         print("config:", config)
         if config["task_type"] == "meta":
             with open(".cache/meta_setting.json", "w") as f:
