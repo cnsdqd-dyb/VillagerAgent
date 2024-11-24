@@ -6,20 +6,20 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Place an oak_sign at (8 -60, 8), and write '123' on it. the oak_sign is in your inventory",
-    "task_scenario": "useitem",
+    "task_goal": "Handover a dirt to Bob, the dirt is in your inventory.",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "oak_sign",
+        "target": "Bob",
         "x": 8,
         "y": -60,
         "z": 8,
         "facing": "",
         "item_position": "inventory",
         "tool": "",
-        "action": "",
+        "action": "handover",
         "step": 1,
         "other_arg": [
-            "123"
+            "dirt"
         ]
     },
     "document_file": "data\\recipe_hint.json",
