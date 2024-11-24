@@ -10,6 +10,7 @@ import json
 from retry import retry
 import random
 import httpx
+import base64
 
 from model.utils import extract_info
 
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class OpenAILanguageModel(AbstractLanguageModel):
-    _supported_models = ["gpt-4-0125-preview", "gpt-4-1106-preview", "gpt-4", "gpt-4-0314", "gpt-4-0613", "gpt-4-32k", "gpt-4-32k-0314",
+    _supported_models = ["gpt-4o", "gpt-4-0125-preview", "gpt-4-1106-preview", "gpt-4", "gpt-4-0314", "gpt-4-0613", "gpt-4-32k", "gpt-4-32k-0314",
                          "gpt-4-32k-0613", "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-0301",
                          "gpt-3.5-turbo-0613", "gpt-3.5-turbo-1106", "gpt-3.5-turbo-16k-0613", "gpt-3.5-turbo-instruct"]
 
@@ -370,6 +371,135 @@ class OpenAILanguageModel(AbstractLanguageModel):
                     max_retries=5,
                 )
     
+
+            except openai.InternalServerError as e:
+                logger.warning("Something went wrong on OpenAI's end")
+                logger.warning(e.status_code)
+                logger.warning(e.response)
+                raise e
+
+            except Exception as e:
+                logger.warning("Something other than an HTTP error occurred")
+                logger.warning(e)
+                logger.warning(e.__cause__)
+                raise e
+            
+    def encode_image(self, image_path):
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
+
+    @retry(tries=10, delay=5, backoff=2, max_delay=60)
+    def generate_with_image(self, prompt_before_image: [str] or str, image_path: str, prompt_after_image: [str] or str="", system_prompt: str=None, max_tokens: int=-1,
+                 temperature: float=0.0, k: int=1, stop=None, cache_enabled: bool=True, api_model: str="",
+                 check_tags: list=[], json_check: bool=False, stream: bool=True):
+        
+        self.client = OpenAI(
+            api_key=random.choice(self.api_key_list) if len(self.api_key_list) > 0 else self.api_key,
+            base_url=self.api_base,
+            max_retries=5,
+        )
+        
+        if api_model == "":
+            api_model = self.api_model
+        else:
+            if api_model not in OpenAILanguageModel._supported_models:
+                raise Exception(f"only support {OpenAILanguageModel._supported_models}, but got {api_model}")
+        
+        if type(prompt_before_image) == str:
+            prompt_before_image = [prompt_before_image]
+        if type(prompt_after_image) == str:
+            prompt_after_image = [prompt_after_image]
+        
+        assert self.use_chat_api, "few shot generation only support chat api"
+
+        # Concatenate the prompts and image URL into the message structure
+        if system_prompt is None:
+            system_prompt = "You are a helpful assistant."
+        messages = [{"role": "system", "content": system_prompt}]
+        for prompt in prompt_before_image:
+            messages.append({"role": "user", "content": prompt})
+        
+        # Getting the base64 string
+        base64_image = self.encode_image(image_path)
+        if ".jpg" in image_path:
+            url = f"data:image/jpeg;base64,{base64_image}"
+        elif ".png" in image_path:
+            url = f"data:image/png;base64,{base64_image}"
+        else:
+            raise Exception("Image format not supported")
+        
+        messages.append({
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "This is an image:"},
+                {"type": "image_url", "image_url": {"url": url}}
+            ]
+        })
+        
+        for prompt in prompt_after_image:
+            messages.append({"role": "user", "content": prompt})
+        
+        
+        if cache_enabled:
+            prompt = str(system_prompt) + "\n" + "\n".join(prompt_before_image + prompt_after_image)
+            content = self.cache_api_call_handler(prompt, max_tokens, temperature, k, stop)
+            if content is not None:
+                return content
+        
+        start_time = time.time()
+        while True:
+            try:
+                if stream:
+                    content = self.gpt_api_stream(messages, api_model, temperature)
+                    usage_data = {"prompt_tokens": self.num_tokens_from_string(prompt, api_model),
+                                    "completion_tokens": self.num_tokens_from_string(content, api_model)}
+                    self.update_token_usage(usage_data["prompt_tokens"], usage_data["completion_tokens"])
+                else:
+                    response = self.gpt_api(messages, api_model, temperature)
+                    self.update_token_usage(response.usage.prompt_tokens, response.usage.completion_tokens)
+                    content = response.choices[0].message.content
+
+                for tag in check_tags:
+                    if tag not in content:
+                        raise Exception(f"tag {tag} not in content {content}")
+                if json_check:
+                    if len(extract_info(content)) == 0:
+                        raise Exception(f"content {content} is not json")
+                if cache_enabled:
+                    self.save_cache(prompt, content)
+                with open("data/openai.logs", "a") as log_file:
+                    log_file.write(
+                        "\n" + "-----------" + "\n" + "Prompt : " + str(messages) + "\n"
+                    )
+
+                if os.path.exists("data/llm_inference.json"):
+                    with open("data/llm_inference.json", "r") as log_file:
+                        log = json.load(log_file)
+                    log["time"] += time.time() - start_time
+                    with open("data/llm_inference.json", "w") as log_file:
+                        json.dump(log, log_file)
+                return content
+
+            except openai.APIConnectionError as e:
+                logger.warning("[Proxy] The server could not be reached")
+
+            except openai.RateLimitError as e:
+                sleep_duratoin = os.environ.get("OPENAI_RATE_TIMEOUT", 30)
+                logger.warning("A 429 status code was received; we should back off a bit.")
+                raise e
+
+            except openai.APIStatusError as e:
+                logger.warning("[Proxy] Another non-200-range status code was received")
+                logger.warning(e.status_code)
+                if e.status_code == 403:
+                    if self.api_key in self.api_key_list:
+                        self.api_key_list.remove(self.api_key)
+                logger.warning(e.response)
+                self.client = OpenAI(
+                    api_key=random.choice(self.api_key_list) if len(self.api_key_list) > 0 else self.api_key,
+                    base_url=self.api_base,
+                    max_retries=5,
+                )
 
             except openai.InternalServerError as e:
                 logger.warning("Something went wrong on OpenAI's end")
