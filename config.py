@@ -29,8 +29,19 @@ llm_config = {
     "api_key_list": api_key_list
 }
 llm = init_language_model(llm_config)
-task_goal_prompt = "Randomly choose another way to express the following sentence. Try to change the sentence structure instead of replacing words, and making sure the meaning does not change: "
+# task_goal_prompt = "Randomly choose another way to express the following sentence. Try to change the sentence pattern instead of replacing words and try to avoid repetitive sentence patterns as much as possible. Making sure the meaning does not change: "
+task_goal_prompt = """
+I need you to rewrite the following sentence while keeping its original meaning intact. Your goal is to create sentence variations that are rich in structure and expression. Please follow these guidelines:
+Preserve the core meaning of the original sentence.
+Diversify the sentence structure by:
+1. Changing the word order or introducing inversion.
+2. Using synonyms or rephrasing.
+3. Switching between active and passive voice.
+4. Incorporating participle phrases or dependent clauses.
+You should randomly select only one sentence from your rewritten version and return it.
+Original Sentence:
 
+"""
 
 template = {
     "api_model": "gpt-4-1106-preview",
@@ -54,7 +65,7 @@ template = {
         "step": 1,
         "other_arg": []
     },
-    "document_file": "data\\recipe_hint.json",
+    "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
     "task_name": ""
@@ -86,20 +97,15 @@ def select_task_goal(task):
         raise NotImplementedError
 
 def generate_task_goal(task_scenario, arg_dict):
+    template_prompt = ""
     if task_scenario == "dig":
         if arg_dict["tool"]:
-            template_prompt = f"Use {arg_dict['tool']} to dig {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
+            template_prompt = f"Use {arg_dict['tool']} to dig the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
         else:
-            template_prompt = f"Dig {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can dig it directly and don't need to use any tool."
-        return llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
-        # logger.debug(template_prompt)
-        # ret = llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
-        # logger.warning(ret)
-        # return ret
+            template_prompt = f"Dig the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can dig it directly and don't need to use any tool."
     
     elif task_scenario == "craft":
         template_prompt = f"Use crafting_table to make a {arg_dict['target']}. All ingredients are in the {arg_dict['item_position']}."
-        return llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
     
     elif task_scenario == "place":
         if arg_dict["facing"] in ["north", "south", "east", "west"]:
@@ -108,29 +114,28 @@ def generate_task_goal(task_scenario, arg_dict):
             template_prompt = f"Place a {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}), along the {arg_dict['facing']}-axis. The {arg_dict['target']} is in the {arg_dict['item_position']}."
         else:
             template_prompt = f"Place a {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['target']} is in the {arg_dict['item_position']}."
-        return llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
     
     elif task_scenario == "useitem":
         if "sign" in arg_dict["target"]:
             template_prompt = f"Place a {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}), and write '{arg_dict['other_arg'][0]}' on it. The {arg_dict['target']} is in the {arg_dict['item_position']}."
-        return llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
 
     elif task_scenario == "move":
         template_prompt = f"Move to ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You may need some block or tool to get to that position, you can find them in the {arg_dict['item_position']}."
-        return llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
     
     elif task_scenario == "interact":
-        if arg_dict["action"] in ["attcak", "feed"]:
-            template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}"
+        if arg_dict["action"] in ["attack", "feed"]:
+            template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} the {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}"
         elif arg_dict["action"] == "cook":
-            template_prompt = f"Cooking {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}."
+            template_prompt = f"Cook the {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "handover":
-            template_prompt = f"Handover {arg_dict['other_arg']} to {arg_dict['target']}. The {arg_dict['other_arg']} is in the {arg_dict['item_position']}."
-        else:
-            template_prompt = ""
-        return llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
-    else:
-        raise NotImplementedError
+            template_prompt = f"Hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "store":
+            template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
+    logger.warning(template_prompt)
+    task_goal = llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
+    logger.warning(task_goal)
+    logger.debug("-" * 50)
+    return task_goal
 
 def generate_config(task, api_model, host, port, agent_num=2):
     assert api_model in ["gpt-4-1106-preview", "gpt-3.5-turbo-1106", "glm-4", "glm-3-turbo", "gemini-pro"], "api_model not supported"
@@ -373,12 +378,18 @@ def generate_config(task, api_model, host, port, agent_num=2):
         cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
 
         for i in range(task_number):
-            action = random.choice(["attack", "feed", "cook", "handover"])
+            action = random.choice(["attack", "feed", "cook", "handover", "store"])
             config = template.copy()
             arg_dict = arg_template.copy()
             if action == "cook":
                 target = random.choice(cooked_list)
                 arg_dict["target"] = "furnace"
+            elif action == "store":
+                target = "chest"
+                arg_dict["target"] = "chest"
+                arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                arg_dict["y"] = random.randint(ory + 1, ory + 3)
             elif action == "handover":
                 target = "Bob"
                 arg_dict["target"] = "Bob"

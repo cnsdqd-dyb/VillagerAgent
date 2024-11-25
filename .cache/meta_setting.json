@@ -6,20 +6,20 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Handover a dirt to Bob, the dirt is in your inventory.",
+    "task_goal": "Store a oak_planks in chest. The chest is at (8, -60, 8).",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "Bob",
+        "target": "chest",
         "x": 8,
         "y": -60,
         "z": 8,
         "facing": "",
         "item_position": "inventory",
         "tool": "",
-        "action": "handover",
+        "action": "store",
         "step": 1,
         "other_arg": [
-            "dirt"
+            "oak_planks"
         ]
     },
     "document_file": "data\\recipe_hint.json",

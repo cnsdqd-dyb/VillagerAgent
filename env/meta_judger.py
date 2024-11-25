@@ -358,6 +358,10 @@ def handleViewer(*args):
                 else:
                     bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
                 bot.chat(f"/setblock {furnace_x} {furnace_y} {furnace_z} furnace")
+            if arg_dict["action"] == "store":
+                bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} chest")
+                bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]} 1")
+
         elif interact_type == "player":
             global arg_host, arg_port
             npcbot = mineflayer.createBot({
@@ -505,6 +509,8 @@ def handle(this):
                 if interact_type == "block":
                     if arg_dict["action"] == "cook":
                         bot.chat(f'/data get entity {agent_name}')
+                    if arg_dict["action"] == "store":
+                        bot.chat(f"/data get block {arg_dict['x']} {arg_dict['y']} {arg_dict['z']}")
                 if interact_type == "animal":
                     if arg_dict["action"] == "feed":
                         bot.chat(f"/data get entity @e[type={target},limit=1,sort=nearest]")
@@ -703,6 +709,11 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                 inlove = data.get("InLove", 0)
                 if int(inlove) > 0:
                     score = 100
+            elif config["task_scenario"] == "interact" and arg_dict["action"] == "store":
+                if "Items" in data:
+                    for item in data["Items"]:
+                        if aligned_item_name(item["id"]) == arg_dict["other_arg"][0]:
+                            score = 100
             elif config["task_scenario"] == "useitem" and "sign" in arg_dict["target"]:
                 for i in range(1, 5):
                     if f"Text{i}" in data:
