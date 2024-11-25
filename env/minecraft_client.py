@@ -176,6 +176,7 @@ class Agent():
                     Agent.agent_process[key] = subprocess.Popen(
                         ["python", "env/minecraft_server_fast.py", "-H", host, "-P", str(port), "-LP", str(value), "-U", key, "-W",
                     world, "-D", str(debug)], shell=False)
+                    print(f"python env/minecraft_server_fast.py -H \"{host}\" -P {port} -LP {value} -U \"{key}\" -W \"{world}\" -D {debug}")
                 except Exception as e:
                     print(f"An error occurred: {e}")
                     print(f"python env/minecraft_server_fast.py -H \"{host}\" -P {port} -LP {value} -U \"{key}\" -W \"{world}\" -D {debug}")

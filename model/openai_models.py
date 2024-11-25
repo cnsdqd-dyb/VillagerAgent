@@ -64,13 +64,6 @@ class OpenAILanguageModel(AbstractLanguageModel):
 
         self.use_chat_api = "gpt" in self.api_model
         self.role_name = role_name
-        if self.role_name != "":
-            if not os.path.exists("ui/logs"):
-                os.mkdir("ui/logs")
-            file_name = f"ui/logs/{role_name}.json"
-            self.log_file = open(file_name, "w")
-            self.log_file.write("[]")
-            self.log_file.close()
 
         # reference : https://www.promptingguide.ai/techniques/react
         self.ReAct_prompt = ""
@@ -250,7 +243,7 @@ class OpenAILanguageModel(AbstractLanguageModel):
         logger.debug(f"Time taken: {time.time() - start_time}")
         return content
 
-    @retry(tries=10, delay=5, backoff=2, max_delay=60)
+    # @retry(tries=10, delay=5, backoff=2, max_delay=60)
     def few_shot_generate_thoughts(self, system_prompt: str = "", example_prompt: [str] or str = [], max_tokens=1024,
                                    temperature=0.0, k=1, stop=None, cache_enabled=True, api_model="", check_tags=[],
                                    json_check=False, stream=True):
@@ -260,6 +253,9 @@ class OpenAILanguageModel(AbstractLanguageModel):
             base_url=self.api_base,
             max_retries=5,
         )
+        # print(random.choice(self.api_key_list) if len(self.api_key_list) > 0 else self.api_key)
+        # print(self.api_base)
+        # print(self.api_model)
         if api_model == "":
             api_model = self.api_model
         else:
@@ -276,113 +272,93 @@ class OpenAILanguageModel(AbstractLanguageModel):
         if cache_enabled:
             content = self.cache_api_call_handler(prompt, max_tokens, temperature, k, stop)
             if content is not None:
-                if self.role_name:
-                    try:
-                        with open(f"ui/logs/{self.role_name}.json", "r") as log_file:
-                            logs = json.load(log_file)
-                        logs.append({"prompt": prompt, "response": content})
-                        with open(f"ui/logs/{self.role_name}.json", "w") as log_file:
-                            json.dump(logs, log_file)
-                    except Exception as e:
-                        with open(f"ui/logs/{self.role_name}.json", "w") as log_file:
-                            json.dump([], log_file)
                 return content
         start_time = time.time()
         while True:
-            try:
-                messages = [{"role": "system", "content": system_prompt}]
-                for i in range(len(example_prompt)):
-                    if i % 2 == 0:
-                        messages.append({"role": "user", "content": example_prompt[i]})
-                    else:
-                        messages.append({"role": "assistant", "content": example_prompt[i]})
-
-                # dynamic change timeout by token number
-                messages = self.guard_token_number(messages, api_model, max_tokens)
- 
-                if stream:
-                    content = self.gpt_api_stream(messages, api_model, temperature)
-                    usage_data = {"prompt_tokens": self.num_tokens_from_string(prompt, api_model),
-                             "completion_tokens": self.num_tokens_from_string(content, api_model)}
-                    self.update_token_usage(usage_data["prompt_tokens"], usage_data["completion_tokens"])
+            # try:
+            messages = [{"role": "system", "content": system_prompt}]
+            for i in range(len(example_prompt)):
+                if i % 2 == 0:
+                    messages.append({"role": "user", "content": example_prompt[i]})
                 else:
-                    response = self.gpt_api(messages, api_model, temperature)
+                    messages.append({"role": "assistant", "content": example_prompt[i]})
 
-                    self.update_token_usage(response.usage.prompt_tokens, response.usage.completion_tokens)
+            # dynamic change timeout by token number
+            messages = self.guard_token_number(messages, api_model, max_tokens)
 
-                    content = response.choices[0].message.content
+            if stream:
+                content = self.gpt_api_stream(messages, api_model, temperature)
+                usage_data = {"prompt_tokens": self.num_tokens_from_string(prompt, api_model),
+                            "completion_tokens": self.num_tokens_from_string(content, api_model)}
+                self.update_token_usage(usage_data["prompt_tokens"], usage_data["completion_tokens"])
+            else:
+                response = self.gpt_api(messages, api_model, temperature)
 
-                for tag in check_tags:
-                    if tag not in content:
-                        raise Exception(f"tag {tag} not in content {content}")
-                if json_check:
-                    if len(extract_info(content)) == 0:
-                        raise Exception(f"content {content} is not json")
-                if cache_enabled:
-                    self.save_cache(prompt, content)
-                with open("data/openai.logs", "a") as log_file:
-                    log_file.write(
-                        "\n" + "-----------" + "\n" + "Prompt : " + str(messages) + "\n"
-                    )
-                if self.role_name:
-                    if not os.path.exists(f"ui/logs/{self.role_name}.json"):
-                        os.makedirs("ui/logs", exist_ok=True)
-                        with open(f"ui/logs/{self.role_name}.json", "w") as log_file:
-                            json.dump([], log_file)
-                    with open(f"ui/logs/{self.role_name}.json", "r") as log_file:
-                        logs = json.load(log_file)
-                    logs.append({"prompt": prompt, "response": content})
-                    with open(f"ui/logs/{self.role_name}.json", "w") as log_file:
-                        json.dump(logs, log_file)
+                self.update_token_usage(response.usage.prompt_tokens, response.usage.completion_tokens)
 
-                # logger.info(f"LLM API Time taken: {time.time() - start_time}")
-                if os.path.exists("data/llm_inference.json"):
-                    with open("data/llm_inference.json", "r") as log_file:
-                        log = json.load(log_file)
-                    log["time"] += time.time() - start_time
-                    with open("data/llm_inference.json", "w") as log_file:
-                        json.dump(log, log_file)
-                return content
+                content = response.choices[0].message.content
+
+            for tag in check_tags:
+                if tag not in content:
+                    raise Exception(f"tag {tag} not in content {content}")
+            if json_check:
+                if len(extract_info(content)) == 0:
+                    raise Exception(f"content {content} is not json")
+            if cache_enabled:
+                self.save_cache(prompt, content)
+            with open("data/openai.logs", "a") as log_file:
+                log_file.write(
+                    "\n" + "-----------" + "\n" + "Prompt : " + str(messages) + "\n"
+                )
+
+            # logger.info(f"LLM API Time taken: {time.time() - start_time}")
+            if os.path.exists("data/llm_inference.json"):
+                with open("data/llm_inference.json", "r") as log_file:
+                    log = json.load(log_file)
+                log["time"] += time.time() - start_time
+                with open("data/llm_inference.json", "w") as log_file:
+                    json.dump(log, log_file)
+            return content
             
-            except openai.APIConnectionError as e:
-                logger.warning("[Proxy] The server could not be reached")
-                # logger.warning(e.__cause__)  # an underlying Exception, likely raised within httpx.
+            # except openai.APIConnectionError as e:
+            #     logger.warning("[Proxy] The server could not be reached")
+            #     # logger.warning(e.__cause__)  # an underlying Exception, likely raised within httpx.
                 
 
-            except openai.RateLimitError as e:
-                sleep_duratoin = os.environ.get("OPENAI_RATE_TIMEOUT", 30)
-                logger.warning("A 429 status code was received; we should back off a bit.")
-                # time.sleep(sleep_duratoin)
-                raise e
+            # except openai.RateLimitError as e:
+            #     sleep_duratoin = os.environ.get("OPENAI_RATE_TIMEOUT", 30)
+            #     logger.warning("A 429 status code was received; we should back off a bit.")
+            #     # time.sleep(sleep_duratoin)
+            #     raise e
 
-            except openai.APIStatusError as e:
-                logger.warning("[Proxy] Another non-200-range status code was received")
-                logger.warning(e.status_code)
+            # except openai.APIStatusError as e:
+            #     logger.warning("[Proxy] Another non-200-range status code was received")
+            #     logger.warning(e.status_code)
 
-                if e.status_code == 403:
-                    # API KEY expired, remove it from the list
-                    if self.api_key in self.api_key_list:
-                        self.api_key_list.remove(self.api_key)
-                logger.warning(e.response)
-                self.client = OpenAI(
-                    # This is the default and can be omitted
-                    api_key=random.choice(self.api_key_list) if len(self.api_key_list) > 0 else self.api_key,
-                    base_url=self.api_base,
-                    max_retries=5,
-                )
+            #     if e.status_code == 403:
+            #         # API KEY expired, remove it from the list
+            #         if self.api_key in self.api_key_list:
+            #             self.api_key_list.remove(self.api_key)
+            #     logger.warning(e.response)
+            #     self.client = OpenAI(
+            #         # This is the default and can be omitted
+            #         api_key=random.choice(self.api_key_list) if len(self.api_key_list) > 0 else self.api_key,
+            #         base_url=self.api_base,
+            #         max_retries=5,
+            #     )
     
 
-            except openai.InternalServerError as e:
-                logger.warning("Something went wrong on OpenAI's end")
-                logger.warning(e.status_code)
-                logger.warning(e.response)
-                raise e
+            # except openai.InternalServerError as e:
+            #     logger.warning("Something went wrong on OpenAI's end")
+            #     logger.warning(e.status_code)
+            #     logger.warning(e.response)
+            #     raise e
 
-            except Exception as e:
-                logger.warning("Something other than an HTTP error occurred")
-                logger.warning(e)
-                logger.warning(e.__cause__)
-                raise e
+            # except Exception as e:
+            #     logger.warning("Something other than an HTTP error occurred")
+            #     logger.warning(e)
+            #     logger.warning(e.__cause__)
+            #     raise e
             
     def encode_image(self, image_path):
         with open(image_path, "rb") as image_file:

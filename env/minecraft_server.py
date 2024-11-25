@@ -30,7 +30,7 @@ collectBlock = require('mineflayer-collectblock')
 pvp = require("mineflayer-pvp").plugin
 minecraftHawkEye = require("minecrafthawkeye")
 Vec3 = require("vec3")
-# viewer = require('prismarine-viewer').mineflayer
+mineflayerViewer = require('prismarine-viewer').mineflayer
 Socks = require("socks5-client")
 minecraftData = require('minecraft-data')
 mcData = minecraftData('1.19.2')
@@ -43,6 +43,8 @@ bot = mineflayer.createBot({
     'auth': 'offline',
     'version': '1.19.2',
 })
+Item = require("prismarine-item")(bot.registry)
+
 bot.loadPlugin(pathfinder.pathfinder)
 bot.loadPlugin(collectBlock.plugin)
 bot.loadPlugin(pvp)
@@ -108,7 +110,7 @@ def render_structure():
 @log_activity(bot)  # 获取前端发来的消息
 def get_msg():
     """get_msg: get the message from the message queue."""
-    global msg_list
+    global msg_list # not support for the new version
     msg = msg_list
     msg_list = []
     return jsonify({'message': msg, 'status': True})
@@ -280,7 +282,7 @@ def find():
         blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=distance, max_same_block=3,visible_only=VISIBLE_ONLY)
         hint = readNearestSign(bot, Vec3, mcData, max_distance=5)
         for block in blocks:
-            msg += f"{block['name']} at {block['position']}\n"
+            msg += f"{block['name']} at {position_to_string(block['position'])}\n"
         if hint:
             msg += f"the sign nearby said: {hint}"
         
@@ -508,9 +510,16 @@ def environment():
     blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=32, max_same_block=3, visible_only=VISIBLE_ONLY)
     hint = readNearestSign(bot, Vec3, mcData, max_distance=5)
     for block in blocks:
-        msg += f"{block['name']} at {block['position']}\n"
+        msg += f"{block['name']} at {position_to_string(block['position'])}\n"
     if hint:
         msg += f"the sign nearby said: {hint}"
+
+    new_events = info_bot.get_event_description_new()
+    if len(new_events) > 0:
+        msg += "New events:\n"
+        for event in new_events:
+            # bot.chat(event["description"])
+            msg += f"{event['description']}\n"
     
     if os.path.exists(".cache/env.cache"):
         with open(".cache/env.cache", "r") as f:
@@ -534,6 +543,9 @@ def environment_info():
     hint = readNearestSign(bot, Vec3, mcData, max_distance=5)
     msg["blocks"] = blocks
     msg["sign"] = hint
+    new_events = info_bot.get_event_description_new()
+    msg['events'] = new_events
+
     if os.path.exists(".cache/env.cache"):
         with open(".cache/env.cache", "r") as f:
             cache = json.load(f)
@@ -989,8 +1001,14 @@ def chat_():
             break
     return jsonify({'message': f"I chat {message}", 'status': True})
 
+def position_to_string(position):
+    return f"({position.x:.1f}, {position.y:.1f}, {position.z:.1f})"
+
 @On(bot, 'spawn')
 def handleViewer(*args):
+    # Stream frames over tcp to a server listening on port 8089, ends when the application stop
+    mineflayerViewer(bot, { "port": 25566, "firstPerson": False })
+
     path = [bot.entity.position]
 
     bot.chat('/gamemode survival')
@@ -1019,16 +1037,225 @@ def handleViewer(*args):
     def handle(this, username, message, *args):
         global msg_list
         msg_list += [{"username": username, "message": message}]
+        info_bot.add_event("whisper", info_bot.existing_time, f"I received a message from {username}: {message}", True)
 
-@On(bot, "itemDrop")
-def handle(this, entity):
-    bot.chat("item drop")
-    global Pickable
-    dis = distanceTo(bot.entity.position, entity['position'])
-    if dis < 5:
-        move_to(pathfinder, bot, Vec3, 1, entity['position'])
+    @On(bot, "rain")
+    def rain(this):
+        if bot.isRaining:
+            info_bot.add_event("rain", info_bot.existing_time, f"It is raining now", True)
+        else:
+            info_bot.add_event("rain", info_bot.existing_time, f"It is not raining now", True)
+    
+    @On(bot, "noteHeard")
+    def noteHeard(this, block, instrument, pitch):
+        info_bot.add_event("noteHeard", info_bot.existing_time, f"I heard a note from {position_to_string(block['position'])} with {instrument} and {pitch}", True)
+    
+    @On(bot, "chestLidMove")
+    def chestLidMove(this, block, isOpen, *a):
+        action = "open" if isOpen else "close"
+        info_bot.add_event("chestLidMove", info_bot.existing_time, f"the chest at {position_to_string(block['position'])} is {action}", True)
+
+    @On(bot, "playerCollect")
+    def playerCollect(this, collector, collected):
+        if collector.type == "player":
+            for raw in collected.metadata:
+                # 如果raw有itemId, 说明是物品
+                try:
+                    if type(raw) != int and "itemId" in raw:
+                        item = Item.fromNotch(raw)
+                        info_bot.add_event("playerCollect", info_bot.existing_time, f"{collector.username} collected {item.count} {item.displayName}", True)
+                except:
+                    pass
+
+    @On(bot, "entitySpawn")
+    def entitySpawn(this, entity):
+        if entity.type == "mob":
+            p = entity.position
+            info_bot.add_event("entitySpawn", info_bot.existing_time, f"A {entity.displayName} spawned at {position_to_string(p)}", True)
+            # console.log(f"Look out! A {entity.displayName} spawned at {p.toString()}")
+        elif entity.type == "player":
+            pass
+            # bot.chat(f"Look who decided to show up: {entity.username}")
+        elif entity.type == "object":
+            p = entity.position
+            info_bot.add_event("entitySpawn", info_bot.existing_time, f"There's a {entity.displayName} at {position_to_string(p)}", True)
+            # console.log(f"There's a {entity.displayName} at {p.toString()}")
+        elif entity.type == "global":
+            pass
+            # bot.chat("Ooh lightning!")
+        elif entity.type == "orb":
+            info_bot.add_event("entitySpawn", info_bot.existing_time, f"Experience orb at {position_to_string(entity.position)}", True)
+            # bot.chat("Gimme dat exp orb!")
+        
+    @On(bot, "entityHurt")
+    def entityHurt(this, entity):
+        if entity.type == "mob":
+            info_bot.add_event("entityHurt", info_bot.existing_time, f"The {entity.displayName} got hurt!", True)
+            # bot.chat(f"Haha! The ${entity.displayName} got hurt!")
+        elif entity.type == "player":
+            if entity.username in bot.players:
+                ping = bot.players[entity.username].ping
+                info_bot.add_event("entityHurt", info_bot.existing_time, f"The {entity.username} got hurt.", True)
+                # bot.chat(f"Aww, poor {entity.username} got hurt. Maybe you shouldn't have a ping of {ping}")
+    
+    @On(bot, "entitySwingArm")
+    def entitySwingArm(this, entity):
+        # info_bot.add_event("entitySwingArm", info_bot.existing_time, f"{entity.username} is swinging arm.", True)
+        # bot.chat(f"{entity.username}, I see that your arm is working fine.")
+        pass
+
+    @On(bot, "entityCrouch")
+    def entityCrouch(this, entity):
+        info_bot.add_event("entityCrouch", info_bot.existing_time, f"{entity.username} is crouching.", True)
+        # bot.chat(f"${entity.username}: you so sneaky.")
 
 
+    @On(bot, "entityUncrouch")
+    def entityUncrouch(this, entity):
+        info_bot.add_event("entityUncrouch", info_bot.existing_time, f"{entity.username} is standing up.", True)
+        # bot.chat(f"{entity.username}: welcome back from the land of hunchbacks.")
+
+
+    @On(bot, "entitySleep")
+    def entitySleep(this, entity):
+        info_bot.add_event("entitySleep", info_bot.existing_time, f"{entity.username} is sleeping.", True)
+        # bot.chat(f"Good night, {entity.username}")
+
+
+    @On(bot, "entityWake")
+    def entityWake(this, entity):
+        info_bot.add_event("entityWake", info_bot.existing_time, f"{entity.username} is awake.", True)
+        # bot.chat(f"Top of the morning, {entity.username}")
+
+
+    @On(bot, "entityEat")
+    def entityEat(this, entity):
+        info_bot.add_event("entityEat", info_bot.existing_time, f"{entity.username} is eating.", True)
+        # bot.chat(f"{entity.username}: OM NOM NOM NOMONOM. That's what you sound like.")
+
+
+    @On(bot, "entityAttach")
+    def entityAttach(this, entity, vehicle):
+        if entity.type == "player" and vehicle.type == "object":
+            info_bot.add_event("entityAttach", info_bot.existing_time, f"{entity.username} is riding that {vehicle.displayName}", True)
+            # print(f"Sweet, {entity.username} is riding that {vehicle.displayName}")
+
+
+    @On(bot, "entityDetach")
+    def entityDetach(this, entity, vehicle):
+        if entity.type == "player" and vehicle.type == "object":
+            info_bot.add_event("entityDetach", info_bot.existing_time, f"Lame, {entity.username} stopped riding the {vehicle.displayName}", True)
+            # print(f"Lame, {entity.username} stopped riding the {vehicle.displayName}")
+
+
+    @On(bot, "entityEquipmentChange")
+    def entityEquipmentChange(this, entity):
+        # print("entityEquipmentChange", entity)
+        try:
+            mainHandItem = entity.inventory.slots[entity.getEquipmentDestSlot("hand")]
+            if mainHandItem:
+                info_bot.add_event("entityEquipmentChange", info_bot.existing_time, f"{entity.username} is holding {mainHandItem['name']}", True)
+        except:
+            pass
+
+    @On(bot, "entityEffect")
+    def entityEffect(this, entity, effect):
+        # print("entityEffect", entity, effect)
+        info_bot.add_event("entityEffect", info_bot.existing_time, f"{entity.username} is under the effect of {effect}", True)
+
+
+    @On(bot, "entityEffectEnd")
+    def entityEffectEnd(this, entity, effect):
+        # print("entityEffectEnd", entity, effect)
+        info_bot.add_event("entityEffectEnd", info_bot.existing_time, f"{entity.username} is no longer under the effect of {effect}", True)
+
+    @On(bot, "itemDrop")
+    def handle(this, entity):
+        # bot.chat("item drop")
+        global Pickable
+        dis = distanceTo(bot.entity.position, entity['position'])
+        if dis < 5 and info_bot.existing_time > 10:
+            info_bot.add_event("itemDrop", info_bot.existing_time, f"An item drop at {position_to_string(entity.position)}", True)
+            move_to(pathfinder, bot, Vec3, 1, entity['position'])
+
+    @On(bot, "health")
+    def handle(this):
+        info_bot.add_event("health", info_bot.existing_time, f"My health now is: {bot.health}", True)
+
+    @On(bot, "breath")
+    def handle(this):
+        info_bot.add_event("breath", info_bot.existing_time, f"My breath now is: {bot.breath}", True)
+    
+    @On(bot, "entityShakingOffWater")
+    def handle(this, entity):
+        info_bot.add_event("entityShakingOffWater", info_bot.existing_time, f"{entity.username} is shaking off water", True)
+
+    @On(bot, "blockPlaced")
+    def handle(this, oldBlock, newBlock):
+        info_bot.add_event("blockPlaced", info_bot.existing_time, f"A block placed at {position_to_string(newBlock.position)}", True)
+
+    # "mount"
+    # Fires when you mount an entity such as a minecart. To get access to the entity, use bot.vehicle.
+
+    # To mount an entity, use mount.
+
+    # "dismount" (vehicle)
+    # Fires when you dismount from an entity.
+
+    # "windowOpen" (window)
+    # Fires when you begin using a workbench, chest, brewing stand, etc.
+
+    # "windowClose" (window)
+    # Fires when you may no longer work with a workbench, chest, etc.
+    @On(bot, "mount")
+    def handle(this):
+        info_bot.add_event("mount", info_bot.existing_time, f"I mount {bot.vehicle.displayName}", True)
+    
+    @On(bot, "dismount")
+    def handle(this, vehicle):
+        info_bot.add_event("dismount", info_bot.existing_time, f"I dismount {vehicle.displayName}", True)
+    
+    @On(bot, "windowOpen")
+    def handle(this, window):
+        info_bot.add_event("windowOpen", info_bot.existing_time, f"I open {window.displayName}", True)
+
+    @On(bot, "windowClose")
+    def handle(this, window):
+        info_bot.add_event("windowClose", info_bot.existing_time, f"I close {window.displayName}", True)
+
+    
+
+@On(bot, "time")
+def handle(this):
+    # bot.chat("time")
+    info_bot.update_time()
+
+    # if info_bot.existing_time % 10 == 0:
+    #     new_events = info_bot.get_event_description_new()
+    #     for event in new_events:
+    #         bot.chat(event["description"])
+
+class Bot():
+    def __init__(self):
+        self.existing_time = 0
+        self.events_log = []
+
+    def add_event(self, event, time, description, status):
+        self.events_log.append({"event": event, "time": time, "description": description, "status": status, "new": True})
+
+    
+    def get_event_description_new(self):
+        new_events = []
+        for event in self.events_log:
+            if event["new"]:
+                event["new"] = False
+                new_events.append(event)
+        return new_events
+
+    def update_time(self):
+        self.existing_time += 1
+
+info_bot = Bot()
 # app.run(port=local_port, debug=False)  # 等待bot加载完成 (bot加载完成后会发送spawn事件)
 # utility waitress-serve
 from waitress import serve

@@ -55,7 +55,7 @@ template = {
         "other_arg": []
     },
     "document_file": "data\\recipe_hint.json",
-    "host": "10.192.40.144",
+    "host": "10.214.180.148",
     "port": 25565,
     "task_name": ""
 }

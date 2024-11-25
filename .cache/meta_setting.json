@@ -1,6 +1,6 @@
 {
     "api_model": "gpt-4-1106-preview",
-    "api_base": "https://api.chatanywhere.tech/v1",
+    "api_base": "https://api.openai.com/v1/",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
@@ -23,7 +23,7 @@
         ]
     },
     "document_file": "data\\recipe_hint.json",
-    "host": "10.192.40.144",
+    "host": "10.214.180.148",
     "port": 25565,
     "task_name": "meta_test_task0"
 }
