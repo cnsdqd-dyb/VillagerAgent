@@ -334,6 +334,17 @@ class Agent():
         }
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
+    
+    def _navigateTo(player_name: str, x: int, y: int, z: int):
+        """Move to a Specific Position x y z, return string result"""
+        url = Agent.get_url_prefix()[player_name] + "/post_move_to_pos"
+        data = {
+            "x": x,
+            "y": y,
+            "z": z,
+        }
+        response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
+        return response.json()
 
     @tool
     @timeit
@@ -567,13 +578,13 @@ class Agent():
         }
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
-
+    
     @tool
     @timeit
     def openContainer(player_name: str, container_name: str, position=[0, 0, 0]):
         """Open the nearest but might not the correct 'chest' | 'container' | 'furnace' position is optional, return ('message': msg, 'status': True/False, 'data':[('name':name, 'count':count),...])"""
         if position != [0, 0, 0]:
-            response = Agent.navigateTo(player_name, position[0], position[1], position[2])
+            response = Agent._navigateTo(player_name, position[0], position[1], position[2])
             if response["status"] == False:
                 return response
         url = Agent.get_url_prefix()[player_name] + "/post_open"
@@ -583,6 +594,7 @@ class Agent():
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
 
+
     @tool
     @timeit
     def fetchContainerContents(player_name: str, item_name: str, position=[0, 0, 0]):
@@ -590,7 +602,7 @@ class Agent():
         if item_name not in ["chest", "inventory", "furnace", "container"]:
             return {'data': [], 'message': 'Failed item name not in ["chest", "inventory", "furnace", "container"]', 'status': False}
         if position != [0, 0, 0]:
-            response = Agent.navigateTo(player_name, position[0], position[1], position[2])
+            response = Agent._navigateTo(player_name, position[0], position[1], position[2])
             if response["status"] == False:
                 return response
         url = Agent.get_url_prefix()[player_name] + "/post_open"
@@ -605,7 +617,7 @@ class Agent():
     def closeContainer(player_name: str, item_name: str, position=[0, 0, 0]):
         """Close 'chest' | 'container' | 'furnace' position is optional."""
         if position != [0, 0, 0]:
-            response = Agent.navigateTo(player_name, position[0], position[1], position[2])
+            response = Agent._navigateTo(player_name, position[0], position[1], position[2])
             if response["status"] == False:
                 return response
         url = Agent.get_url_prefix()[player_name] + "/post_close"

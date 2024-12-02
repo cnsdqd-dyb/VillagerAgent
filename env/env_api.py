@@ -41,7 +41,7 @@ def readNearestSign(bot, Vec3, mcData, max_distance=7) -> str:
             blocks.append(block)
     if len(blocks) > 0:
         # sort by distance
-        bot.chat(f"find {len(blocks)} signs")
+        # bot.chat(f"find {len(blocks)} signs")
         blocks.sort(key=lambda x: distanceTo(x, bot.entity.position))
         block = bot.blockAt(blocks[0])
         text = block.getSignText()
@@ -280,24 +280,24 @@ def chat_long(bot, name, message, type='msg'):
     if type == 'msg':
         if len(message) < 256:
             time.sleep(.5)
-            bot.chat(f'msg {name} {message}')
+            bot.chat(f'[{bot.entity.username}] --MSG-- [{name}] {message}')
             return
         while len(message) > 0:
             time.sleep(.5)
-            bot.chat(f'msg {name} {message[:200]}' + '[SENDING]')
+            bot.chat(f'[{bot.entity.username}] --MSG-- [{name}] {message[:200]}' + '[SENDING]')
             message = message[200:]
         # bot.chat(f'msg {name} [SEND]')
 
     else:
         if len(message) < 256:
             time.sleep(.5)
-            bot.chat(f'{name} talk_to {message}')
+            bot.chat(f'[{bot.entity.username}] --CHAT-- [{name}] {message}')
             return
         while len(message) > 0:
             time.sleep(.5)
-            bot.chat(f'{name} talk_to {message[:200]}' + '[SENDING]')
+            bot.chat(f'[{bot.entity.username}] --CHAT-- [{name}] {message[:200]}' + '[SENDING]')
             message = message[200:]
-        bot.chat(f'{name} talk_to [SEND]')
+        bot.chat(f'[{bot.entity.username}] --CHAT-- [{name}] [SEND]')
 
 
 def getEntityInfo(bot, entity, post_info, observation_list, perception_range):

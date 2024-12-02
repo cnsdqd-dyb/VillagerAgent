@@ -100,11 +100,12 @@ def render_structure():
             elif b["facing"] == "A":
                 bot.chat(f'/setblock {x} {y} {z} {b["name"]}')
 
-
-    except Exception as e:
-        return jsonify({'message': str(e), 'status': False})
     
-    return jsonify({'message': "render success", 'status': True})
+    except Exception as e:
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': str(e), 'status': False, "new_events": events})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': "render success", 'status': True, "new_events": events})
 
 @app.route('/post_msg', methods=['POST'])
 @log_activity(bot)  # 获取前端发来的消息
@@ -113,13 +114,14 @@ def get_msg():
     global msg_list # not support for the new version
     msg = msg_list
     msg_list = []
-    return jsonify({'message': msg, 'status': True})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': True, "new_events": events})
 
 
 @app.route('/post_time', methods=['POST'])
 @log_activity(bot)  # 获取前端的时间
 def get_time():
-    return jsonify({'time': str(bot.time.timeOfDay)})
+    return jsonify({'time': str(bot.time.timeOfDay), 'status': True, "new_events": []})
 
 @app.route('/post_lay', methods=['POST'])
 @log_activity(bot)
@@ -130,13 +132,16 @@ def lay_():
     need = (abs(x_1 - x_2) + 1) * (abs(y_1 - y_2) + 1) * (abs(z_1 - z_2) + 1)
     tag, msg = move_to(pathfinder, bot, Vec3, 3, Vec3(x_1, y_1, z_1))
     if not tag:
-        return jsonify({'message': msg, 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': False, "new_events": events})
     tag, msg = move_to(pathfinder, bot, Vec3, 3, Vec3(x_2, y_2, z_2))
     if not tag:
-        return jsonify({'message': msg, 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': False, "new_events": events})
     
     if countInventoryItems(bot, 'dirt')[1] < need:
-        return jsonify({'message': f"Don't have enough dirt in inventory, have {countInventoryItems(bot, 'dirt')[1]}, need {need}", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"Don't have enough dirt in inventory, have {countInventoryItems(bot, 'dirt')[1]}, need {need}", 'status': False, "new_events": events})
     if x_1 == x_2 and y_1 == y_2:
         for z in range(min(z_1, z_2), max(z_1, z_2) + 1):
             bot.chat(f"/setblock {x_1} {y_1} {z} dirt")
@@ -148,9 +153,10 @@ def lay_():
             move_to(pathfinder, bot, Vec3, 3, Vec3(x, y_1, z_1+1))
             time.sleep(1)
     else:
-        return jsonify({'message': "only lay dirt in axis x or z is supported", 'status': False})
-    
-    return jsonify({'message': "lay success", 'status': True})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "only lay dirt in axis x or z is supported", 'status': False, "new_events": events})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': "lay success", 'status': True, "new_events": events})
 
 @app.route('/post_remove', methods=['POST'])
 @log_activity(bot)
@@ -160,10 +166,12 @@ def remove_():
     x_1, y_1, z_1, x_2, y_2, z_2 = data.get('x_1'), data.get('y_1'), data.get('z_1'), data.get('x_2'), data.get('y_2'), data.get('z_2')
     tag, msg = move_to(pathfinder, bot, Vec3, 3, Vec3(x_1, y_1, z_1))
     if not tag:
-        return jsonify({'message': msg, 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': False, "new_events": events})
     tag, msg = move_to(pathfinder, bot, Vec3, 3, Vec3(x_2, y_2, z_2))
     if not tag:
-        return jsonify({'message': msg, 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': False, "new_events": events})
     if x_1 == x_2 and y_1 == y_2:
         for z in range(min(z_1, z_2), max(z_1, z_2) + 1):
             if bot.blockAt(Vec3(x_1, y_1, z)).name == "dirt":
@@ -177,8 +185,10 @@ def remove_():
             move_to(pathfinder, bot, Vec3, 3, Vec3(x, y_1, z_1+1))
             time.sleep(1)
     else:
-        return jsonify({'message': "only remove dirt in axis x or z is supported", 'status': False})
-    return jsonify({'message': "remove dirt line success", 'status': True})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "only remove dirt in axis x or z is supported", 'status': False, "new_events": events})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': "remove dirt line success", 'status': True, "new_events": events})
 
 
 @app.route('/post_erect', methods=['POST'])
@@ -191,11 +201,13 @@ def erect():
     # 计算top 和 bot 的距离
     distance = ((top_x - bot.entity.position.x) ** 2 + (top_y - bot.entity.position.y) ** 2 + (top_z - bot.entity.position.z) ** 2) ** .5
     if distance > 32:
-        return jsonify({'message': "the distance is too far", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "the distance is too far", 'status': False, "new_events": events})
 
     # bottom 是遍历找到的最低的方块
     if bot.blockAt(Vec3(top_x, top_y, top_z)).name != "air":
-        return jsonify({'message': "the top is not air", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "the top is not air", 'status': False, "new_events": events})
     
     bottom_y = top_y
     for y in range(top_y, -64, -1):
@@ -207,11 +219,14 @@ def erect():
     need_dirt = (top_y - bottom_y) 
     need_ladder = (top_y - bottom_y)
     if countInventoryItems(bot, "dirt")[1] < need_dirt and countInventoryItems(bot, "ladder")[1] < need_ladder:
-        return jsonify({'message': f"Don't have enough dirt and ladder in inventory, have {countInventoryItems(bot, 'dirt')[1]}, need {need_dirt}, have {countInventoryItems(bot, 'ladder')[1]}, need {need_ladder}", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"Don't have enough dirt and ladder in inventory, have {countInventoryItems(bot, 'dirt')[1]}, need {need_dirt}, have {countInventoryItems(bot, 'ladder')[1]}, need {need_ladder}", 'status': False, "new_events": events})
     if countInventoryItems(bot, "dirt")[1] < need_dirt:
-        return jsonify({'message': f"Don't have enough dirt in inventory, have {countInventoryItems(bot, 'dirt')[1]}, need {need_dirt}", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"Don't have enough dirt in inventory, have {countInventoryItems(bot, 'dirt')[1]}, need {need_dirt}", 'status': False, "new_events": events})
     if countInventoryItems(bot, "ladder")[1] < need_ladder:
-        return jsonify({'message': f"Don't have enough ladder in inventory, have {countInventoryItems(bot, 'ladder')[1]}, need {need_ladder}", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"Don't have enough ladder in inventory, have {countInventoryItems(bot, 'ladder')[1]}, need {need_ladder}", 'status': False, "new_events": events})
     # 从低到高，放置方块
     x = top_x
     z = top_z
@@ -232,7 +247,8 @@ def erect():
         # bot.chat(f"setblock {x} {y} {z} spruce_planks")
         move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z+1))
         time.sleep(.1)
-    return jsonify({'message': "erect success", 'status': True})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': "erect success", 'status': True, "new_events": events})
 
 @app.route('/post_dismantle', methods=['POST'])
 @log_activity(bot)
@@ -243,10 +259,12 @@ def dismantle():
     # 计算top 和 bot 的距离
     distance = ((top_x - bot.entity.position.x) ** 2 + (top_y - bot.entity.position.y) ** 2 + (top_z - bot.entity.position.z) ** 2) ** .5
     if distance > 32:
-        return jsonify({'message': "the distance is too far", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "the distance is too far", 'status': False, "new_events": events})
     # bottom 是遍历找到的最低的方块
     if bot.blockAt(Vec3(top_x, top_y, top_z)).name == "air" and bot.blockAt(Vec3(top_x, top_y-1, top_z)).name == "air":
-        return jsonify({'message': "the top is air", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "the top is air", 'status': False, "new_events": events})
     bottom_y = top_y
     bottom_y = -59
     # 从高到低，放置方块
@@ -260,7 +278,8 @@ def dismantle():
         bot.chat(f"setblock {x} {y} {z} air {bot.blockAt(Vec3(x, y, z)).name}")
         move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z+1))
         time.sleep(.1)
-    return jsonify({'message': "dismantle success", 'status': True})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': "dismantle success", 'status': True, "new_events": events})
 
 @app.route('/post_find', methods=['POST'])
 @log_activity(bot)
@@ -295,7 +314,8 @@ def find():
                 if (pos[0] - bot.entity.position.x) ** 2 + (pos[1] - bot.entity.position.y) ** 2 + (
                         pos[2] - bot.entity.position.z) ** 2 < 25:
                     msg += f"the env in the room: {c['state']}"
-        return jsonify({'message': f"can not find anything match '{name}', environment: "+ msg, 'status': False, 'data':[]})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"can not find anything match '{name}', environment: "+ msg, 'status': False, 'data':[], "new_events": events})
     
     observation = ""
     # 耗时操作
@@ -327,11 +347,13 @@ def find():
                 pos_data.append({"x": floor(pos.x + .5), "y": floor(pos.y + .5), "z": floor(pos.z + .5)})
         observation += str_pos_list
         done = True
-        return jsonify({'message': observation, 'status': done, 'data':pos_data})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': observation, 'status': done, 'data':pos_data, "new_events": events})
     else:
         observation += f"can not find item with name '{name}'"
         done = False
-        return jsonify({'message': observation, 'status': done, 'data':[]})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': observation, 'status': done, 'data':[], "new_events": events})
  
 @app.route('/post_hand', methods=['POST'])
 @log_activity(bot)
@@ -344,19 +366,24 @@ def hand():
     envs_info = get_envs_info(bot, 128)
     tag, msg = move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 2, target_name)
     if not tag:
-        return jsonify({'message': msg, 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': False, "new_events": events})
     entities = get_entity_by('username', envs_info, target_name)
     if not entities:
-        return jsonify({'message': f"{target_name} is not valid", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"{target_name} is not valid", 'status': False, "new_events": events})
     entities = get_entity_by('username', envs_info, from_name)
     if not entities:
-        return jsonify({'message': f"{from_name} is not valid", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"{from_name} is not valid", 'status': False, "new_events": events})
     if countInventoryItems(bot, item_name)[1] < count and (not bot.heldItem or bot.heldItem.name != item_name.lower().replace(" ", "_")):
-        return jsonify({'message': f"{from_name} don't have enough {item_name} in inventory", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"{from_name} don't have enough {item_name} in inventory", 'status': False, "new_events": events})
     bot.chat(f"/clear {from_name} {item_name} {count}")
     time.sleep(1)
     bot.chat(f"/give {target_name} {item_name} {count}")
-    return jsonify({'message': f"give {item_name} from {from_name} to {target_name}", 'status': True})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': f"give {item_name} from {from_name} to {target_name}", 'status': True, "new_events": events})
 
 @app.route('/post_move_to', methods=['POST'])
 @log_activity(bot)
@@ -368,7 +395,8 @@ def move_to_():
     tag, msg = move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 5, name)
     done = tag
     move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 1, name)
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_move_to_pos', methods=['POST'])
@@ -381,7 +409,8 @@ def move_to_pos():
     tag2, msg2 = move_to(pathfinder, bot, Vec3, 2, Vec3(x, y, z))
     tag3, msg3 = move_to(pathfinder, bot, Vec3, 1, Vec3(x, y, z))
     # lookAtPlayer(bot, entity['position'])
-    return jsonify({'message': msg1, 'status': tag1})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg1, 'status': tag1, "new_events": events})
 
 
 @app.route('/post_use_on', methods=['POST'])
@@ -393,7 +422,8 @@ def use_on():
     envs_info = get_envs_info(bot, 128)
     msg, tag = useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, item_name, entity_name)
     done = tag
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_sleep', methods=['POST'])
@@ -402,7 +432,8 @@ def sleep_():
     """sleep: to sleep."""
     msg = sleep(bot, Vec3, mcData)
     done = True
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_wake', methods=['POST'])
@@ -411,7 +442,8 @@ def wake_():
     """wake: to wake."""
     msg = wake(bot)
     done = True
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_dig', methods=['POST'])
@@ -421,8 +453,8 @@ def dig():
     data = request.get_json()
     x, y, z = data.get('x'), data.get('y'), data.get('z')
     msg, tag = dig_at(bot, pathfinder, Vec3, (x, y, z))
-    
-    return jsonify({'message': msg, 'status': tag})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': tag, "new_events": events})
 
 
 @app.route('/post_place', methods=['POST'])
@@ -440,7 +472,8 @@ def place():
     if facing.lower() == 'west' or facing.lower() == 'east':
         facing = 'x'
     if facing not in ['x', 'y', 'z', "W", "E", "S", "N", "A"]:
-        return jsonify({'message': "facing is one of [W, E, S, N, x, y, z, A]", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "facing is one of [W, E, S, N, x, y, z, A]", 'status': False, "new_events": events})
     flag, msg = asyncio.run(place_axis(bot, mcData, pathfinder, Vec3, item_name, (x, y, z), facing))
 
     # 随机移动一下 防止卡住
@@ -449,8 +482,10 @@ def place():
     center_pos = bot.entity.position
     move_to(pathfinder, bot, Vec3, 3, Vec3(center_pos.x+random_x, center_pos.y, center_pos.z+random_z))
     if not flag and item_name == 'ladder':
-        return jsonify({'message': f"{msg}, there is no block to support it.", 'status': False})
-    return jsonify({'message': msg, 'status': flag})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"{msg}, there is no block to support it.", 'status': False, "new_events": events})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': flag, "new_events": events})
 
 
 @app.route('/post_attack', methods=['POST'])
@@ -462,7 +497,8 @@ def attack_():
     envs_info = get_envs_info(bot, 128)
     msg, tag = asyncio.run(attack(bot, envs_info, mcData, name))
     done = tag
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_equip', methods=['POST'])
@@ -475,21 +511,25 @@ def equip_():
     slot = "hand" if slot == "mainhand" else slot
     if bot.heldItem and slot == "hand":
         if bot.heldItem.name == item_name or bot.heldItem.name == item_name.replace(" ", "_"):
-            return jsonify({'message': f"{bot.username} already has {data.get('item_name')} in hand", 'status': True})
+            events = info_bot.get_action_description_new()
+            return jsonify({'message': f"{bot.username} already has {data.get('item_name')} in hand", 'status': True, "new_events": events})
     observation = ""
     value_data = []
     try:
         if not findInventoryItems(bot, item_name):
             observation += f"I don't have {item_name} in my inventory"
-            return jsonify({'message': observation, 'status': False, 'data': []})
+            events = info_bot.get_action_description_new()
+            return jsonify({'message': observation, 'status': False, 'data': [], "new_events": events})
         else:
             msg, done = equip(bot, item_name, slot)
             observation += msg
-            return jsonify({'message': observation, 'status': done, 'data': value_data})
+            events = info_bot.get_action_description_new()
+            return jsonify({'message': observation, 'status': done, 'data': value_data, "new_events": events})
     except:
         observation += "equip fail"
         done = False
-        return jsonify({'message': observation, 'status': done, 'data': value_data})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': observation, 'status': done, 'data': value_data, "new_events": events})
 
 
 @app.route('/post_toss', methods=['POST'])
@@ -499,7 +539,8 @@ def toss_():
     data = request.get_json()
     item_name, count = data.get('item_name'), data.get('count', 1)
     msg, tag = toss(bot, mcData, item_name, count)
-    return jsonify({'message': msg, 'status': tag})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': tag, "new_events": events})
 
 
 @app.route('/post_environment', methods=['POST'])
@@ -532,7 +573,8 @@ def environment():
                 msg["sign"] += f"The subtask in this room: {c['task_description']}"
                 msg["sign"] += f"The env in the room: {c['state']}"
     done = True
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 @app.route('/post_environment_dict', methods=['POST'])
 @log_activity(bot)  # 获取环境信息
@@ -557,7 +599,8 @@ def environment_info():
                 msg["sign"] += f"The subtask in this room: {c['task_description']}"
                 msg["sign"] += f"The env in the room: {c['state']}"
     done = True
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_entity', methods=['POST'])
@@ -567,7 +610,8 @@ def entity():
     data = request.get_json()
     name = data.get('name', "")
     info, num = get_agent_info2str(bot, RENDER_DISTANCE=32, idle=False, with_humans=False, name=name)
-    return jsonify({'message': info, 'status': True, 'data': num})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': info, 'status': True, 'data': num, "new_events": events})
 
 
 @app.route('/post_get', methods=['POST'])
@@ -583,7 +627,8 @@ def get():
         item_count = -item_count
     tag, flag, data = asyncio.run(
         interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, from_name, get_item_name=item_name, count=-item_count))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_put', methods=['POST'])
@@ -595,7 +640,8 @@ def put():
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(
         interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, to_name, get_item_name=item_name, count=item_count))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_smelt', methods=['POST'])
@@ -607,7 +653,8 @@ def smelt():
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, name="furnace", get_item_name=item_name, count=item_count,
                                              fuel_item_name=fuel_item_name))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_craft', methods=['POST'])
@@ -619,7 +666,8 @@ def craft():
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(
         interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, 'crafting_table', get_item_name=item_name, count=count))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_enchant', methods=['POST'])
@@ -632,7 +680,8 @@ def enchant():
     tag, flag, data = asyncio.run(
         interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, 'enchanting_table', get_item_name=item_name,
                          count=count))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_trade', methods=['POST'])
@@ -644,7 +693,8 @@ def trade():
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(
         interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, with_name, get_item_name=item_name, count=count))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_repair', methods=['POST'])
@@ -656,7 +706,8 @@ def repair():
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, 'anvil', repair_item_name=item_name,
                                              get_item_name=material))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_eat', methods=['POST'])
@@ -667,7 +718,8 @@ def eat():
     item_name = data.get('item_name')
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, item_name))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_drink', methods=['POST'])
@@ -678,7 +730,8 @@ def drink():
     item_name, count = data.get('item_name'), data.get('count')
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, item_name))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_wear', methods=['POST'])
@@ -697,11 +750,13 @@ def wear():
             observation += msg
         msg, done = equip(bot, item_name, slot)
         observation += msg
-        return jsonify({'message': observation, 'status': done, 'data': value_data})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': observation, 'status': done, 'data': value_data, "new_events": events})
     except:
         observation += "equip fail"
         done = False
-        return jsonify({'message': observation, 'status': done, 'data': value_data})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': observation, 'status': done, 'data': value_data, "new_events": events})
     
 @app.route('/post_find_inventory', methods=['POST'])
 @log_activity(bot)
@@ -710,7 +765,8 @@ def find_inventory():
     data = request.get_json()
     item_name = data.get('item_name')
     tag, count = findInventoryItems(bot, item_name)
-    return jsonify({'message': "", 'status': tag, 'data': count})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': "", 'status': tag, 'data': count, "new_events": events})
 
 
 @app.route('/post_open', methods=['POST'])
@@ -722,10 +778,12 @@ def open_():
     if item_name == "inventory":
         items = getInventoryItems(bot)
         data = [ {"name": item["name"], "count": item["count"]} for item in items]
-        return jsonify({'message': f"opened the inventory", 'status': True, 'data': data})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"opened the inventory", 'status': True, 'data': data, "new_events": events})
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, item_name))
-    return jsonify({'message': tag, 'status': flag, 'data': data})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': tag, 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_close', methods=['POST'])
@@ -737,9 +795,11 @@ def close_():
     envs_info = get_envs_info(bot, 128)
     tag, flag, data = asyncio.run(interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, item_name))
     if flag:
-        return jsonify({'message': "I close " + item_name, 'status': flag, 'data': data})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I close " + item_name, 'status': flag, 'data': data, "new_events": events})
     else:
-        return jsonify({'message': "I cannot close " + item_name + ", it is still open.", 'status': flag, 'data': data})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I cannot close " + item_name + ", it is still open.", 'status': flag, 'data': data, "new_events": events})
 
 
 @app.route('/post_activate', methods=['POST'])
@@ -773,13 +833,16 @@ def activate():
     
     if item_now_open == None and item_now_powered == None:
         description += ", it is not working."
-        return jsonify({'message': description, 'status': False, 'data': data})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': description, 'status': False, 'data': data, "new_events": events})
     
     if flag:
-        return jsonify({'message': description, 'status': flag, 'data': data})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': description, 'status': flag, 'data': data, "new_events": events})
     else:
+        events = info_bot.get_action_description_new()
         return jsonify({'message': "I cannot activate " + item_name + ", it is not working.", 'status': flag,
-                        'data': data})
+                        'data': data, "new_events": events})
 
 
 @app.route('/post_mount', methods=['POST'])
@@ -790,10 +853,12 @@ def mount_():
     entity_name = data.get('entity_name')
     try:
         msg, done = mount(bot, entity_name)
-        return jsonify({'message': msg, 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': done, "new_events": events})
     except:
         done = False
-        return jsonify({'message': "mount fail", 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "mount fail", 'status': done, "new_events": events})
 
 
 @app.route('/post_dismount', methods=['POST'])
@@ -802,10 +867,12 @@ def dismount_():
     """dismount:  to dismount the entity."""
     try:
         msg, done = dismount(bot)
-        return jsonify({'message': msg, 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': done, "new_events": events})
     except:
         done = False
-        return jsonify({'message': "dismount fail", 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "dismount fail", 'status': done, "new_events": events})
 
 
 @app.route('/post_ride', methods=['POST'])
@@ -816,10 +883,12 @@ def ride():
     entity_name = data.get('entity_name')
     try:
         msg, done = mount(bot, entity_name)
-        return jsonify({'message': msg, 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': done, "new_events": events})
     except:
         done = False
-        return jsonify({'message': "ride fail", 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "ride fail", 'status': done, "new_events": events})
 
 
 @app.route('/post_disride', methods=['POST'])
@@ -828,10 +897,12 @@ def disride():
     """disride:  to disride the entity."""
     try:
         msg, done = dismount(bot)
-        return jsonify({'message': msg, 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': done, "new_events": events})
     except:
         done = False
-        return jsonify({'message': "disride fail", 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "disride fail", 'status': done, "new_events": events})
 
 
 @app.route('/post_talk_to', methods=['POST'])
@@ -841,7 +912,8 @@ def talk_to():
     data = request.get_json()
     entity_name, message = data.get('entity_name'), data.get('message')
     chat_long(bot, entity_name, message, "talk")
-    return jsonify({'message': f"I talk to {entity_name} {message}", 'status': True})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': f"I talk to {entity_name} {message}", 'status': True, "new_events": events})
 
 
 @app.route('/post_done', methods=['POST'])
@@ -850,8 +922,9 @@ def done():
     """done:  to end the task."""
     data = request.get_json()
     feedback = data.get('feedback')
-    print(feedback)
-    return jsonify({'message': "I done", 'status': True})
+    # print(feedback)
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': "I done", 'status': True, "new_events": events})
 
 
 @app.route('/post_action', methods=['POST'])
@@ -864,21 +937,24 @@ def action():
         start_time = time.time()
         while time.time() - start_time < seconds:
             bot.swingArm()
-        return jsonify({'message': "I swing my arms.", 'status': True})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I swing my arms.", 'status': True, "new_events": events})
     elif action_name == 'forward':
         while seconds > 0:
             bot.setControlState('forward', True)
             seconds -= 1
             time.sleep(1)
         bot.setControlState('forward', False)
-        return jsonify({'message': "I move forward in a few seconds", 'status': True})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I move forward in a few seconds", 'status': True, "new_events": events})
     elif action_name == 'back':
         while seconds > 0:
             bot.setControlState('back', True)
             seconds -= 1
             time.sleep(1)
         bot.setControlState('back', False)
-        return jsonify({'message': "I move back in a few seconds", 'status': True})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I move back in a few seconds", 'status': True, "new_events": events})
     elif action_name == 'left':
         seconds = 1
         while seconds > 0:
@@ -886,30 +962,35 @@ def action():
             seconds -= 1
             time.sleep(1)
         bot.setControlState('left', False)
-        return jsonify({'message': "I move left in a few seconds", 'status': True})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I move left in a few seconds", 'status': True, "new_events": events})
     elif action_name == 'right':
         while seconds > 0:
             bot.setControlState('right', True)
             seconds -= 1
             time.sleep(1)
         bot.setControlState('right', False)
-        return jsonify({'message': "I move right in a few seconds", 'status': True})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I move right in a few seconds", 'status': True, "new_events": events})
     elif action_name == 'sprint':
         while seconds > 0:
             bot.setControlState('sprint', True)
             seconds -= 1
             time.sleep(1)
         bot.setControlState('sprint', False)
-        return jsonify({'message': "I sprint in a few seconds", 'status': True})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I sprint in a few seconds", 'status': True, "new_events": events})
     elif action_name == 'jump':
         while seconds > 0:
             bot.setControlState('jump', True)
             seconds -= 1
             time.sleep(1)
         bot.setControlState('jump', False)
-        return jsonify({'message': "I jump in a few seconds", 'status': True})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I jump in a few seconds", 'status': True, "new_events": events})
     else:
-        return jsonify({'message': "I cannot do this action", 'status': False})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I cannot do this action", 'status': False, "new_events": events})
 
 
 @app.route('/post_look_at', methods=['POST'])
@@ -924,9 +1005,11 @@ def look_at():
         lookAtPlayer(bot, pos)
     done = pos != None
     if not done:
-        return jsonify({'message': f"cannot find {name}.", 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"cannot find {name}.", 'status': done, "new_events": events})
     else:
-        return jsonify({'message': f"I look at {name}.", 'status': done})
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"I look at {name}.", 'status': done, "new_events": events})
 
 
 @app.route('/post_start_fishing', methods=['POST'])
@@ -936,7 +1019,8 @@ def start_fishing():
     envs_info = get_envs_info(bot, 128)
     msg, tag = startFishing(bot, Vec3, envs_info, mcData)
     done = tag
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_stop_fishing', methods=['POST'])
@@ -945,7 +1029,8 @@ def stop_fishing():
     """stop_fishing: stop fishing."""
     msg, tag = stopFishing(bot)
     done = tag
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_read', methods=['POST'])
@@ -957,7 +1042,8 @@ def read_():
     envs_info = get_envs_info(bot, 128)
     msg, tag = read(bot, Vec3, envs_info, mcData, name)
     done = tag
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_read_page', methods=['POST'])
@@ -969,7 +1055,8 @@ def read_page():
     envs_info = get_envs_info(bot, 128)
     msg, tag = read(bot, Vec3, envs_info, mcData, name, page)
     done = tag
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_write', methods=['POST'])
@@ -981,7 +1068,8 @@ def write_():
     envs_info = get_envs_info(bot, 128)
     msg, tag = write(bot, Vec3, envs_info, mcData, name, content)
     done = tag
-    return jsonify({'message': msg, 'status': done})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
 
 
 @app.route('/post_chat', methods=['POST'])
@@ -999,10 +1087,21 @@ def chat_():
         else:
             bot.chat(message_copy)
             break
-    return jsonify({'message': f"I chat {message}", 'status': True})
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': f"I chat {message}", 'status': True, "new_events": events})
 
 def position_to_string(position):
-    return f"({position.x:.1f}, {position.y:.1f}, {position.z:.1f})"
+    if type(position) == Vec3:
+        return f"({position.x:.1f}, {position.y:.1f}, {position.z:.1f})"
+    elif type(position) == dict:
+        return f"({position.x:.1f}, {position.y:.1f}, {position.z:.1f})"
+    elif type(position) == list:
+        return f"({position[0]:.1f}, {position[1]:.1f}, {position[2]:.1f})"
+    else:
+        try:
+            return f"({position.x:.1f}, {position.y:.1f}, {position.z:.1f})"
+        except:
+            return f"({position})"
 
 @On(bot, 'spawn')
 def handleViewer(*args):
@@ -1037,7 +1136,39 @@ def handleViewer(*args):
     def handle(this, username, message, *args):
         global msg_list
         msg_list += [{"username": username, "message": message}]
-        info_bot.add_event("whisper", info_bot.existing_time, f"I received a message from {username}: {message}", True)
+        if message.startswith("TEST"):
+            bot.chat("TEST received")
+            # 解析后续字段并分别反馈不同信息
+            # TEST: type: move, x: 1, y: 2, z: 3
+            try:
+                if "type" in message:
+                    if message["type"] == "move":
+                        x, y, z = message["x"], message["y"], message["z"]
+                        move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z))
+                # TEST: type: chat, message: hello
+                if "type" in message:
+                    if message["type"] == "chat":
+                        bot.chat(message["message"])
+                # TEST: type: whisper, message: hello
+                if "type" in message:
+                    if message["type"] == "whisper":
+                        bot.whisper(username, message["message"])
+                # TEST: type: info
+                if "type" in message:
+                    if message["type"] == "info":
+                        current_info = get_envs_info2str(bot, RENDER_DISTANCE=32, same_entity_num=3)
+                        bot.chat(current_info)
+            # TEST: type: help
+            except:
+                bot.chat("I cannot understand the message")
+                # remind the user of the correct format
+                bot.chat("The correct format is: TEST: type: move, x: 1, y: 2, z: 3")
+                bot.chat("The correct format is: TEST: type: chat, message: hello")
+                bot.chat("The correct format is: TEST: type: whisper, message: hello")
+                bot.chat("The correct format is: TEST: type: info")
+                bot.chat("The correct format is: TEST: type: help")
+        else:
+            info_bot.add_event("whisper", info_bot.existing_time, f"I received a message from {username}: {message}", True)
 
     @On(bot, "rain")
     def rain(this):
@@ -1071,7 +1202,7 @@ def handleViewer(*args):
     def entitySpawn(this, entity):
         if entity.type == "mob":
             p = entity.position
-            info_bot.add_event("entitySpawn", info_bot.existing_time, f"A {entity.displayName} spawned at {position_to_string(p)}", True)
+            info_bot.add_event("entitySpawn", info_bot.existing_time, f"A {entity.displayName} spawned at {position_to_string(p)}", True, acition=False)
             # console.log(f"Look out! A {entity.displayName} spawned at {p.toString()}")
         elif entity.type == "player":
             pass
@@ -1239,10 +1370,12 @@ class Bot():
     def __init__(self):
         self.existing_time = 0
         self.events_log = []
+        self.action_log = []
 
-    def add_event(self, event, time, description, status):
+    def add_event(self, event, time, description, status, acition=True):
         self.events_log.append({"event": event, "time": time, "description": description, "status": status, "new": True})
-
+        if acition:
+            self.action_log.append({"event": event, "time": time, "description": description, "status": status, "new": True})
     
     def get_event_description_new(self):
         new_events = []
@@ -1251,6 +1384,21 @@ class Bot():
                 event["new"] = False
                 new_events.append(event)
         return new_events
+    
+    def get_action_description_new_str(self):
+        new_events = self.get_action_description_new()
+        if len(new_events) > 0:
+            msg += "New events:\n"
+            for event in new_events:
+                msg += f"{event['description']}\n"
+    
+    def get_action_description_new(self):
+        new_actions = []
+        for action in self.action_log:
+            if action["new"]:
+                action["new"] = False
+                new_actions.append(action['description'])
+        return new_actions
 
     def update_time(self):
         self.existing_time += 1

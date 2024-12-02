@@ -50,8 +50,8 @@ class GlobalController:
 
         llm = init_language_model(llm_config)
         self.agent_list = [BaseAgent(llm, env, data_manager, name=a.name, silent=False) for a in env.agent_pool]
-        self.task_manager.agent_describe = env.get_all_agent_description_tiny()
         self.task_manager.agent_list = self.agent_list
+        self.task_manager.agent_describe = env.get_all_agent_description_tiny()
         self.assignment = {}
         self.name_list = []
         self.collab_list = []
