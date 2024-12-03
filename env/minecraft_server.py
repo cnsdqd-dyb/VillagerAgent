@@ -1371,19 +1371,19 @@ def handleViewer(*args):
     # Fires when you may no longer work with a workbench, chest, etc.
     @On(bot, "mount")
     def handle(this):
-        info_bot.add_event("mount", info_bot.existing_time, f"I mount {bot.vehicle.displayName}", True)
+        info_bot.add_event("mount", info_bot.existing_time, f"I mount a vehicle", True)
     
     @On(bot, "dismount")
     def handle(this, vehicle):
-        info_bot.add_event("dismount", info_bot.existing_time, f"I dismount {vehicle.displayName}", True)
+        info_bot.add_event("dismount", info_bot.existing_time, f"I dismount a vehicle", True)
     
     @On(bot, "windowOpen")
     def handle(this, window):
-        info_bot.add_event("windowOpen", info_bot.existing_time, f"I open {window.displayName}", True)
+        info_bot.add_event("windowOpen", info_bot.existing_time, f"I open a container", True)
 
     @On(bot, "windowClose")
     def handle(this, window):
-        info_bot.add_event("windowClose", info_bot.existing_time, f"I close {window.displayName}", True)
+        info_bot.add_event("windowClose", info_bot.existing_time, f"I close a container", True)
 
     
 
