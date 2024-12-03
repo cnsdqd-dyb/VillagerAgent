@@ -23,8 +23,8 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
     # 设置agent，都使用gpt-4-0125-preview
     Agent.model = "gpt-4-1106-preview"
     # Agent.model = "gpt-3.5-turbo-1106"
-    Agent.base_url = "https://api.openai.com/v1/"
-    # Agent.base_url = "https://api.chatanywhere.tech/v1"
+    # Agent.base_url = "https://api.openai.com/v1/"
+    Agent.base_url = "https://api.chatanywhere.tech/v1"
     Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 
     # 设置env
@@ -100,8 +100,8 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
             llm_config = {
                 "api_model": api_model,
-                "api_base": "https://api.openai.com/v1/",
-                # "api_base": "https://api.chatanywhere.tech/v1",
+                # "api_base": "https://api.openai.com/v1/",
+                "api_base": "https://api.chatanywhere.tech/v1",
                 "api_key_list": api_key_list
             }
         elif "gemini" in api_model:
@@ -139,7 +139,7 @@ if __name__ == "__main__":
         if os.path.exists(f"result/{config['task_name']}"):
             print(f"task {config['task_name']} exists")
             continue
-        print(f"task {i}/{len(launch_config)} start")
+        print(f"task {i+1}/{len(launch_config)} start")
         print("config:", config)
         if config["task_type"] == "meta":
             with open(".cache/meta_setting.json", "w") as f:

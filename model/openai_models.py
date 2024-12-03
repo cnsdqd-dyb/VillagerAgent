@@ -24,8 +24,10 @@ class OpenAILanguageModel(AbstractLanguageModel):
     _supported_models = ["gpt-4o", "gpt-4-0125-preview", "gpt-4-1106-preview", "gpt-4", "gpt-4-0314", "gpt-4-0613", "gpt-4-32k", "gpt-4-32k-0314",
                          "gpt-4-32k-0613", "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-0301",
                          "gpt-3.5-turbo-0613", "gpt-3.5-turbo-1106", "gpt-3.5-turbo-16k-0613", "gpt-3.5-turbo-instruct"]
-
-    def __init__(self, api_key="", api_model="gpt-3.5-turbo-1106", evaluation_strategy="value", api_base="https://api.openai.com/v1/",
+    
+    # def __init__(self, api_key="", api_model="gpt-3.5-turbo-1106", evaluation_strategy="value", api_base="https://api.openai.com/v1/",
+    #              enable_ReAct_prompting=True, strategy="cot", role_name="", api_key_list=[]):
+    def __init__(self, api_key="", api_model="gpt-3.5-turbo-1106", evaluation_strategy="value", api_base="https://api.chatanywhere.tech/v1",
                  enable_ReAct_prompting=True, strategy="cot", role_name="", api_key_list=[]):
         if api_key == "" or api_key is None:
             api_key = os.environ.get("OPENAI_API_KEY", "")

@@ -23,6 +23,7 @@ logger = init_logger("TASK_GOAL", dump=False, level=logging.DEBUG, silent=False)
 
 api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 llm_config = {
+    # "api_model": "gpt-4o",
     "api_model": "gpt-4-1106-preview",
     # "api_base": "https://api.openai.com/v1/",
     "api_base": "https://api.chatanywhere.tech/v1",
@@ -132,7 +133,7 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "store":
             template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
     logger.warning(template_prompt)
-    task_goal = llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
+    task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.8)
     logger.warning(task_goal)
     logger.debug("-" * 50)
     return task_goal
@@ -208,7 +209,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             arg_dict["target"] = block["name"]
             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-            arg_dict["y"] = random.randint(ory + 1, ory + 5)
+            arg_dict["y"] = random.randint(ory + 1, ory + 4)
             if block["material"] != "default":
                 tool = block["material"].split("/", 1)[1]
                 arg_dict["tool"] = f"diamond_{tool}"
@@ -281,7 +282,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             arg_dict["target"] = block["name"]
             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-            arg_dict["y"] = random.randint(ory + 1, ory + 5)
+            arg_dict["y"] = random.randint(ory + 1, ory + 4)
             facing = []
             for state in block["states"]:
                 if "values" in state:

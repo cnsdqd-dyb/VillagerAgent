@@ -1,29 +1,27 @@
 {
     "api_model": "gpt-4-1106-preview",
-    "api_base": "https://api.openai.com/v1/",
+    "api_base": "https://api.chatanywhere.tech/v1",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Store a oak_planks in chest. The chest is at (8, -60, 8).",
+    "task_goal": "Use the milk_bucket in the chest to milk the cow.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "chest",
-        "x": 8,
-        "y": -60,
-        "z": 8,
+        "target": "cow",
+        "x": 7,
+        "y": -59,
+        "z": 4,
         "facing": "",
-        "item_position": "inventory",
-        "tool": "",
-        "action": "store",
+        "item_position": "chest",
+        "tool": "milk_bucket",
+        "action": "",
         "step": 1,
-        "other_arg": [
-            "oak_planks"
-        ]
+        "other_arg": []
     },
-    "document_file": "data\\recipe_hint.json",
-    "host": "10.214.180.148",
+    "document_file": "",
+    "host": "10.192.36.133",
     "port": 25565,
-    "task_name": "meta_test_task0"
+    "task_name": "meta_test_milk"
 }

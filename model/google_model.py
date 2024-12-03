@@ -12,7 +12,7 @@ from model.abstract_language_model import AbstractLanguageModel
 from model.utils import extract_info
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 

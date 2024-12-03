@@ -51,6 +51,8 @@ class TaskManager:
         self.fail_trace = []
         self.fail_trace_description = []
 
+        self.history = {"prompt": [], "response": []}
+
         self.manage_method = "update"
 
 
@@ -148,6 +150,26 @@ class TaskManager:
                     graph.add_edge(node, task)
         return graph
 
+    def update_history(self, system_prompt, user_prompt, response):
+        # if type(user_prompt) == str:
+        #     user_prompt = [user_prompt]
+        # prompt = str(system_prompt) + "\n"
+        # for i in range(len(user_prompt)):
+        #     prompt += user_prompt[i] + "\n"
+
+        # self.history["prompt"].append(prompt)
+        # self.history["response"].append(response)
+        # task_name = ""
+        # with open(".cache/meta_setting.json", "r") as f:
+        #     config = json.load(f)
+        #     task_name = config["task_name"]
+        # if not os.path.exists("result" + task_name):
+        #     os.mkdir(os.path.join("result/", task_name))
+        # root = os.path.join("result/", task_name)
+        # with open(os.path.join(root, "TM_history.json"), "w") as f:
+        #     json.dump(self.history, f, indent=4)
+        pass
+
     '''
         Public API
     '''
@@ -191,6 +213,7 @@ class TaskManager:
         self.logger.warning(user_prompt)
         response = self.llm.few_shot_generate_thoughts(system_prompt, user_prompt, cache_enabled=True, json_check=True,
                                                        check_tags=["description", "milestones", "assigned agents"])
+        self.update_history(system_prompt, user_prompt, response)
         result = extract_info(response, guard_keys=["description", "milestones"])
         omit_keys = [("assigned agent", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
         result = self.fill_keys_omit(result, omit_keys) # fill the result with empty data
@@ -271,7 +294,7 @@ class TaskManager:
                                                     #    check_tags=["reasoning", "strategy", "info"]
                                                        
                                                        )
-
+        self.update_history(strategy_system_prompt, strategy_user_prompt, response)
         result = extract_info(response)[0]
         
         # self.logger.warning(strategy_user_prompt)
@@ -460,6 +483,7 @@ class TaskManager:
         self.logger.warning(user_prompt)
         response = self.llm.few_shot_generate_thoughts(system_prompt, user_prompt, cache_enabled=True, json_check=True,
                                                        check_tags=["description", "milestones", "assigned agents"])
+        self.update_history(system_prompt, user_prompt, response)
         result = extract_info(response, guard_keys=["description", "milestones", "assigned agents"])
         omit_keys = [("assigned agent", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
         result = self.fill_keys_omit(result, omit_keys)

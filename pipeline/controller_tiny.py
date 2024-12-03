@@ -52,7 +52,8 @@ class GlobalController:
         self.assignment = {}
         self.feedback = {}
 
-        self.logger = init_logger("GlobalController", dump=True, silent=silent)
+        self.logger = init_logger("GlobalController", level=logging.WARNING, dump=True, silent=silent)
+        self.env = env
         self.llm = llm
         self.llm.role_name = "GlobalController"
 
@@ -131,7 +132,11 @@ class GlobalController:
         
             name_list = ", ".join([agent.name for agent in agent_instances])
             self.logger.info(f"Agent(s) {name_list} assigned to do task {task_instance.description}")
-            
+
+            # agent_env_dict = self.env.get_init_state()
+            # for env_dict in agent_env_dict:
+            #     self.logger.warning(str(env_dict))
+
             task_instance.status = Task.running
 
     # worker
