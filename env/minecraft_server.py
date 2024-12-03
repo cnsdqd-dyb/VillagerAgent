@@ -6,11 +6,11 @@ from flask import Flask, request, jsonify
 from random import randint, choice
 from env_api import *
 from functools import wraps
+import re
 
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf8')
 os.environ["REQ_TIMEOUT"] = "1800000"
 app = Flask(__name__)
-msg_list = []  # 用于存储消息队列，每次获取后清除当前的消息队列
 # Pickable = False
 
 parser = argparse.ArgumentParser()
@@ -107,15 +107,12 @@ def render_structure():
     events = info_bot.get_action_description_new()
     return jsonify({'message': "render success", 'status': True, "new_events": events})
 
-@app.route('/post_msg', methods=['POST'])
-@log_activity(bot)  # 获取前端发来的消息
-def get_msg():
-    """get_msg: get the message from the message queue."""
-    global msg_list # not support for the new version
-    msg = msg_list
-    msg_list = []
-    events = info_bot.get_action_description_new()
-    return jsonify({'message': msg, 'status': True, "new_events": events})
+# @app.route('/post_msg', methods=['POST'])
+# @log_activity(bot)  # 获取前端发来的消息
+# def get_msg():
+#     """get_msg: get the message from the message queue."""
+#     events = info_bot.get_action_description_new()
+#     return jsonify({'message': events, 'status': True, "new_events": events})
 
 
 @app.route('/post_time', methods=['POST'])
@@ -915,6 +912,28 @@ def talk_to():
     events = info_bot.get_action_description_new()
     return jsonify({'message': f"I talk to {entity_name} {message}", 'status': True, "new_events": events})
 
+@app.route('/post_wait_for_feedback', methods=['POST'])
+@log_activity(bot)
+def wait_for():
+    """talk_to entity_name message:  to talk to the entity."""
+    data = request.get_json()
+    entity_name, seconds = data.get('entity_name'), data.get('seconds')
+
+    # 首先提醒目标用户，然后等待回复
+    chat_long(bot, entity_name, f"I am waiting for your feedback, please reply in {seconds} seconds.", "talk")
+
+    # 等待回复
+    start_time = time.time()
+    while time.time() - start_time < seconds:
+        tag, message = info_bot.check_new_reply_from(entity_name)
+        if tag:
+            events = info_bot.get_action_description_new()
+            return jsonify({'message': f"I receive feedback from {entity_name}: {message}", 'status': True, "new_events": events})
+        time.sleep(1)
+    
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': f"I don't receive feedback from {entity_name} in {seconds} seconds.", 'status': False, "new_events": events})
+
 
 @app.route('/post_done', methods=['POST'])
 @log_activity(bot)
@@ -1127,15 +1146,27 @@ def handleViewer(*args):
     @On(bot, 'chat')
     def handle(this, username, message, *args):
         try:
-            global msg_list
-            msg_list += [{"username": username, "message": message}]
-        except:
-            pass
+            # 正则表达式匹配
+            # 例如: [Alice] --MSG-- [Bob] Hello
+            pattern = r"\[(.*?)\]\s*--(MSG|CHAT)--\s*\[(.*?)\]\s*(.*)"
+            match = re.match(pattern, message)
+            if match:
+                host_name = match.group(1)  # 第一个方括号内的内容
+                target_name = match.group(3)  # 第二个方括号内的内容
+                msg = match.group(4)  # 剩余的消息内容
+                
+                # # 根据匹配的结果做处理
+                # print(f"Host: {host_name}, Target: {target_name}, Message: {msg}")
+                if target_name == bot.entity.username:
+                    if "--MSG--" in message:
+                        info_bot.add_event("msg", info_bot.existing_time, f"I received a message from {host_name}: {msg}", True)
+                    elif "--CHAT--" in message:
+                        info_bot.add_event("msg", info_bot.existing_time, f"I received a chat from {host_name}: {msg}", True)
+        except Exception as e:
+            print(f"Error: {e}")
         
     @On(bot, "whisper")
     def handle(this, username, message, *args):
-        global msg_list
-        msg_list += [{"username": username, "message": message}]
         if message.startswith("TEST"):
             bot.chat("TEST received")
             # 解析后续字段并分别反馈不同信息
@@ -1168,7 +1199,7 @@ def handleViewer(*args):
                 bot.chat("The correct format is: TEST: type: info")
                 bot.chat("The correct format is: TEST: type: help")
         else:
-            info_bot.add_event("whisper", info_bot.existing_time, f"I received a message from {username}: {message}", True)
+            info_bot.add_event("msg", info_bot.existing_time, f"I received a message from {username}: {message}", True)
 
     @On(bot, "rain")
     def rain(this):
@@ -1392,6 +1423,14 @@ class Bot():
             for event in new_events:
                 msg += f"{event['description']}\n"
     
+    def check_new_reply_from(self, username):
+        for action in self.action_log:
+            if action["event"] == "msg" and action["new"]:
+                if f"from {username}" in action["description"]:
+                    action["new"] = False
+                    return True, action["description"]
+        return False, ""
+
     def get_action_description_new(self):
         new_actions = []
         for action in self.action_log:

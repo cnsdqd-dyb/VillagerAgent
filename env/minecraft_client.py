@@ -195,13 +195,13 @@ class Agent():
         for value in Agent.agent_process.values():
             value.terminate()
 
-    @tool
-    @timeit
-    def getMsg(player_name: str):
-        """Get the Message from the Server"""
-        url = Agent.get_url_prefix()[player_name] + "/post_msg"
-        response = requests.post(url, headers=Agent.headers)
-        return response.json()
+    # @tool
+    # @timeit
+    # def getMsg(player_name: str):
+    #     """Get the Message from the Server"""
+    #     url = Agent.get_url_prefix()[player_name] + "/post_msg"
+    #     response = requests.post(url, headers=Agent.headers)
+    #     return response.json()
 
     @tool
     @timeit
@@ -692,6 +692,18 @@ class Agent():
         }
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
+    
+    @tool
+    @timeit
+    def waitForFeedback(player_name: str, entity_name: str, seconds: int=20):
+        """Wait for Feedback from the Entity, do not use this when you are in a hurry or you are expecting to end the conversation."""
+        url = Agent.get_url_prefix()[player_name] + "/post_wait_for_feedback"
+        data = {
+            "entity_name": entity_name,
+            "seconds": seconds,
+        }
+        response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
+        return response.json()
 
     @tool
     @timeit
@@ -794,7 +806,7 @@ class Agent():
                 agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
                 return_intermediate_steps=True,
                 max_execution_time=120,  # seconds
-                max_iterations=6,  # 决定了最大的迭代次数
+                max_iterations=8,  # 决定了最大的迭代次数
             )
             agent.handle_parsing_errors = True
             response = None

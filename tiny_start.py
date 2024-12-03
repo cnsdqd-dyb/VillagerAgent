@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     # Set Agent
     api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"] # use OPENAI as an example
-    base_url = "https://api.openai.com/v1/"
+    base_url = "https://api.chatanywhere.tech/v1"
     llm_config = {
         "api_model": "gpt-4-1106-preview", # for example, "gpt-4-1106-preview"
         "api_base": base_url, # for example, "https://api.openai.com/v1"
@@ -26,8 +26,8 @@ if __name__ == "__main__":
     Agent.api_key_list = api_key_list
 
     # more agent tools can be added here you can refer to the agent_tool in doc/api_library.md
-    agent_tool = [Agent.talkTo, Agent.MineBlock, Agent.scanNearbyEntities, Agent.equipItem, Agent.SmeltingCooking,
-                      Agent.navigateTo, Agent.withdrawItem, Agent.craftBlock, Agent.attackTarget, Agent.UseItemOnEntity,
+    agent_tool = [Agent.talkTo, Agent.read, Agent.scanNearbyEntities, Agent.equipItem, Agent.SmeltingCooking,
+                      Agent.navigateTo, Agent.withdrawItem, Agent.craftBlock, Agent.waitForFeedback, Agent.UseItemOnEntity,
                       Agent.handoverBlock]
 
     # Register Agent
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         ctrl = GlobalController(llm_config, tm, dm, env)
 
         # Set Task
-        tm.init_task("Alice help others if someone need help.", {})
+        tm.init_task("Alice talk with yubo", {})
 
         # Run Controller
         ctrl.run()

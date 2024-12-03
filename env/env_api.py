@@ -47,8 +47,8 @@ def readNearestSign(bot, Vec3, mcData, max_distance=7) -> str:
         text = block.getSignText()
         return text.join('\n')
     else:
-        return ""
-
+        return f"cannot find the specific sign within {max_distance} blocks"
+    
 from math import floor
 def bfs_search(bot, Vec3, bot_position, max_distance):
     queue = deque([(bot_position, 0),
@@ -2153,6 +2153,8 @@ def write(bot, Vec3, envs_info, mcData, block_name, text):
     else:
         try:
             pos = find_nearest_(bot, Vec3, envs_info, mcData, block_name)
+            if pos == None:
+                return f"cannot find {block_name} nearby", False
             block = bot.blockAt(pos)
             bot.updateSign(block, text.split(' ').slice(1).join(' '))
             return "write done", True
@@ -2173,19 +2175,24 @@ def read(bot, Vec3, envs_info, mcData, block_name, page=1, world_type="flatten")
             return f"the {block_name} said {book.nbt.value.pages.value.value}", True
         except Exception as e:
             # [DEBUG] print(e)
-            return "read failed", False
+            return "read book failed", False
     else:
+        block_name = block_name.replace(' ', '_')
         try:
             pos = find_nearest_(bot, Vec3, envs_info, mcData, block_name)
+            if pos == None:
+                return f"cannot find {block_name} nearby", False
             block = bot.blockAt(pos)
             text = block.getSignText()
             # [DEBUG] print(text)
+            bot.chat(f'the {block_name} said {text}')
             if text == "":
                 return f"the {block_name} is empty", True
-            return f"the {block_name} said {text}", True
+            return f"the {block_name} said {text.join(' ')}", True
         except Exception as e:
             # [DEBUG] print(e)
-            return "read failed", False
+            print(e)
+            return f"read sign failed {e}", False
 
 
 if __name__ == '__main__':
