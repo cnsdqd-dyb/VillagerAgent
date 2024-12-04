@@ -6,22 +6,24 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use the milk_bucket in the chest to milk the cow.",
+    "task_goal": "Send a message to Bob with the content 'abc'.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "cow",
+        "target": "Bob",
         "x": 7,
         "y": -59,
         "z": 4,
         "facing": "",
-        "item_position": "chest",
-        "tool": "milk_bucket",
-        "action": "",
+        "item_position": "inventory",
+        "tool": "",
+        "action": "chat",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "abc"
+        ]
     },
     "document_file": "",
-    "host": "10.192.36.133",
+    "host": "10.192.24.163",
     "port": 25565,
-    "task_name": "meta_test_milk"
+    "task_name": "meta_test"
 }

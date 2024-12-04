@@ -51,7 +51,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         agent_tool = [Agent.placeBlock, Agent.fetchContainerContents, Agent.MineBlock, Agent.scanNearbyEntities, Agent.equipItem,
                       Agent.navigateTo, Agent.withdrawItem, Agent.ToggleAction, Agent.handoverBlock]
     elif task_type == "meta":
-        agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.UseItemOnEntity, Agent.sleep, Agent.wake, 
+        agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.UseItemOnEntity, Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback,
                       Agent.MineBlock, Agent.placeBlock, Agent.equipItem, Agent.handoverBlock, Agent.SmeltingCooking, Agent.withdrawItem, 
                       Agent.storeItem, Agent.craftBlock, Agent.enchantItem, Agent.trade, Agent.repairItem, Agent.eat, Agent.fetchContainerContents, Agent.ToggleAction]
     else:

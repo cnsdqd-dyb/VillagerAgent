@@ -163,7 +163,7 @@ class TaskManager:
         # with open(".cache/meta_setting.json", "r") as f:
         #     config = json.load(f)
         #     task_name = config["task_name"]
-        # if not os.path.exists("result" + task_name):
+        # if not os.path.exists("result/" + task_name):
         #     os.mkdir(os.path.join("result/", task_name))
         # root = os.path.join("result/", task_name)
         # with open(os.path.join(root, "TM_history.json"), "w") as f:

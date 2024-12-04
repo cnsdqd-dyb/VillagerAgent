@@ -628,16 +628,27 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
         return 0
     
     if start_time is not None:
-        pattern = "(.*) has the following (.*) data: (.*)"
-        match = re.search(pattern, message)
-        if match:
-            entity_name = match.group(1)
-            block_entity = match.group(2)
-            data_str = match.group(3)
+        data_pattern = "(.*) has the following (.*) data: (.*)"
+        data_match = re.search(data_pattern, message)
+        if data_match:
+            entity_name = data_match.group(1)
+            block_entity = data_match.group(2)
+            data_str = data_match.group(3)
         else:
             entity_name = None
             block_entity = None
             data_str = None
+
+        chat_pattern = r"\[(.*?)\]\s*--(MSG|CHAT)--\s*\[(.*?)\]\s*(.*)"
+        chat_match = re.search(chat_pattern, message)
+        if chat_match:
+            host_name = chat_match.group(1)  # 第一个方括号内的内容
+            target_name = chat_match.group(3)  # 第二个方括号内的内容
+            msg = chat_match.group(4)  # 剩余的消息内容
+        else:
+            host_name = None
+            target_name = None
+            msg = None
 
         if entity_name is not None and data_str is not None and block_entity is not None:
             # 修复json字符串中的缺失的双引号，有小bug，但是不影响需要的字段
@@ -717,6 +728,35 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             # info_count += 1
             # if info_count % 20 == 0:
             #     bot.chat(f'score: {score}')
+        
+        if host_name is not None and target_name is not None and msg is not None:
+            cache_dir = 'tmp'
+            file_path = os.path.join(cache_dir, 'message.json')
+            if not os.path.exists(cache_dir):
+                os.makedirs(cache_dir)
+        
+            # 初始化消息列表
+            messages = []
+            
+            # 如果文件存在，读取已有内容
+            if os.path.exists(file_path):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    try:
+                        messages = json.load(f)
+                    except json.JSONDecodeError:
+                        # 文件可能为空或格式不正确，忽略读取错误
+                        pass
+            
+            # 添加新消息到消息列表
+            messages.append(msg)
+            
+            # 将消息列表写回文件
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(messages, f, ensure_ascii=False, indent=4)
+            
+            if config["task_scenario"] == "interact" and arg_dict["action"] == "chat":
+                if msg== arg_dict["other_arg"][0]:
+                    score = 100
 
 @On(bot, "entityHurt")
 def handleAttack(_, entity):
