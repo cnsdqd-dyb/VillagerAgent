@@ -389,9 +389,9 @@ def generate_config(task, api_model, host, port, agent_num=2):
             elif action == "milk":
                 arg_dict["tool"] = "bucket"
             elif action in ["handover", "store"]:
-                with open("data/blocks.json", "r") as f:
-                    blocks = json.load(f)
-                arg_dict["other_arg"] = [random.choice(blocks)["name"]]
+                with open("data/items.json", "r") as f:
+                    items = json.load(f)
+                arg_dict["other_arg"] = [random.choice(items)["name"]]
             elif action == "chat":
                 charset = string.ascii_letters + string.digits
                 text_len = random.randint(5, 8)

@@ -6,11 +6,11 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Place a oak_sign at (4, -60, 8) and write 'abc' on it. The oak_sign is in your inventory.",
-    "task_scenario": "useitem",
+    "task_goal": "Place a diamond_block at (8, -60, 8). The diamond_block is in your inventory.",
+    "task_scenario": "place",
     "evaluation_arg": {
-        "target": "oak_sign",
-        "x": 4,
+        "target": "diamond_block",
+        "x": 8,
         "y": -60,
         "z": 8,
         "facing": "",
@@ -18,9 +18,7 @@
         "tool": "",
         "action": "",
         "step": 1,
-        "other_arg": [
-            "abc"
-        ]
+        "other_arg": []
     },
     "document_file": "",
     "host": "10.192.24.163",

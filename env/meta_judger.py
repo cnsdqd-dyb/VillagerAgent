@@ -223,7 +223,10 @@ def handleViewer(*args):
     # hill_height = 3
     # bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
     # generate_hill(peakx, peakz, hill_height)
-    
+
+    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
+    time.sleep(.2)
+
     clear_w = 31
     clear_h = 6
     feature_list = ["desert", "plains", "savanna", "snowy", "taiga"]
@@ -245,7 +248,6 @@ def handleViewer(*args):
 
     peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
     hill_height = 3
-    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
     generate_hill(peakx, peakz, hill_height)
     # 生成土丘
 
