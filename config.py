@@ -23,6 +23,7 @@ logger = init_logger("TASK_GOAL", dump=False, level=logging.DEBUG, silent=False)
 
 api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 llm_config = {
+    # "api_model": "gpt-4o",
     "api_model": "gpt-4-1106-preview",
     # "api_base": "https://api.openai.com/v1/",
     "api_base": "https://api.chatanywhere.tech/v1",
@@ -118,12 +119,13 @@ def generate_task_goal(task_scenario, arg_dict):
     elif task_scenario == "useitem":
         if "sign" in arg_dict["target"]:
             template_prompt = f"Place a {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}), and write '{arg_dict['other_arg'][0]}' on it. The {arg_dict['target']} is in the {arg_dict['item_position']}."
-
+        else:
+            template_prompt = f"Equip the {arg_dict['target']}. The {arg_dict['target']} is in the {arg_dict['item_position']}."
     elif task_scenario == "move":
         template_prompt = f"Move to ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You may need some block or tool to get to that position, you can find them in the {arg_dict['item_position']}."
     
     elif task_scenario == "interact":
-        if arg_dict["action"] in ["attack", "feed"]:
+        if arg_dict["action"] in ["attack", "feed", "shear", "milk"]:
             template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} the {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}"
         elif arg_dict["action"] == "cook":
             template_prompt = f"Cook the {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}."
@@ -132,7 +134,7 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "store":
             template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
     logger.warning(template_prompt)
-    task_goal = llm.few_shot_generate_thoughts(task_goal_prompt, template_prompt)
+    task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.8)
     logger.warning(task_goal)
     logger.debug("-" * 50)
     return task_goal
@@ -196,9 +198,6 @@ def generate_config(task, api_model, host, port, agent_num=2):
     elif task == "dig":
         with open("data/blocks.json", "r") as f:
             blocks = json.load(f)
-        if task_number > len(blocks):
-            print("TASK NUMBER IS TOO BIG!")
-            return
         block_id_list = random.sample(range(len(blocks)), k=task_number)
         for i, id in enumerate(block_id_list):
             tool = "default"
@@ -208,7 +207,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             arg_dict["target"] = block["name"]
             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-            arg_dict["y"] = random.randint(ory + 1, ory + 5)
+            arg_dict["y"] = random.randint(ory + 1, ory + 4)
             if block["material"] != "default":
                 tool = block["material"].split("/", 1)[1]
                 arg_dict["tool"] = f"diamond_{tool}"
@@ -232,9 +231,6 @@ def generate_config(task, api_model, host, port, agent_num=2):
     elif task == "craft":
         with open("data/recipes.json", "r") as f:
             recipes = json.load(f)
-        if task_number > len(recipes):
-            print("TASK NUMBER IS TOO BIG!")
-            return
         item_id_list = random.sample(range(len(recipes)), k=task_number)
         for i, id in enumerate(item_id_list):
             item = recipes[id]["result"]
@@ -270,9 +266,6 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     break
             if placeable:
                 placeable_blocks.append(block)
-        if task_number > len(placeable_blocks):
-            print("TASK NUMBER IS TOO BIG!")
-            return
         block_id_list = random.sample(range(len(placeable_blocks)), k=task_number)
         for i, id in enumerate(block_id_list):
             block = placeable_blocks[id]
@@ -281,7 +274,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             arg_dict["target"] = block["name"]
             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-            arg_dict["y"] = random.randint(ory + 1, ory + 5)
+            arg_dict["y"] = random.randint(ory + 1, ory + 4)
             facing = []
             for state in block["states"]:
                 if "values" in state:
@@ -307,41 +300,23 @@ def generate_config(task, api_model, host, port, agent_num=2):
             config_list.append(config)
 
     elif task == "useitem":
-        
-        # material = ["chainmail", "iron", "diamond", "golden", "netherite"]
-        # equipment = ["helmet", "chestplate", "leggings", "boots"]
-        # if task_number > len(material) * len(equipment):
-        #     print("TASK NUMBER IS TOO BIG!")
-        #     return
-        # for i in range(task_number):
-        #     config = template.copy()
-        #     arg_dict = arg_template.copy()
-        #     target = random.choice(material) + "_" + random.choice(equipment)
-        #     arg_dict["target"] = target
-        #     arg_dict["action"] = "equip"
-        #     # # #
-        #     arg_dict["item_position"] = "inventory"
-        #     # # #
-        #     config["task_type"] = "meta"
-        #     config["task_idx"] = i
-        #     config["agent_num"] = 1 
-        #     config["task_scenario"] = "useitem"
-        #     config["evaluation_arg"] = arg_dict
-        #     config["task_goal"] = ""
-        #     config["host"] = host
-        #     config["port"] = port
-        #     config["task_name"] = f"useitem_{target}_id{i}"
-        #     config_list.append(config)
+        target = random.choice(["equipment", "sign"])
+        material = ["chainmail", "iron", "diamond", "golden", "netherite"]
+        equipment = ["helmet", "chestplate", "leggings", "boots"]
         charset = string.ascii_letters + string.digits
         for i in range(task_number):
             config = template.copy()
             arg_dict = arg_template.copy()
-            arg_dict["target"] = random.choice(["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]) + "_sign"
-            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
-            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-            arg_dict["y"] = random.randint(ory + 1, ory + 3)
-            text_len = random.randint(5, 8)
-            arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
+            if target == "sign":
+                arg_dict["target"] = random.choice(["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]) + "_sign"
+                arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                arg_dict["y"] = random.randint(ory + 1, ory + 3)
+                text_len = random.randint(5, 8)
+                arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
+            else:
+                arg_dict["target"] = random.choice(material) + "_" + random.choice(equipment)
+
             config["task_type"] = "meta"
             config["task_idx"] = i
             config["agent_num"] = 1
@@ -378,7 +353,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
         cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
 
         for i in range(task_number):
-            action = random.choice(["attack", "feed", "cook", "handover", "store"])
+            action = random.choice(["attack", "feed", "cook", "handover", "store", "shear", "milk", "chat"])
             config = template.copy()
             arg_dict = arg_template.copy()
             if action == "cook":
@@ -390,9 +365,15 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                 arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                 arg_dict["y"] = random.randint(ory + 1, ory + 3)
-            elif action == "handover":
+            elif action in ["handover", "chat"]:
                 target = "Bob"
                 arg_dict["target"] = "Bob"
+            elif action == "shear":
+                target = "sheep"
+                arg_dict["target"] = "sheep"
+            elif action == "milk":
+                target = "cow"
+                arg_dict["target"] = "cow"
             else:
                 target = random.choice(animal_list)
                 arg_dict["target"] = target["name"]
@@ -403,11 +384,18 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 arg_dict["tool"] = random.choice(target["food"])
             elif action == "cook":
                 arg_dict["other_arg"] = ["coal", target]
-            else:
-                with open("data/blocks.json", "r") as f:
-                    blocks = json.load(f)
-                arg_dict["other_arg"] = [random.choice(blocks)["name"]]
-
+            elif action == "shear":
+                arg_dict["tool"] = "shears"
+            elif action == "milk":
+                arg_dict["tool"] = "bucket"
+            elif action in ["handover", "store"]:
+                with open("data/items.json", "r") as f:
+                    items = json.load(f)
+                arg_dict["other_arg"] = [random.choice(items)["name"]]
+            elif action == "chat":
+                charset = string.ascii_letters + string.digits
+                text_len = random.randint(5, 8)
+                arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
             # # #
             arg_dict["item_position"] = "inventory"
             # # #

@@ -73,7 +73,6 @@ max_time = 300
 
 environment_set_time = 10
 info_count = 0
-config = {}
 interact_type = "block"
 interact_arg = 0
 arg_host = args.host
@@ -148,7 +147,10 @@ def handleViewer(*args):
                     if neighbor_count >= 3:
                         next_height = round(neighbor_height / neighbor_count)
                     else:
-                        next_height = current_height + random.choices([-1, 0], weights=[58, 42])[0] #-1的权重越大，越陡峭，但是-1的权重不宜太小
+                        if current_height > 1:
+                            next_height = current_height + random.choices([-1, 0], weights=[58, 42])[0] #-1的权重越大，越陡峭，但是-1的权重不宜太小
+                        else:
+                            next_height = current_height + random.choices([-1, 0], weights=[75, 25])[0]
                     if next_height == 0:
                         continue
                     height_vis[nx][nz] = next_height
@@ -208,6 +210,77 @@ def handleViewer(*args):
     time.sleep(.2)
     bot.chat("/weather clear")
     time.sleep(.2)
+    
+    # bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass hollow")
+    # time.sleep(.2)
+    # bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory} {orz + room_width + wall_width} grass_block")
+    # time.sleep(.2)
+    # bot.chat(f"/setblock {orx + wall_width} {ory + room_height // 2 - 1} {orz + wall_width} glass")
+    # time.sleep(.2)
+    # bot.chat(f"/tp @s {orx + wall_width} {ory + room_height // 2} {orz + wall_width} -45 45")
+    
+    # peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
+    # hill_height = 3
+    # bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
+    # generate_hill(peakx, peakz, hill_height)
+
+    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
+    time.sleep(.2)
+
+    clear_w = 31
+    clear_h = 6
+    feature_list = ["desert", "plains", "savanna", "snowy", "taiga"]
+    tree_list = ["acacia", "birch", "spruce", "oak", "jungle_tree", "dark_oak", "mangrove"]
+    crx, cry, crz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
+    tx, ty, tz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
+
+    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + 1} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 2 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * 2 + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 3 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * 3 + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 4 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    time.sleep(.2)
+    bot.chat("/kill @e[type=!minecraft:player]")
+    time.sleep(.2)
+    # 清空原来的环境
+
+    peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
+    hill_height = 3
+    generate_hill(peakx, peakz, hill_height)
+    # 生成土丘
+
+    feature = random.choice(feature_list)
+    with open("data/template_houses.json", "r") as f:
+        template_houses = json.load(f)
+    house = random.choice(template_houses[feature])
+    bot.chat(f"/tp {crx} {ory + 1} {crz}")
+    time.sleep(.2) 
+    bot.chat(f"/place template village/{feature}/houses/{house}")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} air replace jigsaw")
+    time.sleep(.2)
+    bot.chat(f"/tp {tx} {get_surface_y(tx, tz)} {tz}")
+    time.sleep(.2)
+    bot.chat(f"/place feature {random.choice(tree_list)}")
+    time.sleep(.2)
+    # 生成房屋和树
+
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz} {orx} {ory + room_height + wall_width} {orz + room_width + wall_width} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx + room_width + wall_width} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz + room_width + wall_width} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory + room_height + wall_width} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory} {orz + room_width + wall_width} grass_block")
+    time.sleep(.2)
+    # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
+
     bot.chat("/clear @e[distance=..10,type=player,gamemode=survival]")
     time.sleep(.2)
     bot.chat("/kill @e[type=!minecraft:player]")
@@ -215,23 +288,14 @@ def handleViewer(*args):
     bot.chat("/kill @e[type=!minecraft:player]")
     time.sleep(.2)
 
-    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass hollow")
-    time.sleep(.2)
-    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory} {orz + room_width + wall_width} grass_block")
-    time.sleep(.2)
     bot.chat(f"/setblock {orx + wall_width} {ory + room_height // 2 - 1} {orz + wall_width} glass")
     time.sleep(.2)
     bot.chat(f"/tp @s {orx + wall_width} {ory + room_height // 2} {orz + wall_width} -45 45")
-    
-    peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
-    hill_height = 3
-    # generate_hill(peakx, peakz, hill_height)
+    time.sleep(.2)
 
-    # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
-    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 4} {orz + 2} 0 0")
+    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 4} {orz + 4} 0 0")
 
-    global config, interact_arg, interact_type
-
+    global interact_arg, interact_type
     with open(".cache/meta_setting.json", "r") as f:
         config = json.load(f)
     arg_dict = config["evaluation_arg"]
@@ -473,8 +537,10 @@ def handle(this):
 
     global last_time, start_time, score
     if start_time is not None:
-        global complexity_score, efficiency, balance, config, info_count, environment_set_time, interact_type
+        global complexity_score, efficiency, balance, info_count, environment_set_time, interact_type
         now_time = time.time()
+        with open(".cache/meta_setting.json", "r") as f:
+            config = json.load(f)
         arg_dict = config["evaluation_arg"]
 
         if now_time - last_time > 1:
@@ -512,8 +578,10 @@ def handle(this):
                     if arg_dict["action"] == "store":
                         bot.chat(f"/data get block {arg_dict['x']} {arg_dict['y']} {arg_dict['z']}")
                 if interact_type == "animal":
-                    if arg_dict["action"] == "feed":
+                    if arg_dict["action"] in ["feed", "shear"]:
                         bot.chat(f"/data get entity @e[type={target},limit=1,sort=nearest]")
+                    if arg_dict["action"] == "milk":
+                        bot.chat(f'/data get entity {agent_name}')
                 if interact_type == "player":
                     if arg_dict["action"] == "handover":
                         bot.chat(f'/data get entity {arg_dict["target"]}')
@@ -529,6 +597,8 @@ def handle(this):
                         "end_reason": "task completed",
                         "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_time))
                     }, f, indent=4)
+                with open(os.path.join(os.path.join("result", task_name), "config.json"), "w") as f:
+                    json.dump(config, f, indent=4)
                 with open(".cache/load_status.cache", "w") as f:
                     json.dump({"status": "end"}, f, indent=4)
             if calculate_action_time() > max_action_time:
@@ -545,6 +615,8 @@ def handle(this):
                         "end_reason": "action_time out",
                         "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_time))
                     }, f, indent=4)
+                with open(os.path.join(os.path.join("result", task_name), "config.json"), "w") as f:
+                    json.dump(config, f, indent=4)
                 with open(".cache/load_status.cache", "w") as f:
                     json.dump({"status": "end"}, f, indent=4)
 
@@ -573,7 +645,9 @@ def handle(this):
 
 @On(bot, 'messagestr')
 def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
-    global score, info_count, config, interact_type
+    global score, info_count, interact_type
+    with open(".cache/meta_setting.json", "r") as f:
+        config = json.load(f)
     arg_dict = config["evaluation_arg"]
 
     def calculate_score(inventory, pos):
@@ -601,52 +675,41 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                 if aligned_item_name(arg_dict["other_org"][-1]) != "potato":
                     goal_item = "cooked_" + aligned_item_name(arg_dict["other_arg"][-1])  # 设置最后一个位置是放置需要烤的东西
                 else:
-                    goal_item = "baked_potato" + aligned_item_name(arg_dict["other_arg"][-1])
-                for item in inventory:
-                    if aligned_item_name(item['id']) == goal_item:
-                        return 100    
+                    goal_item = "baked_potato" + aligned_item_name(arg_dict["other_arg"][-1])   
             elif arg_dict["action"] == "handover":
                 goal_item = arg_dict["other_arg"][0]
-                for item in inventory:
-                    if aligned_item_name(item['id']) == goal_item:
-                        return 100
+            elif arg_dict["action"] == "milk":
+                goal_item = "milk_bucket"
+            else:
+                 goal_item = ""
+            for item in inventory:
+                if aligned_item_name(item['id']) == goal_item:
+                    return 100
                     
         return 0
     
     if start_time is not None:
-        pattern = "(.*) has the following (.*) data: (.*)"
-        match = re.search(pattern, message)
-        if match:
-            entity_name = match.group(1)
-            block_entity = match.group(2)
-            data_str = match.group(3)
+        data_pattern = "(.*) has the following (.*) data: (.*)"
+        data_match = re.search(data_pattern, message)
+        if data_match:
+            entity_name = data_match.group(1)
+            block_entity = data_match.group(2)
+            data_str = data_match.group(3)
         else:
             entity_name = None
             block_entity = None
             data_str = None
-        # cache_dir = 'tmp'
-        # file_path = os.path.join(cache_dir, 'message.json')
-        # if not os.path.exists(cache_dir):
-        #     os.makedirs(cache_dir)
-    
-        # # 初始化消息列表
-        # messages = []
-        
-        # # 如果文件存在，读取已有内容
-        # if os.path.exists(file_path):
-        #     with open(file_path, 'r', encoding='utf-8') as f:
-        #         try:
-        #             messages = json.load(f)
-        #         except json.JSONDecodeError:
-        #             # 文件可能为空或格式不正确，忽略读取错误
-        #             pass
-        
-        # # 添加新消息到消息列表
-        # messages.append(message)
-        
-        # # 将消息列表写回文件
-        # with open(file_path, 'w', encoding='utf-8') as f:
-        #     json.dump(messages, f, ensure_ascii=False, indent=4)
+
+        chat_pattern = r"\[(.*?)\]\s*--(MSG|CHAT)--\s*\[(.*?)\]\s*(.*)"
+        chat_match = re.search(chat_pattern, message)
+        if chat_match:
+            host_name = chat_match.group(1)  # 第一个方括号内的内容
+            target_name = chat_match.group(3)  # 第二个方括号内的内容
+            msg = chat_match.group(4)  # 剩余的消息内容
+        else:
+            host_name = None
+            target_name = None
+            msg = None
 
         if entity_name is not None and data_str is not None and block_entity is not None:
             # 修复json字符串中的缺失的双引号，有小bug，但是不影响需要的字段
@@ -701,13 +764,17 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             # with open(file_path, 'w', encoding='utf-8') as f:
             #     json.dump(messages, f, ensure_ascii=False, indent=4)
 
-            if config["task_scenario"] in ["craft", "move"] or (config["task_scenario"] == "interact" and arg_dict["action"] in ["handover","cook"]) or (config["task_scenario"] == "useitem" and "sign" not in arg_dict["target"]):
+            if config["task_scenario"] in ["craft", "move"] or (config["task_scenario"] == "interact" and arg_dict["action"] in ["handover","cook", "milk"]) or (config["task_scenario"] == "useitem" and "sign" not in arg_dict["target"]):
                 inventory = data.get("Inventory", [])
                 pos = data.get("Pos", [])
                 score = calculate_score(inventory, pos)
             elif config["task_scenario"] == "interact" and arg_dict["action"] == "feed":
                 inlove = data.get("InLove", 0)
                 if int(inlove) > 0:
+                    score = 100
+            elif config["task_scenario"] == "interact" and arg_dict["action"] == "shear":
+                sheared = data.get("Sheared", "0b")
+                if int(sheared[:-1]):
                     score = 100
             elif config["task_scenario"] == "interact" and arg_dict["action"] == "store":
                 if "Items" in data:
@@ -722,10 +789,41 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             # info_count += 1
             # if info_count % 20 == 0:
             #     bot.chat(f'score: {score}')
+        
+        if host_name is not None and target_name is not None and msg is not None:
+            # cache_dir = 'tmp'
+            # file_path = os.path.join(cache_dir, 'message.json')
+            # if not os.path.exists(cache_dir):
+            #     os.makedirs(cache_dir)
+        
+            # # 初始化消息列表
+            # messages = []
+            
+            # # 如果文件存在，读取已有内容
+            # if os.path.exists(file_path):
+            #     with open(file_path, 'r', encoding='utf-8') as f:
+            #         try:
+            #             messages = json.load(f)
+            #         except json.JSONDecodeError:
+            #             # 文件可能为空或格式不正确，忽略读取错误
+            #             pass
+            
+            # # 添加新消息到消息列表
+            # messages.append(msg)
+            
+            # # 将消息列表写回文件
+            # with open(file_path, 'w', encoding='utf-8') as f:
+            #     json.dump(messages, f, ensure_ascii=False, indent=4)
+            
+            if config["task_scenario"] == "interact" and arg_dict["action"] == "chat":
+                if msg== arg_dict["other_arg"][0]:
+                    score = 100
 
 @On(bot, "entityHurt")
 def handleAttack(_, entity):
-    global environment_set_time, config, score
+    global environment_set_time, score
+    with open(".cache/meta_setting.json", "r") as f:
+        config = json.load(f)
     arg_dict = config["evaluation_arg"]
     if arg_dict["action"] == "attack":
         if start_time is not None:
