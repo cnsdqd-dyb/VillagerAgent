@@ -43,3 +43,4 @@ package.json
 *config*.json
 
 tmp/*
+auto_task/*

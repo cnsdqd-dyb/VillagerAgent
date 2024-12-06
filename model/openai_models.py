@@ -243,7 +243,7 @@ class OpenAILanguageModel(AbstractLanguageModel):
         logger.debug(f"Time taken: {time.time() - start_time}")
         return content
 
-    # @retry(tries=10, delay=5, backoff=2, max_delay=60)
+    @retry(tries=10, delay=5, backoff=2, max_delay=60)
     def few_shot_generate_thoughts(self, system_prompt: str = "", example_prompt: [str] or str = [], max_tokens=1024,
                                    temperature=0.0, k=1, stop=None, cache_enabled=True, api_model="", check_tags=[],
                                    json_check=False, stream=True):

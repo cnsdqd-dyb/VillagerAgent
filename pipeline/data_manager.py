@@ -275,7 +275,7 @@ class DataManager:
     def update_database_init(self, info: list):
         self._logger.debug("=" * 20 + " Update Database Init " + "=" * 20)
         self._logger.info(f"gathering info data: \n{info}")
-        # print(info)
+        print(info)
         new_info = info.copy()
         for item in new_info:
             item["status"] = item["message"] if item["status"] else {}
@@ -431,7 +431,7 @@ class DataManager:
         system_prompt = SUMMARY_ENVIRONMENT_SYSTEM_PROMPT
         example_prompt = SUMMARY_ENVIRONMENT_EXAMPLE_PROMPT.copy()
         example_prompt[-1] = example_prompt[-1].format(environment_info=self._env_data,
-                                                       task=task + self._env_data["sign_info"])
+                                                       task=task + str(self._env_data["sign_info"]))
         self._logger.debug(f"System prompt: {system_prompt}")
         self._logger.debug(f"Example prompt: {example_prompt}")
         if isinstance(self.llm, OpenAILanguageModel):

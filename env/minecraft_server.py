@@ -402,8 +402,8 @@ def move_to_pos():
     """move_to_pos x y z: move to the position x y z."""
     data = request.get_json()
     x, y, z = data.get('x'), data.get('y'), data.get('z')
-    tag1, msg1 = move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z))
-    tag2, msg2 = move_to(pathfinder, bot, Vec3, 2, Vec3(x, y, z))
+    tag1, msg1 = move_to(pathfinder, bot, Vec3, 5, Vec3(x, y, z))
+    tag2, msg2 = move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z))
     tag3, msg3 = move_to(pathfinder, bot, Vec3, 1, Vec3(x, y, z))
     # lookAtPlayer(bot, entity['position'])
     events = info_bot.get_action_description_new()
@@ -580,9 +580,14 @@ def environment_info():
     msg = get_envs_info_dict(bot, RENDER_DISTANCE=32, same_entity_num=3)
     blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=32, max_same_block=3, visible_only=VISIBLE_ONLY)
     hint = readNearestSign(bot, Vec3, mcData, max_distance=5)
+
+    # filter the blocks
+    blocks = [block for block in blocks if "slime" not in str(block)]
     msg["blocks"] = blocks
     msg["sign"] = hint
     new_events = info_bot.get_event_description_new()
+    # filter the events
+    new_events = [event for event in new_events if "slime" not in str(event)]
     msg['events'] = new_events
 
     if os.path.exists(".cache/env.cache"):
@@ -1125,11 +1130,12 @@ def position_to_string(position):
 @On(bot, 'spawn')
 def handleViewer(*args):
     # Stream frames over tcp to a server listening on port 8089, ends when the application stop
-    mineflayerViewer(bot, { "port": 25566, "firstPerson": False })
+    # mineflayerViewer(bot, { "port": 25566, "firstPerson": False })
 
     path = [bot.entity.position]
 
-    bot.chat('/gamemode survival')
+    bot.chat('/gamemode creative')
+    # bot.chat('/gamemode survival')
     time.sleep(.1)
     bot.chat('/clear @s')
     time.sleep(.1)
@@ -1413,7 +1419,10 @@ class Bot():
         for event in self.events_log:
             if event["new"]:
                 event["new"] = False
-                new_events.append(event)
+                if self.existing_time - event["time"] < 240:
+                    new_events.append(event)
+                if len(new_events) > 5:
+                    new_events.pop(0)
         return new_events
     
     def get_action_description_new_str(self):
@@ -1436,7 +1445,10 @@ class Bot():
         for action in self.action_log:
             if action["new"]:
                 action["new"] = False
-                new_actions.append(action['description'])
+                if self.existing_time - action["time"] < 240:
+                    new_actions.append(action['description'])
+                if len(new_actions) > 5:
+                    new_actions.pop(0)
         return new_actions
 
     def update_time(self):

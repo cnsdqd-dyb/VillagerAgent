@@ -83,7 +83,6 @@ class Agent():
     agent_process = {}
     url_prefix = {}
 
-
     @staticmethod
     def get_url_prefix() -> dict:
         if os.path.exists("data/url_prefix.json"):
@@ -102,18 +101,16 @@ class Agent():
         self.model = Agent.model if model == "" else model
         self.basic_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
-            Agent.UseItemOnEntity, Agent.sleep, Agent.wake,
+            Agent.UseItemOnEntity,
             Agent.MineBlock, Agent.placeBlock, Agent.equipItem,
-            Agent.handoverBlock, Agent.SmeltingCooking,
-            Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,
-            Agent.enchantItem, Agent.trade, Agent.repairItem, Agent.eat,
-            Agent.fetchContainerContents, Agent.ToggleAction
+            Agent.handoverBlock, Agent.SmeltingCooking, Agent.talkTo, Agent.waitForFeedback,
+            Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,Agent.ToggleAction, 
         ]
         self.all_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
             Agent.navigateToBuilding, Agent.navigateToAnimal, Agent.navigateToPlayer,
             Agent.UseItemOnEntity, Agent.sleep, Agent.wake,
-            Agent.MineBlock, Agent.placeBlock, Agent.equipItem,
+            Agent.MineBlock, Agent.placeBlock, Agent.waitForFeedback, Agent.equipItem,
             Agent.tossItem, Agent.talkTo, Agent.handoverBlock,
             Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,
             Agent.SmeltingCooking, Agent.erectDirtLadder, Agent.dismantleDirtLadder,
@@ -186,7 +183,7 @@ class Agent():
                     ["python", "env/minecraft_server.py", "-H", host, "-P", str(port), "-LP", str(value), "-U", key, "-W",
                  world, "-D", str(debug)], shell=False)
                 print(f"python env/minecraft_server.py -H \"{host}\" -P {port} -LP {value} -U \"{key}\" -W \"{world}\" -D {debug}")
-                time.sleep(3)
+                time.sleep(2)
         if verbose:
             print("launch done.")
 
@@ -806,7 +803,7 @@ class Agent():
                 agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
                 return_intermediate_steps=True,
                 max_execution_time=120,  # seconds
-                max_iterations=8,  # 决定了最大的迭代次数
+                max_iterations=10,  # 决定了最大的迭代次数
             )
             agent.handle_parsing_errors = True
             response = None

@@ -273,6 +273,7 @@ class GlobalController:
         
         collab = next((c for c in self.collab_list if c["task"] == task.id), None)
         if collab == None:
+            tag = agent.reflect(task, detail)
             task.status = Task.success if tag else Task.failure
             self.set_task_status(task.id, task.status, detail)
 
