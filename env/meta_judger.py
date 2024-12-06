@@ -210,6 +210,75 @@ def handleViewer(*args):
     time.sleep(.2)
     bot.chat("/weather clear")
     time.sleep(.2)
+    
+    # bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass hollow")
+    # time.sleep(.2)
+    # bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory} {orz + room_width + wall_width} grass_block")
+    # time.sleep(.2)
+    # bot.chat(f"/setblock {orx + wall_width} {ory + room_height // 2 - 1} {orz + wall_width} glass")
+    # time.sleep(.2)
+    # bot.chat(f"/tp @s {orx + wall_width} {ory + room_height // 2} {orz + wall_width} -45 45")
+    
+    # peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
+    # hill_height = 3
+    # bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
+    # generate_hill(peakx, peakz, hill_height)
+    
+    clear_w = 31
+    clear_h = 6
+    feature_list = ["desert", "plains", "savanna", "snowy", "taiga"]
+    tree_list = ["acacia", "birch", "spruce", "oak", "jungle_tree", "dark_oak", "mangrove"]
+    crx, cry, crz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
+    tx, ty, tz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
+
+    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + 1} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 2 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * 2 + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 3 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * 3 + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 4 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    time.sleep(.2)
+    bot.chat("/kill @e[type=!minecraft:player]")
+    time.sleep(.2)
+    # 清空原来的环境
+
+    peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
+    hill_height = 3
+    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
+    generate_hill(peakx, peakz, hill_height)
+    # 生成土丘
+
+    feature = random.choice(feature_list)
+    with open("data/template_houses.json", "r") as f:
+        template_houses = json.load(f)
+    house = random.choice(template_houses[feature])
+    bot.chat(f"/tp {crx} {ory + 1} {crz}")
+    time.sleep(.2) 
+    bot.chat(f"/place template village/{feature}/houses/{house}")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} air replace jigsaw")
+    time.sleep(.2)
+    bot.chat(f"/tp {tx} {get_surface_y(tx, tz)} {tz}")
+    time.sleep(.2)
+    bot.chat(f"/place feature {random.choice(tree_list)}")
+    time.sleep(.2)
+    # 生成房屋和树
+
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz} {orx} {ory + room_height + wall_width} {orz + room_width + wall_width} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx + room_width + wall_width} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz + room_width + wall_width} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory + room_height + wall_width} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory} {orz + room_width + wall_width} grass_block")
+    time.sleep(.2)
+    # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
+
     bot.chat("/clear @e[distance=..10,type=player,gamemode=survival]")
     time.sleep(.2)
     bot.chat("/kill @e[type=!minecraft:player]")
@@ -217,21 +286,11 @@ def handleViewer(*args):
     bot.chat("/kill @e[type=!minecraft:player]")
     time.sleep(.2)
 
-    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} glass hollow")
-    time.sleep(.2)
-    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory} {orz + room_width + wall_width} grass_block")
-    time.sleep(.2)
     bot.chat(f"/setblock {orx + wall_width} {ory + room_height // 2 - 1} {orz + wall_width} glass")
     time.sleep(.2)
     bot.chat(f"/tp @s {orx + wall_width} {ory + room_height // 2} {orz + wall_width} -45 45")
-    
-    peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
-    hill_height = 3
-    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
-    # generate_hill(peakx, peakz, hill_height)
+    time.sleep(.2)
 
-
-    # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
     bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 4} {orz + 4} 0 0")
 
     global interact_arg, interact_type
@@ -730,29 +789,29 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             #     bot.chat(f'score: {score}')
         
         if host_name is not None and target_name is not None and msg is not None:
-            cache_dir = 'tmp'
-            file_path = os.path.join(cache_dir, 'message.json')
-            if not os.path.exists(cache_dir):
-                os.makedirs(cache_dir)
+            # cache_dir = 'tmp'
+            # file_path = os.path.join(cache_dir, 'message.json')
+            # if not os.path.exists(cache_dir):
+            #     os.makedirs(cache_dir)
         
-            # 初始化消息列表
-            messages = []
+            # # 初始化消息列表
+            # messages = []
             
-            # 如果文件存在，读取已有内容
-            if os.path.exists(file_path):
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    try:
-                        messages = json.load(f)
-                    except json.JSONDecodeError:
-                        # 文件可能为空或格式不正确，忽略读取错误
-                        pass
+            # # 如果文件存在，读取已有内容
+            # if os.path.exists(file_path):
+            #     with open(file_path, 'r', encoding='utf-8') as f:
+            #         try:
+            #             messages = json.load(f)
+            #         except json.JSONDecodeError:
+            #             # 文件可能为空或格式不正确，忽略读取错误
+            #             pass
             
-            # 添加新消息到消息列表
-            messages.append(msg)
+            # # 添加新消息到消息列表
+            # messages.append(msg)
             
-            # 将消息列表写回文件
-            with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(messages, f, ensure_ascii=False, indent=4)
+            # # 将消息列表写回文件
+            # with open(file_path, 'w', encoding='utf-8') as f:
+            #     json.dump(messages, f, ensure_ascii=False, indent=4)
             
             if config["task_scenario"] == "interact" and arg_dict["action"] == "chat":
                 if msg== arg_dict["other_arg"][0]:
