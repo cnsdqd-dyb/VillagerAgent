@@ -20,7 +20,16 @@ Customize your private tasks in your Minecraft server with our VillagerAgent mul
 ---
 
 ## News
-\[2024.12.08\] \[Human -- Agent\]  \[Agent -- Agent\] Real Time Chat supports now!!!🎉
+\[2024.12.08\] LLM driven AutoGen task to get data for Agent-tuning.
+
+<img src="img/chat.png" width="50%" /> 
+<img src="img/chat2.png" width="45%" /> 
+<img src="img/chat3.png" width="49%" /> 
+<img src="img/chat4.png" width="50%" /> 
+\[2024.12.01\] \[Human -- Agent\]  \[Agent -- Agent\] Real Time Chat supports now!!!🎉
+
+<img src="img/autogen1.png" width="49%" /> 
+<img src="img/autogen2.png" width="49%" /> 
 
 \[2024.10.23\] We are trying to replace the LLM in VillagerAgent with finetuned open source LLMs to improve the performance and efficiency of the agent's task execution.
 
