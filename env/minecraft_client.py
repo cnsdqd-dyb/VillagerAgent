@@ -101,7 +101,7 @@ class Agent():
         self.model = Agent.model if model == "" else model
         self.basic_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
-            Agent.UseItemOnEntity,
+            Agent.UseItemOnEntity, Agent.fetchContainerContents,
             Agent.MineBlock, Agent.placeBlock, Agent.equipItem,
             Agent.handoverBlock, Agent.SmeltingCooking, Agent.talkTo, Agent.waitForFeedback,
             Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,Agent.ToggleAction, 
@@ -158,6 +158,12 @@ class Agent():
         """Get the Environment Information, return string contains time of day, weather"""
         url = Agent.get_url_prefix()[player_name] + "/post_environment_dict"
         response = requests.post(url, headers=Agent.headers)
+        return response.json()
+    
+    def ping(player_name: str):
+        """Ping the Server"""
+        url = Agent.get_url_prefix()[player_name] + "/post_ping"
+        response = requests.get(url)
         return response.json()
 
     @staticmethod
@@ -262,7 +268,7 @@ class Agent():
     @tool
     @timeit
     def scanNearbyEntities(player_name: str, item_name: str, radius: int = 10, item_num: int = -1):
-        """Find minecraft item blocks creatures in a radius, return ('message': msg, 'status': True/False, 'data':[('x':x,'y':y,'z':z),...]) This function can not find items in the chest, container,or player's inventory."""
+        """Find minecraft item blocks chests creatures in a radius, return ('message': msg, 'status': True/False, 'data':[('x':x,'y':y,'z':z),...]) This function can not find items in the chest, container,or player's inventory."""
         url = Agent.get_url_prefix()[player_name] + "/post_find"
         data = {
             "name": item_name.lower().replace(" ", "_"),
@@ -682,6 +688,7 @@ class Agent():
     @timeit
     def talkTo(player_name: str, entity_name: str, message: str):
         """Talk to the Entity"""
+        Agent._lookAt(player_name, entity_name)
         url = Agent.get_url_prefix()[player_name] + "/post_talk_to"
         data = {
             "entity_name": entity_name,
@@ -717,6 +724,15 @@ class Agent():
     @tool
     @timeit
     def lookAt(player_name: str, name: str):
+        """Look at Someone or Something"""
+        url = Agent.get_url_prefix()[player_name] + "/post_look_at"
+        data = {
+            "name": name,
+        }
+        response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
+        return response.json()
+
+    def _lookAt(player_name: str, name: str):
         """Look at Someone or Something"""
         url = Agent.get_url_prefix()[player_name] + "/post_look_at"
         data = {
@@ -833,9 +849,21 @@ class Agent():
                             tokens["action_cost"] += end_time - start_time
                             with open("data/tokens.json", "w") as f:
                                 json.dump(tokens, f, indent=4)
-                        except:
-                                pass
+                        except KeyboardInterrupt:
+                            logging.info("KeyboardInterrupt")
+                            raise KeyboardInterrupt
+                        except Exception as e:
+                            logging.info(e)
                 break
+            except KeyboardInterrupt:
+                logging.info("KeyboardInterrupt")
+                raise KeyboardInterrupt
+            except ConnectionError as e:
+                logging.info(e)
+                raise ConnectionError
+            except ConnectionRefusedError as e:
+                logging.info(e)
+                raise ConnectionRefusedError
             except Exception as e:
                 print(e)
                 print("retrying...")

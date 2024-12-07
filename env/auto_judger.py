@@ -78,6 +78,8 @@ def handleViewer(*args):
     time.sleep(.1)
     bot.chat(f'/tp @e[type=player,gamemode=survival] @s')
     bot.chat(f'/clear @e[type=player,gamemode=survival]')
+    bot.chat(f'/tp @e[type=player,gamemode=creative] @s')
+    bot.chat(f'/clear @e[type=player,gamemode=creative]')
     bot.chat('/time set day')
     time.sleep(.1)
     bot.chat('/weather clear')
@@ -107,6 +109,12 @@ def handleViewer(*args):
     
 
     op_commands = json.load(open(op_path, "r"))
+    for op in op_commands["materials_op"]:
+        if "minecraft:water" in op:
+            bot.chat(op.replace("-60","-61"))
+        else:
+            bot.chat(op)
+        time.sleep(.2)
     place_op = op_commands["place_op"].strip().split(" ")
     names = place_op[2].split("_")
     place_op_full = f"/place template minecraft:village/{names[0]}/houses/{place_op[2]}_1 0 -60 -0"
@@ -122,6 +130,7 @@ def handleViewer(*args):
     for op in op_commands["environ_op"]:
         bot.chat(op)
         time.sleep(.2)
+
 
 
     with open(".cache/load_status.cache", "w") as f:

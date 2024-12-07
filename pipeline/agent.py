@@ -113,6 +113,15 @@ class BaseAgent:
             try:
                 feedback, detail = self.env.step(self.name, task_str)
                 break
+            except KeyboardInterrupt:
+                self.logger.info("KeyboardInterrupt")
+                raise KeyboardInterrupt
+            except ConnectionError:
+                self.logger.error("ConnectionError")
+                raise ConnectionError
+            except ConnectionRefusedError:
+                self.logger.error("ConnectionRefusedError")
+                raise ConnectionRefusedError
             except Exception as e:
                 self.logger.error(f"Error: {e}")
                 max_retry -= 1

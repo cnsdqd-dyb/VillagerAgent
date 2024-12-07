@@ -45,9 +45,9 @@ def readNearestSign(bot, Vec3, mcData, max_distance=7) -> str:
         blocks.sort(key=lambda x: distanceTo(x, bot.entity.position))
         block = bot.blockAt(blocks[0])
         text = block.getSignText()
-        return text.join('\n')
+        return text.join('\n'), True
     else:
-        return f"cannot find the specific sign within {max_distance} blocks"
+        return f"cannot find the specific sign within {max_distance} blocks", False
     
 from math import floor
 def bfs_search(bot, Vec3, bot_position, max_distance):
@@ -503,8 +503,6 @@ def get_agent_info2str(bot, RENDER_DISTANCE=32, idle=False, with_humans=False, n
     获取agent的信息 可以包含human player的信息
     转换成字符串
     '''
-    if idle:
-        agent_status = load_agent_status()
 
     status_info = get_envs_info(bot, RENDER_DISTANCE)
     if name != "":
@@ -517,7 +515,7 @@ def get_agent_info2str(bot, RENDER_DISTANCE=32, idle=False, with_humans=False, n
         if len(search_info) == 0:
             return f"cannot find {name}.", 0
         else:
-            return str(search_info[0]).replace("},", "},\n"), 1
+            return f"Use scanNearbyEntities to search entities, {name}.", 1
 
     if status_info['equipment'][1]:
         status_info['I_held_item'] = {status_info['equipment'][1]['name']: status_info['equipment'][1]['count']}
@@ -534,19 +532,14 @@ def get_agent_info2str(bot, RENDER_DISTANCE=32, idle=False, with_humans=False, n
         e = status_info['entities'][e]
         if e:
             if e.username:
-                if e.username == bot.entity.username or "judge" in e.username:
+                if "judge" in e.username:
                     continue
             else:
                 continue
         else:
             continue
 
-        if e and idle:
-            if e.username not in agent_status.keys() and with_humans:  # this means the agent is a human player
-                entities.append(e)
-            elif e.username in agent_status.keys() and agent_status[e.username]['state'] == 'idle':
-                entities.append(e)
-        else:
+        if e:
             entities.append(e)
 
     entities_str = "nearby agents:\n"
@@ -654,7 +647,7 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
         try_num = 3
         while try_num > 0:
             try:
-                bot.pathfinder.setGoal(pathfinder.goals.GoalNear(pos.x, pos.y, pos.z, 0.0))
+                bot.pathfinder.setGoal(pathfinder.goals.GoalNear(pos.x, pos.y, pos.z, 1.4))
                 x,y,z = bot.entity.position.x , bot.entity.position.y, bot.entity.position.z
                 tiks += 1
                 abs_dis = max(abs(ori_x-x), abs(ori_y-y), abs(ori_z-z))
@@ -2154,7 +2147,7 @@ def write(bot, Vec3, envs_info, mcData, block_name, text):
         try:
             pos = find_nearest_(bot, Vec3, envs_info, mcData, block_name)
             if pos == None:
-                return f"cannot find {block_name} nearby", False
+                return f"cannot find {block_name} nearby or sign name is not correct format.", False
             block = bot.blockAt(pos)
             bot.updateSign(block, text.split(' ').slice(1).join(' '))
             return "write done", True

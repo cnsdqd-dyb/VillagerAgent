@@ -72,10 +72,10 @@ def log_activity(bot):
         return wrapper
     return decorator
 
-@app.route('/hello', methods=['GET'])
+@app.route('/post_ping', methods=['GET'])
 @log_activity(bot)
-def hello_world():
-    return 'Hello World!'
+def ping():
+    return jsonify({'message': 'pong', 'status': True})
 
 
 @app.route('/post_render', methods=['POST'])
@@ -296,7 +296,7 @@ def find():
         # bot.chat(f"can not find anything match '{data.get('name')}'")
         msg = get_envs_info2str(bot, RENDER_DISTANCE=16, same_entity_num=3)
         blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=distance, max_same_block=3,visible_only=VISIBLE_ONLY)
-        hint = readNearestSign(bot, Vec3, mcData, max_distance=5)
+        hint, tag = readNearestSign(bot, Vec3, mcData, max_distance=16)
         for block in blocks:
             msg += f"{block['name']} at {position_to_string(block['position'])}\n"
         if hint:
@@ -546,7 +546,7 @@ def environment():
     """environment:  to get the environment info."""
     msg = get_envs_info2str(bot, RENDER_DISTANCE=32, same_entity_num=3)
     blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=32, max_same_block=3, visible_only=VISIBLE_ONLY)
-    hint = readNearestSign(bot, Vec3, mcData, max_distance=5)
+    hint, tag = readNearestSign(bot, Vec3, mcData, max_distance=16)
     for block in blocks:
         msg += f"{block['name']} at {position_to_string(block['position'])}\n"
     if hint:
@@ -577,9 +577,9 @@ def environment():
 @log_activity(bot)  # 获取环境信息
 def environment_info():
     """environment:  to get the environment info."""
-    msg = get_envs_info_dict(bot, RENDER_DISTANCE=32, same_entity_num=3)
-    blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=32, max_same_block=3, visible_only=VISIBLE_ONLY)
-    hint = readNearestSign(bot, Vec3, mcData, max_distance=5)
+    msg = get_envs_info_dict(bot, RENDER_DISTANCE=16, same_entity_num=3)
+    blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=16, max_same_block=3, visible_only=VISIBLE_ONLY)
+    hint, tag = readNearestSign(bot, Vec3, mcData, max_distance=16)
 
     # filter the blocks
     blocks = [block for block in blocks if "slime" not in str(block)]
@@ -611,9 +611,16 @@ def entity():
     """entity distance name:  to get the entity info in range distance."""
     data = request.get_json()
     name = data.get('name', "")
-    info, num = get_agent_info2str(bot, RENDER_DISTANCE=32, idle=False, with_humans=False, name=name)
+    if name == bot.entity.username or name == "":
+        items = getInventoryItems(bot)
+        item_data = [ {"name": item["name"], "count": item["count"]} for item in items]
+        info, num = get_agent_info2str(bot, RENDER_DISTANCE=32, idle=False, with_humans=False, name=name)
+        data = {"name": name, "info": info, "num": num, "item_data": item_data}
+    else:
+        info, num = get_agent_info2str(bot, RENDER_DISTANCE=32, idle=False, with_humans=False, name=name)
+        data = {"name": name, "info": info, "num": num}
     events = info_bot.get_action_description_new()
-    return jsonify({'message': info, 'status': True, 'data': num, "new_events": events})
+    return jsonify({'message': info, 'status': True, 'data': data, "new_events": events})
 
 
 @app.route('/post_get', methods=['POST'])
@@ -1065,6 +1072,12 @@ def read_():
     name = data.get('name')
     envs_info = get_envs_info(bot, 128)
     msg, tag = read(bot, Vec3, envs_info, mcData, name)
+
+    if "sign" in name:
+        msg, tag = readNearestSign(bot, Vec3, mcData, max_distance=16)
+        if not tag:
+            msg = "I cannot find any sign to read."
+        msg = str(msg)
     done = tag
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': done, "new_events": events})
@@ -1440,6 +1453,19 @@ class Bot():
                     return True, action["description"]
         return False, ""
 
+    def get_bot_inventory_str(self):
+        items = bot.inventory.items()
+        item_dict = {}
+        for item in items:
+            item_dict[item['name']] = item['count']
+        if bot.heldItem:
+            item_dict["heldItem"] = bot.heldItem.name
+        
+        item_str = "My inventory: "
+        for key, value in item_dict.items():
+            item_str += f"{key}: {value} "
+        return item_str
+
     def get_action_description_new(self):
         new_actions = []
         for action in self.action_log:
@@ -1449,6 +1475,9 @@ class Bot():
                     new_actions.append(action['description'])
                 if len(new_actions) > 5:
                     new_actions.pop(0)
+        current_inventory = self.get_bot_inventory_str()
+        if current_inventory != "":
+            new_actions.append(current_inventory)
         return new_actions
 
     def update_time(self):

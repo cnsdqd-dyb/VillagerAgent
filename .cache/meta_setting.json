@@ -6,13 +6,13 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Place a diamond_block at (8, -60, 8). The diamond_block is in your inventory.",
+    "task_goal": "At coordinates (1, -57, 13), position a cobblestone taken from the inventory.",
     "task_scenario": "place",
     "evaluation_arg": {
-        "target": "diamond_block",
-        "x": 8,
-        "y": -60,
-        "z": 8,
+        "target": "cobblestone",
+        "x": 1,
+        "y": -57,
+        "z": 13,
         "facing": "",
         "item_position": "inventory",
         "tool": "",
@@ -21,7 +21,7 @@
         "other_arg": []
     },
     "document_file": "",
-    "host": "10.192.24.163",
+    "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "meta_test"
+    "task_name": "place_cobblestone_inventory_id0"
 }

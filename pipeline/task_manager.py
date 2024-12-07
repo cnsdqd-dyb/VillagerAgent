@@ -151,23 +151,23 @@ class TaskManager:
         return graph
 
     def update_history(self, system_prompt, user_prompt, response):
-        # if type(user_prompt) == str:
-        #     user_prompt = [user_prompt]
-        # prompt = str(system_prompt) + "\n"
-        # for i in range(len(user_prompt)):
-        #     prompt += user_prompt[i] + "\n"
+        if type(user_prompt) == str:
+            user_prompt = [user_prompt]
+        prompt = str(system_prompt) + "\n"
+        for i in range(len(user_prompt)):
+            prompt += user_prompt[i] + "\n"
 
-        # self.history["prompt"].append(prompt)
-        # self.history["response"].append(response)
-        # task_name = ""
-        # with open(".cache/meta_setting.json", "r") as f:
-        #     config = json.load(f)
-        #     task_name = config["task_name"]
-        # if not os.path.exists("result/" + task_name):
-        #     os.mkdir(os.path.join("result/", task_name))
-        # root = os.path.join("result/", task_name)
-        # with open(os.path.join(root, "TM_history.json"), "w") as f:
-        #     json.dump(self.history, f, indent=4)
+        self.history["prompt"].append(prompt)
+        self.history["response"].append(response)
+        task_name = ""
+        with open(".cache/meta_setting.json", "r") as f:
+            config = json.load(f)
+            task_name = config["task_name"]
+        if not os.path.exists("result/" + task_name):
+            os.mkdir(os.path.join("result/", task_name))
+        root = os.path.join("result/", task_name)
+        with open(os.path.join(root, "TM_history.json"), "w") as f:
+            json.dump(self.history, f, indent=4)
         pass
 
     '''

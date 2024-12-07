@@ -144,6 +144,13 @@ class GlobalController:
         while True:
             if self.shutdown:
                 break
+
+            # if future.done() and task.id in [t.id for t in self.task_list] and task.status == Task.running:
+            if self.env.agents_ping()["status"] == False:
+                self.logger.info("Some agents are offline!")
+                self.shutdown = True
+                break
+                
             with self.task_list_lock:
                 if not self.task_queue:
                     time.sleep(self.query_interval)
@@ -220,9 +227,19 @@ class GlobalController:
         while True:
             if self.shutdown:
                 break
+
+            # if future.done() and task.id in [t.id for t in self.task_list] and task.status == Task.running:
+            if self.env.agents_ping()["status"] == False:
+                self.logger.info("Some agents are offline!")
+                self.shutdown = True
+                break
+
             with self.result_list_lock:
                 result_list_copy = []
                 for future, agent, task, start_time in self.result_queue:
+
+                    if self.shutdown:
+                        break
                     # if future.done() and task.id in [t.id for t in self.task_list] and task.status == Task.running:
                     if future.done():
                         try:
@@ -273,6 +290,13 @@ class GlobalController:
             while True:
                 if self.shutdown:
                     break
+
+                # if future.done() and task.id in [t.id for t in self.task_list] and task.status == Task.running:
+                if self.env.agents_ping()["status"] == False:
+                    self.logger.info("Some agents are offline!")
+                    self.shutdown = True
+                    break
+
                 self.task_list = self.task_manager.query_subtask_list()
                 if self.task_list == []:
                     self.logger.info("all assigned tasks are finished ...")

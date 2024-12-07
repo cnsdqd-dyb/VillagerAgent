@@ -243,7 +243,13 @@ class VillagerBench:
                 return tool_dict, description
         return {}, f"agent {agent_name} not found"
 
-        
+    def agents_ping(self):
+        try:
+            for agent in self.agent_pool:
+                Agent.ping(agent.name)
+        except:
+            return {"message": "some agent not found", "status": False}
+        return {"message": "all agents are online", "status": True}
 
     def agent_status(self, agent_name: str):  # 返回一个dict
         for agent in self.agent_pool:

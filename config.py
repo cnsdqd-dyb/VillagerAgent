@@ -17,7 +17,7 @@ orx = 0     #origin_point
 ory = -61
 orz = 0
 
-task_number = 5
+task_number = 1
 
 logger = init_logger("TASK_GOAL", dump=False, level=logging.DEBUG, silent=False)
 

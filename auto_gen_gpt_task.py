@@ -34,41 +34,29 @@ if __name__ == "__main__":
         Agent.MineBlock, Agent.placeBlock, Agent.equipItem,
         Agent.handoverBlock, Agent.SmeltingCooking, Agent.talkTo, Agent.waitForFeedback,
         Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,Agent.ToggleAction, 
+        Agent.sleep, Agent.wake, Agent.tossItem, Agent.read,
+        Agent.get_entity_info, Agent.get_environment_info, Agent.performMovement,
+        Agent.lookAt, Agent.startFishing, Agent.stopFishing, Agent.mountEntity, Agent.dismountEntity
     ]
-    all_tools = [
-        Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
-        Agent.navigateToBuilding, Agent.navigateToAnimal, Agent.navigateToPlayer,
-        Agent.UseItemOnEntity, Agent.sleep, Agent.wake,
-        Agent.MineBlock, Agent.placeBlock, Agent.waitForFeedback, Agent.equipItem,
-        Agent.tossItem, Agent.talkTo, Agent.handoverBlock,
-        Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,
-        Agent.SmeltingCooking, Agent.erectDirtLadder, Agent.dismantleDirtLadder,
-        Agent.enchantItem, Agent.trade, Agent.repairItem, Agent.eat,
-        Agent.drink, Agent.wear, Agent.layDirtBeam, Agent.removeDirtBeam,
-        Agent.openContainer, Agent.closeContainer,
-        Agent.fetchContainerContents, Agent.ToggleAction,
-        Agent.get_entity_info, Agent.get_environment_info, 
-        Agent.performMovement, Agent.lookAt, Agent.startFishing,
-        Agent.stopFishing, Agent.read, Agent.readPage, Agent.write,
-        Agent.mountEntity, Agent.dismountEntity, Agent.rideEntity, Agent.disrideEntity,
-    ]
-    other_tools = [tool for tool in all_tools if tool not in basic_tools]
  
     llm = init_language_model(llm_config)
 
     # Define lists of actions, materials, entities, etc.
     actions = [
-        "Agent can talk with other agents in the environment.",
-        "Agent can move to a specific location in the environment.",
-        "Agent can equip items in the environment.",
-        "Agent can craft items in the environment.",
-        "Agent can interact with other agents and entities in the environment.",
-        "Agent can attack other agents and entities in the environment.",
-        "Agent can dig the ground in the environment."
-        "Agent can read the signs."
-        "Agent can feed animals, mount the horse."
-        "Agent can use chest, furnace, crafting table."
-        "Agent can sleep and wake up."
+        "Agent can talk with other agents, you need to specify the agent name and the topic.",
+        "Agent can move to a specific location, you need to specify the location near 0, -60, 0.",
+        "Agent can equip items, you need to specify the item name and the agent name, or put the item in the chest and remind the agent to equip it.",
+        "Agent can craft items, you need to specify the item name and give materials to the agent or put the item in the chest or set the item in the environment.",
+        "Agent can interact with doors, buttons, levers, pressure plates, and trapdoors. You need to set them and let the agent interact with them.",
+        "Agent can attack entities, haunt entities, or kill entities. You need to summon entities in the environment.",
+        "Agent can dig the ground, you need to set the block and give the agent a tool.",
+        "Agent can read the signs, you need to write the text on the sign.",
+        "Agent can feed animals, mount the horse.",
+        "Agent can use chest, furnace, you can ask the agent to store items, withdraw items, or smelting items, cooking food, but you need to set the chest, furnace, and required items.",
+        "Agent can sleep and wake up, please set the bed and the time.",
+        "Agent can fish, you need to set the water and the fish and the fishing rod.",
+        "Agent can get the information of the entities or agents, you can ask the agent to get the information of the entities or agents.",
+        "Agent can perform movement, you can ask the agent to jump forward back left right for Seconds.",
     ]
 
     materials = ["wooden", "stone", "iron", "golden", "diamond", "netherite"]
@@ -80,15 +68,16 @@ if __name__ == "__main__":
     tools = ["axe", "pickaxe", "shovel", "hoe", "sword", "flint_and_steel", "compass", "shears", "fishing_rod", "clock"]
 
     # Randomly select a subset of actions
-    selected_actions = random.sample(actions, k=len(actions))
+    selected_actions = random.sample(actions, k=2)
 
     # Generate prompt with random actions
     prompt_task_description = format_string("""
-    Generate a task description for the agent to complete in the Minecraft environment. The task should be designed in various styles.
+    Generate a task description for the agent to complete in the Minecraft environment.
+    [TASK Action]:
     {{selected_actions}}
-    Agent can not trade or talk with villagers, the task can be finished in 3~5 stepsis better.
+    Agent can not trade or talk with villagers.
     Agent can be given materials, foods, tools, for finish the task.
-    The task can focus on crafting, building, fighting, exploring, farming, talking, etc. Make the task simple and in detail.                                     
+    The task should only focus on 1~2 [TASK Action], the task should be simple and clear.                              
     The common materials, entities, equipments, food, and tools names:
     materials: {{materials}}
     agents: {{agents}}
@@ -97,7 +86,7 @@ if __name__ == "__main__":
     food: {{food}}
     other_food: {{other_food}}
     tools: {{tools}}
-    You need to design a task description that includes 3~5 of the above actions for agents to complete.
+    You need to design a task description that includes 1~2 of the above actions for agents to complete.
     return in json format.
     {
         "main_actions": [...], a list of main actions designed for agents to complete in the Minecraft environment (no more than 5).
@@ -107,6 +96,7 @@ if __name__ == "__main__":
         "materials": [...], a list of materials in the environment.
         "equipments": [...], a list of equipments in the environment.
         "tools": [...], a list of tools in the environment.
+        "environment": str, "rainy, sunny, snowy, desert, etc."
         "milestones": [...], a list of milestones designed for agents to complete in the Minecraft environment.
     }
     """, {
@@ -123,56 +113,79 @@ if __name__ == "__main__":
     # Use LLM to generate task description
     task_description = llm.few_shot_generate_thoughts("", prompt_task_description, cache_enabled=True, json_check=True, temperature=0.3)
     task_description = extract_info(task_description)[0]
-    task_description_str = str(task_description["milestones"])
+    task_description["environment"] = random.choice(["rainy", "sunny", "snowy", "desert", "savanna", "taiga", "plains", "stormy"])
+    task_description_str = str(task_description["task_description"])
     print(task_description)
     # input()
 
     # Use LLM to select the agent tool
     prompt_agent_tool = """
     Select the agent tool for the agent to complete the task in the Minecraft environment. The agent basic tools are:
-    scanNearbyEntities, navigateTo, attackTarget, UseItemOnEntity,
-    MineBlock, placeBlock, equipItem, handoverBlock, SmeltingCooking, 
-    talkTo, waitForFeedback, withdrawItem, storeItem, craftBlock, ToggleAction
-    
-    The agent advanced tools are:
-    navigateToBuilding, navigateToAnimal, navigateToPlayer, sleep, wake, tossItem, erectDirtLadder, dismantleDirtLadder, enchantItem, trade, repairItem, eat, drink, wear, layDirtBeam, removeDirtBeam, openContainer, closeContainer, fetchContainerContents, get_entity_info, get_environment_info, performMovement, lookAt, startFishing, stopFishing, read, readPage, write, mountEntity, dismountEntity, dismountEntity, rideEntity, disrideEntity
-    
+    attackTarget, UseItemOnEntity, equipItem, handoverBlock, SmeltingCooking, 
+    talkTo, waitForFeedback, storeItem, ToggleAction,
+    sleep, wake, tossItem, read, get_entity_info, get_environment_info, performMovement,
+    startFishing, stopFishing, mountEntity, dismountEntity.
+
     Current Task Description is:
     {{TASK_JSON}}
-    
+    Only select the agent tools that are necessary for the agent to complete the task.
     return in json format.
     {
         "agent_tool": [...], a list of agent tools selected for the agent to complete the task in the Minecraft environment.
     }
     """
     prompt_agent_tool = format_string(prompt_agent_tool, {"TASK_JSON": task_description})
-    response = llm.few_shot_generate_thoughts("", prompt_agent_tool, cache_enabled=True, json_check=True)
+    response = llm.few_shot_generate_thoughts("", prompt_agent_tool, cache_enabled=True, json_check=True, check_tags=["agent_tool"])
     agent_tool_dict = extract_info(response)[0]
-    agent_tool = basic_tools
+    print(agent_tool_dict)
+    agent_tool = [Agent.MineBlock, Agent.placeBlock, Agent.scanNearbyEntities, Agent.get_entity_info, Agent.read,
+                  Agent.navigateTo, Agent.withdrawItem, Agent.craftBlock, Agent.fetchContainerContents]
     if type(agent_tool_dict) == list:
         agent_tool_dict = {"agent_tool": agent_tool_dict}
     for tool_name in agent_tool_dict["agent_tool"]:
-        for t in all_tools:
+        for t in basic_tools:
             if t.name == tool_name:
                 agent_tool.append(t)
 
     # Use LLM to generate OP command
     prompt_op_command = """
     Generate a OP command for the agent to complete in the Minecraft environment. The OP command should be designed in various styles.
-    1. set the block in the environment:
-    /setblock int int int chest{Items:[{Slot:int, id:"minecraft:name", Count:int}, {Slot:int, id:"minecraft:name", Count:int}]}
-    2. set the time in the environment:
+
+    1. set the environ_op:
     /time set day/night
-    3. set the weather in the environment:
     /weather clear/rain/thunder
-    4. summon entities in the environment:
-    /summon name int int int
-    5. write text on the sign in the environment:
-    /setblock int int int jungle_wall_sign[facing=north]{Text1:str, Text2:str}
-    6. set the environment:
+
+    2. set the place_op:
     "prefix": ["desert_","plains_","savanna_","snowy_","taiga_"],
     "houses": ["animal_pen", "butcher_shop", "cartographer_house", "butcher_shop", "farm", "fletcher_house", "library", "shepherd_house", "small_house", "weaponsmith", "medium_house"],
     /place template prefix+houses
+
+    3. summon entities_op:
+    /summon name int int int
+
+    4. set the blocks_op:
+    /setblock int int int chest{Items:[{Slot:int, id:"minecraft:name", Count:int}, {Slot:int, id:"minecraft:name", Count:int}]}
+    write text on the sign in the environment:
+    /setblock int int int jungle_wall_sign[facing=north]{Text1:str, Text2:str}
+    
+    5. set the inventory_op:
+    /give agent_name minecraft:name{Count:int}
+
+    6. set optional materials_op:
+    give logs, planks, cobblestone, iron_ore etc. to the environment:
+    remember some names are combined with type_name format like: oak_log, oak_planks, cobblestone.
+    At least 10 materials, furnaces, chests, crafting tables, beds, doors, buttons, levers, pressure plates, trapdoors, etc.
+    /setblock int -60 int minecraft:name
+    
+    make the environment more interesting:
+    flowers, grass, remember some names are combined with type_name format like: dandelion, poppy, grass_block, water.
+    /setblock int -60 int minecraft:name
+    At least 6 fishes need to be in the water:
+    cod, salmon, pufferfish, tropical_fish.
+    water should be placed in the environment for at least 6 blocks y=-61.
+    /setblock int -61 int minecraft:water
+    the animals need to be in the grass:
+    sheep, cow, rabbit, pig, chicken.
 
     Remember: equippent should named in material_toolname format like: iron_sword.
 
@@ -188,8 +201,9 @@ if __name__ == "__main__":
         "environ_op":["/..."], a list of OP for set the environment.
         "place_op": str, place template house OP.
         "entities_op":["/..."], a list of OP to summon the entites.
-        "blocks_op":["/..."], a list of OP to set the useful blocks.
+        "blocks_op":["/..."], a list of OP to set the useful blocks and signs.
         "inventory_op":["/..."], a list of OP to add useful materials to agents or chests.
+        "materials_op":["/..."], At least 10 materials, At least 6 water blocks, At least 6 fishes, At least 5 animals.
     }
     """
     op_prompt = format_string(prompt_op_command, {"TASK_JSON": task_description})
@@ -243,9 +257,10 @@ if __name__ == "__main__":
 
         # Set Controller
         ctrl = GlobalController(llm_config, tm, dm, env)
+        ctrl.set_stop_condition(max_execution_time=600, stop_after_fail_times=2, stop_after_success_times=3)
 
         # Set Task
-        tm.init_task(task_description_str, {})
+        tm.init_task(task_description_str, {"milestones": task_description["milestones"]})
 
         # Run Controller
         ctrl.run()

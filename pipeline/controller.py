@@ -58,6 +58,7 @@ class GlobalController:
         for agent in self.agent_list:
             self.name_list.append(agent.name)
         self.feedback = {}
+        self.env = env
 
         self.logger = init_logger("GlobalController", logging.DEBUG, dump=True, silent=silent)
         self.llm = llm
@@ -79,10 +80,22 @@ class GlobalController:
         # max task time for each task in seconds
         self.max_task_time = 60 * 30 # 30 minutes
 
+        self.max_execution_time = 60 * 20  # 20 minutes
+        self.stop_after_fail_times = 3  # stop after 3 times of failure
+        self.stop_after_success_times = 10  # stop after 10 times of success
+
         # task done signal
         self.one_task_done = True
 
         self.shutdown = False
+
+        # start time
+        self.start_time = time.time()
+
+    def set_stop_condition(self, max_execution_time: int, stop_after_fail_times: int, stop_after_success_times: int):
+        self.max_execution_time = max_execution_time
+        self.stop_after_fail_times = stop_after_fail_times
+        self.stop_after_success_times = stop_after_success_times
 
     def validate_assignments(self, result: [dict]):
         validated_assignments = []
@@ -226,8 +239,16 @@ class GlobalController:
     # worker
     def worker(self):
         while True:
-            if self.shutdown:
+            if self.shutdown or time.time() - self.start_time > self.max_execution_time or self.stop_after_fail_times <= 0 or self.stop_after_success_times <= 0:
+                self.logger.info("Worker thread is shutting down ...")
                 break
+
+            if self.env.agents_ping()["status"] == False:
+                self.logger.info("Some agents are offline!")
+                self.shutdown = True
+                self.max_execution_time = 0
+                break
+
             with self.task_list_lock:
                 if not self.task_queue:
                     time.sleep(self.query_interval)
@@ -235,6 +256,10 @@ class GlobalController:
                 while self.task_queue:
                     agent_task = self.task_queue.pop(0)
                     agent, task = agent_task
+
+                    if self.shutdown or time.time() - self.start_time > self.max_execution_time or self.stop_after_fail_times <= 0 or self.stop_after_success_times <= 0:
+                        self.logger.info("Worker thread is shutting down ...")
+                        break
 
                     future = self.executor.submit(agent.step, task)
                     with self.result_list_lock:
@@ -300,6 +325,12 @@ class GlobalController:
 
                 self.logger.info(
                     f"task {task.description} has been executed, the result is {task.status}")
+            
+                if task.status == Task.failure:
+                    self.stop_after_fail_times -= 1
+                if task.status == Task.success:
+                    self.stop_after_success_times -= 1
+
                 self.task_manager.feedback_task(self.get_task_by_id(task.id))
                 self.one_task_done = True
 
@@ -317,6 +348,12 @@ class GlobalController:
 
             self.logger.info(
                 f"task {task.description} has been executed, the result is {task.status}")
+            
+            if task.status == Task.failure:
+                self.stop_after_fail_times -= 1
+            if task.status == Task.success:
+                self.stop_after_success_times -= 1
+                
             self.task_manager.feedback_task(self.get_task_by_id(task.id))
             self.one_task_done = True
 
@@ -342,18 +379,52 @@ class GlobalController:
     # 消费者
     def process_completed_tasks(self):
         while True:
-            if self.shutdown:
+            if self.shutdown or time.time() - self.start_time > self.max_execution_time or self.stop_after_fail_times <= 0 or self.stop_after_success_times <= 0:
+                self.logger.info("Task processing thread is shutting down ...")
                 break
+            
+            if self.env.agents_ping()["status"] == False:
+                self.logger.info("Some agents are offline!")
+                self.shutdown = True
+                self.max_execution_time = 0
+                break
+
             with self.result_list_lock:
                 result_list_copy = []
                 for future, agent, task, start_time in self.result_queue:
                     # if future.done() and task.id in [t.id for t in self.task_list] and task.status == Task.running:
+                    if self.env.agents_ping()["status"] == False:
+                        self.logger.info("Some agents are offline!")
+                        self.shutdown = True
+                        self.max_execution_time = 0
+                        break
+                    
                     if future.done():
                         try:
                             self.logger.info(f"Task {task.description} finished!")
                             _, detail = future.result()
                             self.update_feedback(task, agent, detail)
-
+                        except KeyboardInterrupt:
+                            self.shutdown = True
+                            self.max_execution_time = 0
+                            self.task_manager = None
+                            self.data_manager = None
+                            self.executor.shutdown(wait=False)
+                            raise Exception("Interrupted by user")
+                        except ConnectionError as e:
+                            self.shutdown = True
+                            self.max_execution_time = 0
+                            self.task_manager = None
+                            self.data_manager = None
+                            self.executor.shutdown(wait=False)
+                            raise Exception("ConnectionError")
+                        except ConnectionRefusedError as e:
+                            self.shutdown = True
+                            self.max_execution_time = 0
+                            self.task_manager = None
+                            self.data_manager = None
+                            self.executor.shutdown(wait=False)
+                            raise Exception("ConnectionRefusedError")
                         except Exception as e: # 没有对于 collab 的处理 这个代码不正确
                             traceback.print_exception(type(e), e, e.__traceback__)
                             self.logger.error(f"Task {task.description} failed with exception: {e}\n{e.__traceback__}")
@@ -395,8 +466,16 @@ class GlobalController:
     def execute_tasks(self):
         try:
             while True:
-                if self.shutdown:
+                if self.shutdown or time.time() - self.start_time > self.max_execution_time or self.stop_after_fail_times <= 0 or self.stop_after_success_times <= 0:
+                    self.logger.info("Task execution thread is shutting down ...")
                     break
+            
+                if self.env.agents_ping()["status"] == False:
+                    self.logger.info("Some agents are offline!")
+                    self.shutdown = True
+                    self.max_execution_time = 0
+                    break
+
                 self.task_list = self.task_manager.query_subtask_list()
                 if self.task_list == []:
                     self.logger.info("all assigned tasks are finished ...")
@@ -445,6 +524,7 @@ class GlobalController:
 
                         result = self.generate_prompt_and_get_response(env, experience, agent_state)
                         self.assign_tasks_to_agents(result)
+
         except KeyboardInterrupt:
             self.shutdown = True
             self.task_manager = None
