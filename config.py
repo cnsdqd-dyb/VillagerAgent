@@ -264,6 +264,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 if "values" in state and not all(faceable in allowed_facing for faceable in state["values"]):
                     placeable = False
                     break
+            if "potted" in block["name"] or "_cauldron" in block["name"]:
+                placeable = False
             if placeable:
                 placeable_blocks.append(block)
         block_id_list = random.sample(range(len(placeable_blocks)), k=task_number)

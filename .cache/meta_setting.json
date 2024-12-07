@@ -6,10 +6,10 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Place a diamond_block at (8, -60, 8). The diamond_block is in your inventory.",
-    "task_scenario": "place",
+    "task_goal": "Send a message to Bob with content 'abc'.",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "diamond_block",
+        "target": "Bob",
         "x": 8,
         "y": -60,
         "z": 8,
@@ -18,7 +18,9 @@
         "tool": "",
         "action": "",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "abc"
+        ]
     },
     "document_file": "",
     "host": "10.192.24.163",
