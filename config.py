@@ -33,8 +33,9 @@ llm = init_language_model(llm_config)
 # task_goal_prompt = "Randomly choose another way to express the following sentence. Try to change the sentence pattern instead of replacing words and try to avoid repetitive sentence patterns as much as possible. Making sure the meaning does not change: "
 task_goal_prompt = """
 I need you to rewrite the following sentence while keeping its original meaning intact. Your goal is to create sentence variations that are rich in structure and expression. Please follow these guidelines:
-Preserve the core meaning of the original sentence.
-Diversify the sentence structure by:
+1. Preserve the core meaning of the original sentence.
+2. Keep the word with '_', do not replace them with other words.
+You can diversify the sentence structure by:
 1. Changing the word order or introducing inversion.
 2. Using synonyms or rephrasing.
 3. Switching between active and passive voice.
@@ -133,8 +134,13 @@ def generate_task_goal(task_scenario, arg_dict):
             template_prompt = f"Hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "store":
             template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
+        elif arg_dict["action"] == "chat":
+            template_prompt = f"Send a message to Bob with content '{arg_dict['other_arg'][0]}'."
     logger.warning(template_prompt)
-    task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.8)
+    if random.randint(1, 10) == 1: # 有小概率直接用原始的prompt
+        task_goal = template_prompt
+    else:
+        task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.7)
     logger.warning(task_goal)
     logger.debug("-" * 50)
     return task_goal
@@ -200,20 +206,28 @@ def generate_config(task, api_model, host, port, agent_num=2):
             blocks = json.load(f)
         block_id_list = random.sample(range(len(blocks)), k=task_number)
         for i, id in enumerate(block_id_list):
-            tool = "default"
             block = blocks[id]
+            tool = block["material"]
             config = template.copy()
             arg_dict = arg_template.copy()
             arg_dict["target"] = block["name"]
             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
             arg_dict["y"] = random.randint(ory + 1, ory + 4)
-            if block["material"] != "default":
+            if tool == "coweb":
+                tool = "sword"
+                arg_dict["tool"] = f"diamond_{tool}"
+                # # #
+                arg_dict["item_position"] = "inventory"
+                # # #
+            elif "mineable" in tool:
                 tool = block["material"].split("/", 1)[1]
                 arg_dict["tool"] = f"diamond_{tool}"
                 # # #
                 arg_dict["item_position"] = "inventory"
                 # # #
+            else:
+                tool = "default"
             config["task_type"] = "meta"
             config["task_idx"] = i
             config["agent_num"] = 1
@@ -302,7 +316,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
             config_list.append(config)
 
     elif task == "useitem":
-        target = random.choice(["equipment", "sign"])
+        target = "equipment"
+        # target = random.choice(["equipment", "sign"])
         material = ["chainmail", "iron", "diamond", "golden", "netherite"]
         equipment = ["helmet", "chestplate", "leggings", "boots"]
         charset = string.ascii_letters + string.digits
@@ -353,9 +368,10 @@ def generate_config(task, api_model, host, port, agent_num=2):
         animal_list = [{"name": "sheep", "food": ["wheat"]}, {"name": "cow", "food": ["wheat"]}, {"name": "rabbit", "food": ["carrot"]}, 
                        {"name": "pig", "food": ["potato", "beetroot", "carrot"]}, {"name": "chicken", "food": ["wheat_seeds", "melon_seeds", "pumpkin_seeds", "beetroot_seeds"]}, ]
         cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
-
+        action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "chat"]
         for i in range(task_number):
-            action = random.choice(["attack", "feed", "cook", "handover", "store", "shear", "milk", "chat"])
+            # action = "feed"
+            action = random.choices(action_list, [10, 10, 9, 28, 28, 2, 2, 10])[0]
             config = template.copy()
             arg_dict = arg_template.copy()
             if action == "cook":

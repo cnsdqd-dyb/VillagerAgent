@@ -237,6 +237,7 @@ def handleViewer(*args):
     clear_h = 6
     feature_list = ["desert", "plains", "savanna", "snowy", "taiga"]
     tree_list = ["acacia", "birch", "spruce", "oak", "jungle_tree", "dark_oak", "mangrove"]
+    tree_weight = [5, 30, 5, 50, 4, 3, 3]
     crx, cry, crz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
     # 建筑位置
     tx, ty, tz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
@@ -271,7 +272,7 @@ def handleViewer(*args):
     time.sleep(.2)
     bot.chat(f"/tp {tx} {get_surface_y(tx, tz)} {tz}")
     time.sleep(.2)
-    bot.chat(f"/place feature {random.choice(tree_list)}")
+    bot.chat(f"/place feature {random.choices(tree_list, tree_weight)[0]}")
     time.sleep(.2)
     # 生成房屋和树
 
