@@ -158,18 +158,24 @@ def handleViewer(*args):
     
     def get_surface_y(x, z):
         y = ory + 1
+        flag = False
         while y <= ory + room_height:
             block = bot.blockAt(Vec3(x, y, z))
             if block:
                 if block["name"] == "air":
-                    return y
+                    if flag:
+                        return y
+                    else:
+                        flag = True # 至少连续两格为空气才认为是surface
                 else:
-                    y += 1
+                    flag = False
             else:
                 bot.chat("/tellraw @a {\"text\":\"UNLOADED POSITION!\", \"color\":\"red\"}")
                 bot.chat(f"{x} {y} {z}")
                 return None
-        return ory + room_height
+            y = y + 1
+            
+        return ory + 1
     
     def random_position(x1, z1, x2, z2, y_range):
         randx = random.randint(x1, x2)
@@ -231,8 +237,11 @@ def handleViewer(*args):
     clear_h = 6
     feature_list = ["desert", "plains", "savanna", "snowy", "taiga"]
     tree_list = ["acacia", "birch", "spruce", "oak", "jungle_tree", "dark_oak", "mangrove"]
+    tree_weight = [5, 30, 5, 50, 4, 3, 3]
     crx, cry, crz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
+    # 建筑位置
     tx, ty, tz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
+    # 树位置
 
     bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + 1} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h + 1} {orz + wall_width + room_width // 2 + clear_w} air")
     time.sleep(.2)
@@ -263,7 +272,7 @@ def handleViewer(*args):
     time.sleep(.2)
     bot.chat(f"/tp {tx} {get_surface_y(tx, tz)} {tz}")
     time.sleep(.2)
-    bot.chat(f"/place feature {random.choice(tree_list)}")
+    bot.chat(f"/place feature {random.choices(tree_list, tree_weight)[0]}")
     time.sleep(.2)
     # 生成房屋和树
 
@@ -293,7 +302,7 @@ def handleViewer(*args):
     bot.chat(f"/tp @s {orx + wall_width} {ory + room_height // 2} {orz + wall_width} -45 45")
     time.sleep(.2)
 
-    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {ory + 4} {orz + 4} 0 0")
+    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {get_surface_y(orx + room_width // 2 + 1, orz + 4)} {orz + 4} 0 0")
 
     global interact_arg, interact_type
     with open(".cache/meta_setting.json", "r") as f:
@@ -588,6 +597,7 @@ def handle(this):
 
 
             if score == 100:
+                time.sleep(2)
                 if not os.path.exists("result" + task_name):
                     os.mkdir(os.path.join("result/", task_name))
                 with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
