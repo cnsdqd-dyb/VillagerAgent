@@ -20,6 +20,8 @@ Customize your private tasks in your Minecraft server with our VillagerAgent mul
 ---
 
 ## News
+\[2024.12.08\] \[Human -- Agent\]  \[Agent -- Agent\] real time chat is support now!!!🎉
+
 \[2024.10.23\] We are trying to replace the LLM in VillagerAgent with finetuned open source LLMs to improve the performance and efficiency of the agent's task execution.
 
 \[2024.10.04\] 🎉Our minecraft multi-agent framework VillagerAgent has been accepted by ACL 2024.
