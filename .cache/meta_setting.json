@@ -6,7 +6,7 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Place a diamond_block at (8, -60, 8). The diamond_block is in your inventory.",
+    "task_goal": "Place the diamond_block at (8, -60, 8). The diamond_block is in the chest.",
     "task_scenario": "place",
     "evaluation_arg": {
         "target": "diamond_block",
@@ -14,16 +14,14 @@
         "y": -60,
         "z": 8,
         "facing": "",
-        "item_position": "inventory",
+        "item_position": "chest",
         "tool": "",
         "action": "",
         "step": 1,
-        "other_arg": [
-            "abc"
-        ]
+        "other_arg": []
     },
     "document_file": "",
-    "host": "10.214.180.148",
+    "host": "10.192.24.163",
     "port": 25565,
-    "task_name": "place_cobblestone_inventory_id0"
+    "task_name": "meta_test"
 }

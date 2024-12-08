@@ -222,7 +222,7 @@ def handleViewer(*args):
                 if calculate_action_time() > max_action_time:
                     efficiency = 1
                     # 给出结束信号和写入文件
-                    if not os.path.exists("result" + task_name):
+                    if not os.path.exists("result/" + task_name):
                         os.mkdir(os.path.join("result/", task_name))
                     with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
                         json.dump({

@@ -164,7 +164,7 @@ def handleViewer(*args):
             if block:
                 if block["name"] == "air":
                     if flag:
-                        return y
+                        return y - 1
                     else:
                         flag = True # 至少连续两格为空气才认为是surface
                 else:
@@ -196,7 +196,7 @@ def handleViewer(*args):
 
     def set_chest(invalid_position, items):
         chest_x, chest_y, chest_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
-        while ((chest_x, chest_y, chest_z) in invalid_position) or ((chest_x, chest_y+1, chest_z) in invalid_position):
+        while ((chest_x, chest_y, chest_z) in invalid_position) or ((chest_x, chest_y+1, chest_z) in invalid_position) or chest_y > ory + 4:
             chest_x, chest_y, chest_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
         item_str = "{Items:["
         for i, item in enumerate(items):
@@ -207,6 +207,8 @@ def handleViewer(*args):
         bot.chat(f"/setblock {chest_x} {chest_y} {chest_z} chest{item_str}")
     
     bot.chat("/gamemode spectator")
+    time.sleep(.2)
+    bot.chat(f"/gamemode survival {agent_name}")
     time.sleep(.2)
     bot.chat("/gamerule doDaylightCycle false")
     time.sleep(.2)
@@ -598,7 +600,7 @@ def handle(this):
 
             if score == 100:
                 time.sleep(2)
-                if not os.path.exists("result" + task_name):
+                if not os.path.exists("result/" + task_name):
                     os.mkdir(os.path.join("result/", task_name))
                 with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
                     json.dump({
@@ -614,7 +616,7 @@ def handle(this):
             if calculate_action_time() > max_action_time:
                 efficiency = 1
                 # 给出结束信号和写入文件
-                if not os.path.exists("result" + task_name):
+                if not os.path.exists("result/" + task_name):
                     os.mkdir(os.path.join("result/", task_name))
                 with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
                     json.dump({

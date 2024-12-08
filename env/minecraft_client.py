@@ -99,6 +99,7 @@ class Agent():
         self.prompt = prompt
         self.local_port = local_port
         self.model = Agent.model if model == "" else model
+        self.action_history = {"prompt": [], "response": []}
         self.basic_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
             Agent.UseItemOnEntity, Agent.fetchContainerContents,
@@ -792,6 +793,18 @@ class Agent():
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
 
+    def update_history(self, prompt, response):
+        self.action_history["prompt"].append(prompt)
+        self.action_history["response"].append(response)
+        with open(".cache/meta_setting.json", "r") as f:
+            config = json.load(f)
+            task_name = config["task_name"]
+        if not os.path.exists("result/" + task_name):
+            os.mkdir(os.path.join("result/", task_name))
+        root = os.path.join("result/", task_name)
+        with open(os.path.join(root, f"{self.name}_history.json"), "w") as f:
+            json.dump(self.action_history, f, indent=4)
+
     def run(self, instruction: str, player_name_list=[], max_turn=10):
         # print(f"Your name is {self.name}. \n{instruction}")
         assert len(self.api_key_list) > 0, "Please set the api_key_list in Agent class."
@@ -875,6 +888,7 @@ class Agent():
                                                 "final_answer": "The task execute failed."}
         # print(response)
         # print(dumps(response, pretty=True),type(dumps(response, pretty=True)))
+        self.update_history(f"Your name is {self.name}.\n{instruction}", response)
         action_list = []
         response = json.loads(dumps(response, pretty=True))
         for step in response["intermediate_steps"]:
