@@ -389,7 +389,7 @@ def move_to_():
     data = request.get_json()
     name = data.get('name')
     envs_info = get_envs_info(bot, 128)
-    tag, msg = move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 5, name)
+    tag, msg = move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 3, name)
     done = tag
     move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 1, name)
     events = info_bot.get_action_description_new()
@@ -402,12 +402,12 @@ def move_to_pos():
     """move_to_pos x y z: move to the position x y z."""
     data = request.get_json()
     x, y, z = data.get('x'), data.get('y'), data.get('z')
-    tag1, msg1 = move_to(pathfinder, bot, Vec3, 5, Vec3(x, y, z))
-    tag2, msg2 = move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z))
+    tag1, msg1 = move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z))
+    tag2, msg2 = move_to(pathfinder, bot, Vec3, 2, Vec3(x, y, z))
     tag3, msg3 = move_to(pathfinder, bot, Vec3, 1, Vec3(x, y, z))
     # lookAtPlayer(bot, entity['position'])
     events = info_bot.get_action_description_new()
-    return jsonify({'message': msg1, 'status': tag1, "new_events": events})
+    return jsonify({'message': msg2, 'status': tag2, "new_events": events})
 
 
 @app.route('/post_use_on', methods=['POST'])
