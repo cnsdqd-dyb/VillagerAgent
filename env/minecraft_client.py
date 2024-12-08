@@ -769,10 +769,13 @@ class Agent():
 
     @tool
     @timeit
-    def startFishing(player_name: str):
+    def startFishing(player_name: str, fish_name: str):
         """Start Fishing"""
         url = Agent.get_url_prefix()[player_name] + "/post_start_fishing"
-        response = requests.post(url, headers=Agent.headers)
+        data = {
+            "fish_name": fish_name,
+        }
+        response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
 
     @tool
@@ -938,9 +941,12 @@ if __name__ == "__main__":
         ""
     ]
     Agent.model = "gpt-4-1106-preview"
-    agent1 = Agent(name="Steve", local_port=5004)
-    Agent.launch(host="10.21.31.18", port=25565)
-    prompt = """
-try to find a chest and open it, do not stop until you find it.
-"""
-    agent1.run(prompt)
+    agent1 = Agent(name="Alice", local_port=5001)
+    Agent.launch(host="10.214.180.148", port=25565)
+    input()
+    url = Agent.get_url_prefix()["Alice"] + "/post_start_fishing"
+    data = {
+            "fish_name": "cod",
+        }
+    response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
+    print(response.json())
