@@ -642,12 +642,17 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
     max_steps = int(distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z))) + 30
     ori_x,ori_y,ori_z = bot.entity.position.x , bot.entity.position.y, bot.entity.position.z
     tiks = 0
+    block_name = bot.blockAt(pos)['name']
+    block_name_below = bot.blockAt(pos.offset(0, -1, 0))['name']
+    range_to_block = 0
+    if "pressure_plate" in block_name or "pressure_plate" in block_name_below:
+        range_to_block = 1.4
     while distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL and max_steps > 0 and distanceTo(
             bot.entity.position, Vec3(pos.x, pos.y, pos.z)) > 1:
         try_num = 3
         while try_num > 0:
             try:
-                bot.pathfinder.setGoal(pathfinder.goals.GoalNear(pos.x, pos.y, pos.z, 1.4))
+                bot.pathfinder.setGoal(pathfinder.goals.GoalNear(pos.x, pos.y, pos.z, range_to_block))
                 x,y,z = bot.entity.position.x , bot.entity.position.y, bot.entity.position.z
                 tiks += 1
                 abs_dis = max(abs(ori_x-x), abs(ori_y-y), abs(ori_z-z))
