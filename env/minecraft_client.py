@@ -844,6 +844,7 @@ class Agent():
                     else:
                         response = agent(
                             {"input": f"You should control {player_name_list} work together. \n{instruction}"})
+                    self.update_history(f"Your name is {self.name}.\n{instruction}", response)
                     end_time = time.time()
                     # save in pipeLine/tokens
                     current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -888,7 +889,6 @@ class Agent():
                                                 "final_answer": "The task execute failed."}
         # print(response)
         # print(dumps(response, pretty=True),type(dumps(response, pretty=True)))
-        self.update_history(f"Your name is {self.name}.\n{instruction}", response)
         action_list = []
         response = json.loads(dumps(response, pretty=True))
         for step in response["intermediate_steps"]:

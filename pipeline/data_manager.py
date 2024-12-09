@@ -46,6 +46,9 @@ class DataManager:
 
         self.llm = None
         self.model = model_name
+        
+        self.query_history_log = {"prompt": [], "response": []}
+        self.update_history_log = {"prompt": [], "response": []}
 
         self._logger = init_logger("DataManager", dump=True, silent=silent)
         self._logger.info("DataManager initialized")

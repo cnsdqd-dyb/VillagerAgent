@@ -389,7 +389,7 @@ def move_to_():
     data = request.get_json()
     name = data.get('name')
     envs_info = get_envs_info(bot, 128)
-    tag, msg = move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 5, name)
+    tag, msg = move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 3, name)
     done = tag
     move_to_nearest_(pathfinder, bot, Vec3, envs_info, mcData, 1, name)
     events = info_bot.get_action_description_new()
@@ -402,12 +402,12 @@ def move_to_pos():
     """move_to_pos x y z: move to the position x y z."""
     data = request.get_json()
     x, y, z = data.get('x'), data.get('y'), data.get('z')
-    tag1, msg1 = move_to(pathfinder, bot, Vec3, 5, Vec3(x, y, z))
-    tag2, msg2 = move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z))
+    tag1, msg1 = move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z))
+    tag2, msg2 = move_to(pathfinder, bot, Vec3, 2, Vec3(x, y, z))
     tag3, msg3 = move_to(pathfinder, bot, Vec3, 1, Vec3(x, y, z))
     # lookAtPlayer(bot, entity['position'])
     events = info_bot.get_action_description_new()
-    return jsonify({'message': msg1, 'status': tag1, "new_events": events})
+    return jsonify({'message': msg2, 'status': tag2, "new_events": events})
 
 
 @app.route('/post_use_on', methods=['POST'])
@@ -471,16 +471,23 @@ def place():
     if facing not in ['x', 'y', 'z', "W", "E", "S", "N", "A"]:
         events = info_bot.get_action_description_new()
         return jsonify({'message': "facing is one of [W, E, S, N, x, y, z, A]", 'status': False, "new_events": events})
-    flag, msg = asyncio.run(place_axis(bot, mcData, pathfinder, Vec3, item_name, (x, y, z), facing))
+    flag, msg = asyncio.run(place_block_op(bot, mcData, pathfinder, Vec3, item_name, (x, y, z), facing))
+    
+    # setblock
+    if flag:
+        if facing in ["W", "E", "S", "N"]:
+            bot.chat(f"/setblock {x} {y} {z} {item_name}[facing={facing.lower()}]")
+        elif facing in ["x", "y", "z"]:
+            bot.chat(f"/setblock {x} {y} {z} {item_name}[axis={facing.lower()}]")
+        elif facing == "A":
+            bot.chat(f"/setblock {x} {y} {z} {item_name}")
 
-    # 随机移动一下 防止卡住
-    random_x = choice([-5, -4, -3, 3, 4, 5])
-    random_z = choice([-5, -4, -3, 3, 4, 5])
-    center_pos = bot.entity.position
-    move_to(pathfinder, bot, Vec3, 3, Vec3(center_pos.x+random_x, center_pos.y, center_pos.z+random_z))
-    if not flag and item_name == 'ladder':
-        events = info_bot.get_action_description_new()
-        return jsonify({'message': f"{msg}, there is no block to support it.", 'status': False, "new_events": events})
+    distance = distanceTo(bot.entity.position, Vec3(x, y, z))
+    if distance < 1.4:
+        # jump 0.1s
+        bot.setControlState('jump', True)
+        time.sleep(.3)
+        bot.setControlState('jump', False)
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': flag, "new_events": events})
 

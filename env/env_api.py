@@ -642,12 +642,17 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
     max_steps = int(distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z))) + 30
     ori_x,ori_y,ori_z = bot.entity.position.x , bot.entity.position.y, bot.entity.position.z
     tiks = 0
+    block_name = bot.blockAt(pos)['name']
+    block_name_below = bot.blockAt(pos.offset(0, -1, 0))['name']
+    range_to_block = 0
+    if "pressure_plate" in block_name or "pressure_plate" in block_name_below:
+        range_to_block = 1.4
     while distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL and max_steps > 0 and distanceTo(
             bot.entity.position, Vec3(pos.x, pos.y, pos.z)) > 1:
         try_num = 3
         while try_num > 0:
             try:
-                bot.pathfinder.setGoal(pathfinder.goals.GoalNear(pos.x, pos.y, pos.z, 1.4))
+                bot.pathfinder.setGoal(pathfinder.goals.GoalNear(pos.x, pos.y, pos.z, range_to_block))
                 x,y,z = bot.entity.position.x , bot.entity.position.y, bot.entity.position.z
                 tiks += 1
                 abs_dis = max(abs(ori_x-x), abs(ori_y-y), abs(ori_z-z))
@@ -825,6 +830,102 @@ async def place_block(bot, Vec3, referencePos, faceVector, jump=False):
         return False
     return True
 
+async def place_block_op(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
+    if bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] == item_name:
+        return True, "the block is  placed there"
+    elif bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] == 'dirt':
+        # dig the dirt
+        bot.dig(bot.blockAt(Vec3(pos[0], pos[1], pos[2])))
+    elif bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] != 'air':
+        return False, f"can not place it now, the position is occupied by {bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name']}, do you need to mine it first?"
+    
+    if axis not in ['x', 'y', 'z', 'A', 'W', 'E', 'S', 'N', None]:
+        return False, f"can not place block, the axis {axis} is not valid"
+
+    held_item = True
+    if bot.heldItem is None or bot.heldItem.name != item_name:
+        msg, held_item = equip(bot, item_name, 'hand')
+    
+    if not held_item:
+        # bot.chat('#can not place block, no item in hand')
+        return False, f"can not place block without {item_name} in hand, you need to interact chest or your inventory to get item first."
+    
+    
+    # 检查 6 方位是否有可能的参考块
+    has_reference_block = False
+    for offset in [[0, -1, 0], [0, 1, 0], [-1, 0, 0], [1, 0, 0], [0, 0, -1], [0, 0, 1]]:
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] != 'air':
+            has_reference_block = True
+            break
+    if axis == 'N':
+        offset = [0, 0, -1]
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+    elif axis == 'S':
+        offset = [0, 0, 1]
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+    elif axis == 'W':
+        offset = [-1, 0, 0]
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+    elif axis == 'E':
+        offset = [1, 0, 0]
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+
+    elif axis == 'y':
+        offset = [0, 1, 0]
+        ground_y = pos[1]
+        while bot.blockAt(Vec3(pos[0], ground_y - 1, pos[2]))['name'] == 'air':
+            ground_y -= 1
+        has_reference_block = False
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] != 'air':
+            has_reference_block = True
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] - offset[1], pos[2] + offset[2]))['name'] != 'air':
+            has_reference_block = True
+        
+        if not has_reference_block:
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] - offset[1]} {pos[2] + offset[2]}. The ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks are needed to be placed first?"   
+    elif axis == 'x':
+        offset = [1, 0, 0]
+        has_reference_block = False
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] != 'air':
+            has_reference_block = True
+        if bot.blockAt(Vec3(pos[0] - offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] != 'air':
+            has_reference_block = True
+        
+        if not has_reference_block:
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] - offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+    elif axis == 'z':
+        offset = [0, 0, 1]
+        has_reference_block = False
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] != 'air':
+            has_reference_block = True
+        if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] - offset[2]))['name'] != 'air':
+            has_reference_block = True
+        
+        if not has_reference_block:
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] - offset[2]}, maybe some other blocks are needed to be placed first?"
+        
+    if not has_reference_block:
+        # 找到正下方地面位置
+        ground_y = pos[1]
+        while bot.blockAt(Vec3(pos[0], ground_y - 1, pos[2]))['name'] == 'air':
+            ground_y -= 1
+        return False, f"cannot place the block at this position, no reference block can be found, the ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks are needed to be placed first?"
+    
+    bot.unequip("hand")
+    bot.chat(f"/clear {bot.entity.username} {item_name} {1}")
+    
+    # 检测能不能走到附近
+    move_to(pathfinder, bot, Vec3, 1.4,Vec3(pos[0], pos[1], pos[2]))
+    
+    distance = distanceTo(bot.entity.position, Vec3(pos[0], pos[1], pos[2]))
+    if distance > 2*1.4:
+        return False, f"can not reach the position, the distance is {distance}"
+    
+    return True, f"place {item_name} at {pos[0]} {pos[1]} {pos[2]}"
 
 async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
     # [DEBUG] print('#place block axis {}'.format(axis))
@@ -838,7 +939,7 @@ async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
         
     if bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] == item_name:
         return True, "the block is  placed there"
-    
+
     if axis not in ['x', 'y', 'z', 'A', 'W', 'E', 'S', 'N', None]:
         return False, f"can not place block, the axis {axis} is not valid"
     
@@ -973,9 +1074,12 @@ async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
                                 bot.blockAt(Vec3(pos[0] + x, pos[1] + y, pos[2] + z))['name'] != 'air':
                             # # bot.chat('#can not move to the position is not air')
                             continue
+                        
+                        msg, done = equip(bot, item_name, 'hand')
+
                         move_success = move_to(pathfinder, bot, Vec3, GoalRange,
                                                Vec3(pos[0] + x, pos[1] + y, pos[2] + z))
-                        msg, done = equip(bot, item_name, 'hand')
+                        
                         if not move_success:
                             # # bot.chat('can not reach the position')
                             continue
@@ -988,7 +1092,11 @@ async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
                                 putPos = (pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2])
                                 faceVector = mulList(offset, -1)
                                 if not flag and (bot.blockAt(Vec3(putPos[0], putPos[1], putPos[2])))['name'] != 'air':
-                                    flag = await place_block(bot, Vec3, putPos, faceVector)
+                                    # 如果目标在站立的方块上，jump = True
+                                    if x == 0 and z == 0:
+                                        flag = await place_block(bot, Vec3, putPos, faceVector, True)
+                                    else:
+                                        flag = await place_block(bot, Vec3, putPos, faceVector)
                                     if bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] != origin_block_name:
                                         return True, done_msg
                         else:
@@ -996,7 +1104,10 @@ async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
                                 putPos = (pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2])
                                 faceVector = mulList(offset, -1)
                                 if not flag and (bot.blockAt(Vec3(putPos[0], putPos[1], putPos[2])))['name'] != 'air':
-                                    flag = await place_block(bot, Vec3, putPos, faceVector)
+                                    if x == 0 and z == 0:
+                                        flag = await place_block(bot, Vec3, putPos, faceVector, True)
+                                    else:
+                                        flag = await place_block(bot, Vec3, putPos, faceVector)
                                     if bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] != origin_block_name:
                                         return True, done_msg
 

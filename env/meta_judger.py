@@ -257,25 +257,25 @@ def handleViewer(*args):
     time.sleep(.2)
     # 清空原来的环境
 
-    peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
-    hill_height = 3
-    generate_hill(peakx, peakz, hill_height)
+    # peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
+    # hill_height = 3
+    # generate_hill(peakx, peakz, hill_height)
     # 生成土丘
 
-    feature = random.choice(feature_list)
-    with open("data/template_houses.json", "r") as f:
-        template_houses = json.load(f)
-    house = random.choice(template_houses[feature])
-    bot.chat(f"/tp {crx} {ory + 1} {crz}")
-    time.sleep(.2) 
-    bot.chat(f"/place template village/{feature}/houses/{house}")
-    time.sleep(.2)
-    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} air replace jigsaw")
-    time.sleep(.2)
-    bot.chat(f"/tp {tx} {get_surface_y(tx, tz)} {tz}")
-    time.sleep(.2)
-    bot.chat(f"/place feature {random.choices(tree_list, tree_weight)[0]}")
-    time.sleep(.2)
+    # feature = random.choice(feature_list)
+    # with open("data/template_houses.json", "r") as f:
+    #     template_houses = json.load(f)
+    # house = random.choice(template_houses[feature])
+    # bot.chat(f"/tp {crx} {ory + 1} {crz}")
+    # time.sleep(.2) 
+    # bot.chat(f"/place template village/{feature}/houses/{house}")
+    # time.sleep(.2)
+    # bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} air replace jigsaw")
+    # time.sleep(.2)
+    # bot.chat(f"/tp {tx} {get_surface_y(tx, tz)} {tz}")
+    # time.sleep(.2)
+    # bot.chat(f"/place feature {random.choices(tree_list, tree_weight)[0]}")
+    # time.sleep(.2)
     # 生成房屋和树
 
     bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz} glass")
