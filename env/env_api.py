@@ -2214,24 +2214,27 @@ def collect(bot, pathfinder, Vec3, mcData, block_name, distance=5, count=1):
     return f" collected {block_name}", True
 
 
-def startFishing(bot, Vec3, envs_info, mcData):
+def startFishing(bot, fish_name, Vec3, envs_info, mcData):
     try:
-        pos = find_nearest_(bot, Vec3, envs_info, mcData, 'fish')
+        pos = find_nearest_(bot, Vec3, envs_info, mcData, fish_name)
         # [DEBUG] print(pos)
         # input()
         if pos == None:
-            return "Here is no fish. Try another position", False
+            return f"Here is no {fish_name}. Try another position", False
         bot.lookAt(pos)
         bot.equip(bot.registry.itemsByName.fishing_rod.id, 'hand')
     except Exception as e:
         # [DEBUG] print(e)
         return "I need to get fishing_rod first.", False
 
-    try:
-        bot.fish()
-        return "I am fishing now", True
-    except:
-        return "failed fish", False
+    max_tries = 3
+    while max_tries > 0:
+        try:
+            bot.fish()
+            return "One fish is biting", True
+        except:
+            max_tries -= 1
+    return "The fish is not biting", False
 
 
 def stopFishing(bot):

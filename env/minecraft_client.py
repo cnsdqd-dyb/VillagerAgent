@@ -2,6 +2,10 @@ import time
 from langchain.agents import tool, initialize_agent, AgentType
 from langchain.callbacks import get_openai_callback
 from langchain.load.dump import dumps
+from langchain_core.callbacks.base import BaseCallbackManager
+from langchain_core.callbacks.base import BaseCallbackHandler
+from langchain_core.outputs import LLMResult
+
 
 import json
 import requests
@@ -61,7 +65,29 @@ def timeit(func):
         return result
     return wrapper
 
+    
+class LLMHandler(BaseCallbackHandler):
+    def __init__(self):
+        self.llm_out = []
+        self.seralized_input = []
+        self.chain_input = []
 
+    def on_chain_start(self, serialized, inputs, *, run_id, parent_run_id = None, tags = None, metadata = None, **kwargs):
+        self.seralized_input.append(serialized)
+        self.chain_input.append(inputs)
+
+    def on_llm_start(
+        self,
+        serialized,
+        prompts,
+        **kwargs,
+    ):
+        self.seralized_input.append(serialized)
+        self.chain_input.append(prompts)
+        
+    def on_llm_end(self, llm_result: LLMResult, **kwargs):
+        self.llm_out.append(llm_result.llm_output)
+    
 class Agent():
     '''
     Agent is the basic class for the agent in the Minecraft environment.
@@ -744,10 +770,13 @@ class Agent():
 
     @tool
     @timeit
-    def startFishing(player_name: str):
+    def startFishing(player_name: str, fish_name: str):
         """Start Fishing"""
         url = Agent.get_url_prefix()[player_name] + "/post_start_fishing"
-        response = requests.post(url, headers=Agent.headers)
+        data = {
+            "fish_name": fish_name,
+        }
+        response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
 
     @tool
@@ -825,6 +854,7 @@ class Agent():
         # 这个地方是定义的agent的类型，初始化位置的agent没有被使用
         while max_turn > 0:
             random.shuffle(self.tools)
+            llmhandler = LLMHandler()
             agent = initialize_agent(
                 tools=self.tools,
                 llm=self.llm,
@@ -833,6 +863,7 @@ class Agent():
                 return_intermediate_steps=True,
                 max_execution_time=120,  # seconds
                 max_iterations=10,  # 决定了最大的迭代次数
+                callback_manager=BaseCallbackManager(handlers=[llmhandler]),
             )
             agent.handle_parsing_errors = True
             response = None
@@ -844,7 +875,9 @@ class Agent():
                     else:
                         response = agent(
                             {"input": f"You should control {player_name_list} work together. \n{instruction}"})
-                    self.update_history(f"Your name is {self.name}.\n{instruction}", response)
+                    # print(llmhandler.chain_input)
+                    # print(llmhandler.seralized_input)
+
                     end_time = time.time()
                     # save in pipeLine/tokens
                     current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -886,7 +919,7 @@ class Agent():
 
         if max_turn == 0 or response is None:
             return "The task execute failed.", {"input": f"Your name is {self.name}.\n{instruction}", "action_list": [],
-                                                "final_answer": "The task execute failed."}
+                                                "final_answer": "The task execute failed.", "chain_input": llmhandler.chain_input, "seralized_input": llmhandler.seralized_input}
         # print(response)
         # print(dumps(response, pretty=True),type(dumps(response, pretty=True)))
         action_list = []
@@ -921,9 +954,12 @@ if __name__ == "__main__":
         ""
     ]
     Agent.model = "gpt-4-1106-preview"
-    agent1 = Agent(name="Steve", local_port=5004)
-    Agent.launch(host="10.21.31.18", port=25565)
-    prompt = """
-try to find a chest and open it, do not stop until you find it.
-"""
-    agent1.run(prompt)
+    agent1 = Agent(name="Alice", local_port=5001)
+    Agent.launch(host="10.214.180.148", port=25565)
+    input()
+    url = Agent.get_url_prefix()["Alice"] + "/post_start_fishing"
+    data = {
+            "fish_name": "cod",
+        }
+    response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
+    print(response.json())

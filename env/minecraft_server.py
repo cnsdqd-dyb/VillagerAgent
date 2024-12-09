@@ -1055,7 +1055,9 @@ def look_at():
 def start_fishing():
     """start_fishing: start fishing."""
     envs_info = get_envs_info(bot, 128)
-    msg, tag = startFishing(bot, Vec3, envs_info, mcData)
+    data = request.get_json()
+    fish_name = data.get('fish_name')
+    msg, tag = startFishing(bot, fish_name, Vec3, envs_info, mcData)
     done = tag
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': done, "new_events": events})
