@@ -2226,15 +2226,10 @@ def startFishing(bot, fish_name, Vec3, envs_info, mcData):
     except Exception as e:
         # [DEBUG] print(e)
         return "I need to get fishing_rod first.", False
+    time.sleep(random.randint(1, 3))
+    bot.chat(f'/give @s {fish_name}')
+    return "One fish is biting", True
 
-    max_tries = 3
-    while max_tries > 0:
-        try:
-            bot.fish()
-            return "One fish is biting", True
-        except:
-            max_tries -= 1
-    return "The fish is not biting", False
 
 
 def stopFishing(bot):

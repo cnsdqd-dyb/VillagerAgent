@@ -821,7 +821,98 @@ class Agent():
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
 
-    def run(self, instruction: str, player_name_list=[], max_turn=10):
+    def step(self, instruction: str, actions=[], observations=[], player_name_list=[], max_try_turn=2, max_iterations=1, tools=[], recommended_actions=[]):
+        # return the (action, observation), details.
+        assert len(self.api_key_list) > 0, "Please set the api_key_list in Agent class."
+
+        if "instruct" in self.model and "gpt" in self.model:
+            from langchain.llms import OpenAI
+            self.llm = OpenAI(model=self.model, temperature=0, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
+        elif "gpt" in self.model:
+            from langchain.chat_models import ChatOpenAI
+            self.llm = ChatOpenAI(model=self.model, temperature=0,  max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
+        elif "glm" in self.model:
+            from zhipu import ChatZhipuAI
+            self.llm = ChatZhipuAI(model_name=self.model, temperature=0.01, api_key=random.choice(Agent.api_key_list))
+        
+        for act, obs in zip(actions, observations):
+            instruction += f"\n{act['log']}\n{obs}"
+        
+        recommended_tools = []
+        for action in recommended_actions:
+            for tool in self.all_tools:
+                if tool.name == action:
+                    recommended_tools.append(tool)
+        
+        mix_tools = []
+        for tool in self.tools:
+            if tool not in recommended_tools:
+                mix_tools.append(tool)
+        
+        mix_tools += recommended_tools
+
+        while max_try_turn > 0:
+            random.shuffle(self.tools)
+            llmhandler = LLMHandler()
+            agent = initialize_agent(
+                tools=mix_tools,
+                llm=self.llm,
+                verbose=Agent.verbose,
+                agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+                return_intermediate_steps=True,
+                max_execution_time=120,  # seconds
+                max_iterations=1,  # 决定了最大的迭代次数
+                callback_manager=BaseCallbackManager(handlers=[llmhandler]),
+            )
+            agent.handle_parsing_errors = True
+            response = None
+            try:
+                if len(player_name_list) == 0:
+                    response = agent({"input": f"Your name is {self.name}.\n{instruction}"})
+                else:
+                    response = agent(
+                        {"input": f"You should control {player_name_list} work together. \n{instruction}"})
+                break
+            except KeyboardInterrupt:
+                logging.info("KeyboardInterrupt")
+                raise KeyboardInterrupt
+            except ConnectionError as e:
+                logging.info(e)
+                raise ConnectionError
+            except ConnectionRefusedError as e:
+                logging.info(e)
+                raise ConnectionRefusedError
+            except Exception as e:
+                print(e)
+                print("retrying...")
+                time.sleep(1)
+                max_try_turn -= 1
+
+        if response is None:
+            return (None, None), {"input": f"Your name is {self.name}.\n{instruction}", "action_list": [],
+                                                "final_answer": "The task execute failed.", "chain_input": llmhandler.chain_input, "seralized_input": llmhandler.seralized_input}
+        # print(response)
+        # print(dumps(response, pretty=True),type(dumps(response, pretty=True)))
+        action_list = []
+        response = json.loads(dumps(response, pretty=True))
+        for step in response["intermediate_steps"]:
+            action_list.append({"action": step[0]["kwargs"], "feedback": step[1]})
+        
+        if len(action_list) == 0:
+            return (None, None), {"input": f"Your name is {self.name}.\n{instruction}", "action_list": [],
+                                                "final_answer": "The task execute failed.", "chain_input": llmhandler.chain_input, "seralized_input": llmhandler.seralized_input}
+    
+
+        final_answer = response["output"]
+        # save the action_list and final_answer
+
+        with open(f"data/history/{hash(response['input'])}.json", "w") as f:
+            json.dump({"input": response["input"], "action_list": action_list, "final_answer": final_answer}, f,
+                      indent=4)
+        action = action_list[0]
+        return (action['action'], action["feedback"]), {"input": response["input"], "action_list": action_list, "final_answer": final_answer}
+
+    def run(self, instruction: str, player_name_list=[], max_try_turn=10, max_iterations=10, tools=[]):
         # print(f"Your name is {self.name}. \n{instruction}")
         assert len(self.api_key_list) > 0, "Please set the api_key_list in Agent class."
         # dynamic api key
@@ -839,17 +930,17 @@ class Agent():
             self.llm = ChatZhipuAI(model_name=self.model, temperature=0.01, api_key=random.choice(Agent.api_key_list))
         
         # 这个地方是定义的agent的类型，初始化位置的agent没有被使用
-        while max_turn > 0:
+        while max_try_turn > 0:
             random.shuffle(self.tools)
             llmhandler = LLMHandler()
             agent = initialize_agent(
-                tools=self.tools,
+                tools=self.tools if len(tools) == 0 else tools,
                 llm=self.llm,
                 verbose=Agent.verbose,
                 agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
                 return_intermediate_steps=True,
                 max_execution_time=120,  # seconds
-                max_iterations=10,  # 决定了最大的迭代次数
+                max_iterations=max_iterations,  # 决定了最大的迭代次数
                 callback_manager=BaseCallbackManager(handlers=[llmhandler]),
             )
             agent.handle_parsing_errors = True
@@ -868,26 +959,26 @@ class Agent():
                     end_time = time.time()
                     # save in pipeLine/tokens
                     current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    if 'gpt' in Agent.model:
-                        from env.utils import parse_token_text
-                        token_usage = parse_token_text(cb)
-                        try:
-                            with open("data/tokens.json", "r") as f:
-                                tokens = json.load(f)
-                            tokens["dates"] = current_time
-                            tokens["tokens_used"] += token_usage["tokens_used"]
-                            tokens["prompt_tokens"] += token_usage["prompt_tokens"]
-                            tokens["completion_tokens"] += token_usage["completion_tokens"]
-                            tokens["successful_requests"] += token_usage["successful_requests"]
-                            tokens["total_cost"] += token_usage["total_cost"]
-                            tokens["action_cost"] += end_time - start_time
-                            with open("data/tokens.json", "w") as f:
-                                json.dump(tokens, f, indent=4)
-                        except KeyboardInterrupt:
-                            logging.info("KeyboardInterrupt")
-                            raise KeyboardInterrupt
-                        except Exception as e:
-                            logging.info(e)
+                    # if 'gpt' in Agent.model:
+                    #     from env.utils import parse_token_text
+                    #     token_usage = parse_token_text(cb)
+                    #     try:
+                    #         with open("data/tokens.json", "r") as f:
+                    #             tokens = json.load(f)
+                    #         tokens["dates"] = current_time
+                    #         tokens["tokens_used"] += token_usage["tokens_used"]
+                    #         tokens["prompt_tokens"] += token_usage["prompt_tokens"]
+                    #         tokens["completion_tokens"] += token_usage["completion_tokens"]
+                    #         tokens["successful_requests"] += token_usage["successful_requests"]
+                    #         tokens["total_cost"] += token_usage["total_cost"]
+                    #         tokens["action_cost"] += end_time - start_time
+                    #         with open("data/tokens.json", "w") as f:
+                    #             json.dump(tokens, f, indent=4)
+                    #     except KeyboardInterrupt:
+                    #         logging.info("KeyboardInterrupt")
+                    #         raise KeyboardInterrupt
+                    #     except Exception as e:
+                    #         logging.info(e)
                 break
             except KeyboardInterrupt:
                 logging.info("KeyboardInterrupt")
@@ -902,9 +993,9 @@ class Agent():
                 print(e)
                 print("retrying...")
                 time.sleep(1)
-                max_turn -= 1
+                max_try_turn -= 1
 
-        if max_turn == 0 or response is None:
+        if max_try_turn == 0 or response is None:
             return "The task execute failed.", {"input": f"Your name is {self.name}.\n{instruction}", "action_list": [],
                                                 "final_answer": "The task execute failed.", "chain_input": llmhandler.chain_input, "seralized_input": llmhandler.seralized_input}
         # print(response)
@@ -942,11 +1033,23 @@ if __name__ == "__main__":
     ]
     Agent.model = "gpt-4-1106-preview"
     agent1 = Agent(name="Alice", local_port=5001)
+    Agent.base_url = "https://api.chatanywhere.tech/v1"
+    Agent.api_key_list = ["sk-vqGl9UxhloKxlqPIm8iHdQL36ulWFAmqpZOgTzOf0aNL5rvY"]
     Agent.launch(host="10.214.180.148", port=25565)
-    input()
-    url = Agent.get_url_prefix()["Alice"] + "/post_start_fishing"
-    data = {
-            "fish_name": "cod",
-        }
-    response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
-    print(response.json())
+    # url = Agent.get_url_prefix()["Alice"] + "/post_start_fishing"
+    # data = {
+    #         "fish_name": "cod",
+    #     }
+    # response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
+    # print(response.json())
+    Prompt = "You are Alice, you have a fishing rod in your hand, you want to catch some fish."
+    actions = []
+    observations = []
+    while True:
+        (act, obs), detail = agent1.step(Prompt, actions=actions, observations=observations)
+        if act == None:
+            continue
+        actions.append(act)
+        observations.append(obs)
+        input()
+    

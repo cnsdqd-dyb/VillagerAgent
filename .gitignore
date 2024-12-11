@@ -44,3 +44,6 @@ package.json
 
 tmp/*
 auto_task/*
+
+rl_env/ckpt/*
+rl_env/replay_buffer/*

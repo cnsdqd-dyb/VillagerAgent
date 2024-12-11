@@ -376,6 +376,26 @@ class VillagerBench:
         if not find_agent:
             self.logger.warning(f"agent {agent_name} not found")
             return None, {"input": None, "action_list": None, "final_answer": None}
+        
+    def rl_step(self, agent_name: str, instruction: str, actions: [], observations: [], recommended_actions: []):
+        '''
+        final_answer, {"input": response["input"], "action_list": action_list, "final_answer": final_answer}
+        '''
+        self.logger.debug("=" * 20 + " RL Env Step " + "=" * 20)
+        self.logger.info(f"agent {agent_name}")
+        self.logger.info("=" * 20 + " RL Env Step " + "=" * 20)
+        find_agent = False
+        for agent in self.agent_pool:
+            if agent.name == agent_name:
+                feedback, detail = agent.step(instruction, actions=actions, observations=observations, recommended_actions=recommended_actions)
+
+                self.log[agent_name].append(detail)
+
+                return feedback, detail
+
+        if not find_agent:
+            self.logger.warning(f"agent {agent_name} not found")
+            return (None, None), {"input": None, "action_list": None, "final_answer": None}
 
     def get_metadata(self):
         if self.env_type == env_type.construction:
