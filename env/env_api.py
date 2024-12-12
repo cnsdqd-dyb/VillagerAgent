@@ -2221,7 +2221,7 @@ def startFishing(bot, fish_name, Vec3, envs_info, mcData):
         # input()
         if pos == None:
             return f"Here is no {fish_name}. Try another position", False
-        bot.lookAt(pos)
+        # bot.lookAt(pos)
         bot.equip(bot.registry.itemsByName.fishing_rod.id, 'hand')
     except Exception as e:
         # [DEBUG] print(e)
