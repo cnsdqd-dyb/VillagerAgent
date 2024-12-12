@@ -1160,6 +1160,7 @@ def handleViewer(*args):
     # bot.chat('/gamemode survival')
     time.sleep(.1)
     bot.chat('/clear @s')
+    bot.chat('/give @s fishing_rod')
     time.sleep(.1)
 
     @On(bot, 'move')

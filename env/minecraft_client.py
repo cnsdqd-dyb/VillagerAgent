@@ -726,7 +726,7 @@ class Agent():
     @tool
     @timeit
     def waitForFeedback(player_name: str, entity_name: str, seconds: int=20):
-        """Wait for Feedback from the Entity, do not use this when you are in a hurry or you are expecting to end the conversation."""
+        """Wait for Feedback from other players, do not use this when you are in a hurry or you are expecting to end the conversation."""
         url = Agent.get_url_prefix()[player_name] + "/post_wait_for_feedback"
         data = {
             "entity_name": entity_name,
