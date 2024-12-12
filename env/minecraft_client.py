@@ -726,7 +726,7 @@ class Agent():
     @tool
     @timeit
     def waitForFeedback(player_name: str, entity_name: str, seconds: int=20):
-        """Wait for Feedback from the Entity, do not use this when you are in a hurry or you are expecting to end the conversation."""
+        """Wait for Feedback from other players, do not use this when you are in a hurry or you are expecting to end the conversation."""
         url = Agent.get_url_prefix()[player_name] + "/post_wait_for_feedback"
         data = {
             "entity_name": entity_name,
@@ -1032,9 +1032,9 @@ if __name__ == "__main__":
         ""
     ]
     Agent.model = "gpt-4-1106-preview"
-    agent1 = Agent(name="Alice", local_port=5001)
+    agent1 = Agent(name="Alice", local_port=5001, tools=[Agent.equipItem, Agent.startFishing])
     Agent.base_url = "https://api.chatanywhere.tech/v1"
-    Agent.api_key_list = ["sk-vqGl9UxhloKxlqPIm8iHdQL36ulWFAmqpZOgTzOf0aNL5rvY"]
+    Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
     Agent.launch(host="10.214.180.148", port=25565)
     # url = Agent.get_url_prefix()["Alice"] + "/post_start_fishing"
     # data = {
@@ -1042,14 +1042,15 @@ if __name__ == "__main__":
     #     }
     # response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
     # print(response.json())
-    Prompt = "You are Alice, you have a fishing rod in your hand, you want to catch some fish."
-    actions = []
-    observations = []
-    while True:
-        (act, obs), detail = agent1.step(Prompt, actions=actions, observations=observations)
-        if act == None:
-            continue
-        actions.append(act)
-        observations.append(obs)
-        input()
+    Prompt = "You are Alice, you have a fishing rod in your hand, cating some salmon."
+    agent1.run(Prompt)
+    # actions = []
+    # observations = []
+    # while True:
+    #     (act, obs), detail = agent1.step(Prompt, actions=actions, observations=observations)
+    #     if act == None:
+    #         continue
+    #     actions.append(act)
+    #     observations.append(obs)
+    #     input()
     
