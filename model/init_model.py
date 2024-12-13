@@ -43,7 +43,6 @@ def init_language_model(args: dict):
             "api_key": args.get("api_key", None),
             "api_model": api_model,
             "role_name": args.get("role_name", None),
-            "api_key_list": args.get("api_key_list", None)
         }
         new_args = {k: v for k, v in new_args.items() if v is not None}
         return VLLMLanguageModel(**new_args)

@@ -11,8 +11,27 @@ import torch
 from datetime import datetime
 from rl_env.minecraft_ppo import PPO
 from rl_env.minecraft_rl_env import MinecraftRLEnv
-import multiprocessing
 
+import re
+
+def convert_sign_command(command):
+    # 匹配两种可能的格式
+    pattern = r'/setblock\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(\w+)\[facing=(\w+)\]{Text1:[\'\"]?(.*?)[\'\"]?,\s*Text2:[\'\"]?(.*?)[\'\"]?}'
+    
+    match = re.match(pattern, command)
+    if match:
+        x, y, z, block, facing, text1, text2 = match.groups()
+        
+        # 移除可能存在的引号并清理空格
+        text1 = text1.strip('\'"').strip()
+        text2 = text2.strip('\'"').strip()
+        
+        # 构造新的命令格式
+        new_command = f"/setblock {x} {y} {z} {block}[facing={facing}]{{Text1:\"{{\\\"text\\\":\\\"{text1}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{text2}\\\"}}\"}}"
+        return new_command
+    else:
+        return "Sign Command format not recognized"
+    
 def auto_gen_one_task():
 
     # Set Environment
@@ -24,7 +43,7 @@ def auto_gen_one_task():
     llm_config = {
         "api_base": "http://10.130.130.13:8000/v1",
         "api_model": "llama_gptq4",
-        "api_key_list": api_key_list
+        "api_key": "sk-villageragent",
 
     }
 
@@ -215,27 +234,12 @@ def auto_gen_one_task():
     # /setblock x y z jungle_wall_sign[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{Text you want to write 1.}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{Text you want to write 2.}\\\"}}\"}}
     response = llm.few_shot_generate_thoughts("", op_prompt, cache_enabled=True, json_check=True)
     op_command = extract_info(response)[0]
-    print(op_command)
     # input()
 
-    # OP rewrite
-    prompt_op_command_prefix = """
-    You should rewrite the OP command to the correct format.
-    The OP command is:
-    """
-    prompt_op_command_postfix = """
-    The correct format is:
-    /setblock x y z jungle_wall_sign[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{Text you want to write 1.}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{Text you want to write 2.}\\\"}}\"}}
-    return in json format.
-    {
-        "rewrite_op": str, "The rewrited OP command."
-    }
-    """
     for i, op in enumerate(op_command["blocks_op"]):
         if "Text1" in op:
-            prompt_op_command = prompt_op_command_prefix + op + prompt_op_command_postfix
-            response = llm.few_shot_generate_thoughts("", prompt_op_command, cache_enabled=True, json_check=True)
-            op_command["blocks_op"][i] = extract_info(response)[0]["rewrite_op"]
+            op_command["blocks_op"][i] = convert_sign_command(op)
+    print(op_command)
     # Save OP to JSON
     op_filename = datetime.now().strftime("%Y%m%d%H%M%S_op.json")
     op_filepath = os.path.join("auto_task/op_commands", op_filename)
