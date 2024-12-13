@@ -19,12 +19,13 @@ def auto_gen_one_task():
     env = VillagerBench(env_type.auto, task_id=0, _virtual_debug=False, dig_needed=False, host="10.214.180.148", task_name="auto_gen")
 
     # Set Agent
-    api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"] # use OPENAI as an example
-    base_url = "https://api.chatanywhere.tech/v1"
+    api_key_list = ["sk-villageragent"]
+    base_url = "https://10.130.130.13:8000/v1"
     llm_config = {
-        "api_model": "gpt-4-1106-preview", # for example, "gpt-4-1106-preview", "gpt-4o-mini"
-        "api_base": base_url, # for example, "https://api.openai.com/v1"
+        "api_base": "http://10.130.130.13:8000/v1",
+        "api_model": "llama_gptq4",
         "api_key_list": api_key_list
+
     }
 
     Agent.model = llm_config["api_model"]
