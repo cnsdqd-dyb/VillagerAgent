@@ -476,7 +476,8 @@ def place():
     # setblock
     if flag:
         if facing in ["W", "E", "S", "N"]:
-            bot.chat(f"/setblock {x} {y} {z} {item_name}[facing={facing.lower()}]")
+            cvt = {"W": "west", "E": "east", "S": "south", "N": "north"}
+            bot.chat(f"/setblock {x} {y} {z} {item_name}[facing={cvt[facing]}]")
         elif facing in ["x", "y", "z"]:
             bot.chat(f"/setblock {x} {y} {z} {item_name}[axis={facing.lower()}]")
         elif facing == "A":
