@@ -46,6 +46,9 @@ class DataManager:
 
         self.llm = None
         self.model = model_name
+        
+        self.query_log = {"prompt": [], "response": []}
+        self.history_log = {"prompt": [], "response": []}
 
         self._logger = init_logger("DataManager", dump=True, silent=silent)
         self._logger.info("DataManager initialized")
@@ -308,6 +311,24 @@ class DataManager:
 
         self._logger.info("Update database finished")
 
+    def update_history_log(self, system_prompt, user_prompt, response):
+        if type(user_prompt) == str:
+            user_prompt = [user_prompt]
+        prompt = str(system_prompt) + "\n"
+        for i in range(len(user_prompt)):
+            prompt += user_prompt[i] + "\n"
+
+        self.history_log["prompt"].append(prompt)
+        self.history_log["response"].append(response)
+        with open(".cache/meta_setting.json", "r") as f:
+            config = json.load(f)
+            task_name = config["task_name"]
+        if not os.path.exists("result/" + task_name):
+            os.mkdir(os.path.join("result/", task_name))
+        root = os.path.join("result/", task_name)
+        with open(os.path.join(root, "DM_history.json"), "w") as f:
+            json.dump(self.history_log, f, indent=4)
+
     def update_database(self, new_info: dict):
         self._logger.info("Start updating database...")
         new_info["status"] = new_info["status"]["message"] if new_info["status"]["status"] else {}
@@ -374,6 +395,7 @@ class DataManager:
                                                            cache_enabled=False,
                                                            max_tokens=512)
         self._logger.debug(f"Update history: {response}")
+        self.update_history_log("You are a helpful assistant in Minecraft.", prompt, response)
         self._history_data[history["name"]] = response
         self._logger.info(f"Update history {history['name']} successfully")
 
@@ -421,7 +443,25 @@ class DataManager:
                                               person_info=person_info_str,
                                               block_list=blocks_info_str,
                                               sign_info=sign_info_str), self._env_data
-    
+
+    def update_query_log(self, system_prompt, user_prompt, response):
+        if type(user_prompt) == str:
+            user_prompt = [user_prompt]
+        prompt = str(system_prompt) + "\n"
+        for i in range(len(user_prompt)):
+            prompt += user_prompt[i] + "\n"
+
+        self.query_log["prompt"].append(prompt)
+        self.query_log["response"].append(response)
+        with open(".cache/meta_setting.json", "r") as f:
+            config = json.load(f)
+            task_name = config["task_name"]
+        if not os.path.exists("result/" + task_name):
+            os.mkdir(os.path.join("result/", task_name))
+        root = os.path.join("result/", task_name)
+        with open(os.path.join(root, "DM_query.json"), "w") as f:
+            json.dump(self.query_log, f, indent=4)
+
     @timed_cache(max_age=30)
     def query_env_with_task(self, task: str) -> str:
         # input task description
@@ -449,7 +489,7 @@ class DataManager:
         # print(example_prompt)
         # print(response)
         self._logger.debug(f"Response: {response}")
-
+        self.update_query_log(system_prompt, example_prompt, response)
         return response + "\nSign info: " + self._env_data["sign_info"]
 
     def query_task_list_experience(self, task_list: list[Task]) -> [str]:

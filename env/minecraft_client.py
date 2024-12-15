@@ -125,6 +125,7 @@ class Agent():
         self.prompt = prompt
         self.local_port = local_port
         self.model = Agent.model if model == "" else model
+        self.action_history = []
         self.basic_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
             Agent.UseItemOnEntity, Agent.fetchContainerContents,
@@ -821,6 +822,17 @@ class Agent():
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
 
+    def update_history(self, response):
+        self.action_history.append(response)
+        with open(".cache/meta_setting.json", "r") as f:
+            config = json.load(f)
+            task_name = config["task_name"]
+        if not os.path.exists("result/" + task_name):
+            os.mkdir(os.path.join("result/", task_name))
+        root = os.path.join("result/", task_name)
+        with open(os.path.join(root, f"{self.name}_history.json"), "w") as f:
+            json.dump(self.action_history, f, indent=4)
+
     def step(self, instruction: str, actions=[], observations=[], player_name_list=[], max_try_turn=2, max_iterations=1, tools=[], recommended_actions=[]):
         # return the (action, observation), details.
         assert len(self.api_key_list) > 0, "Please set the api_key_list in Agent class."
@@ -996,7 +1008,7 @@ class Agent():
             #     time.sleep(1)
             #     max_try_turn -= 1
 
-        if max_try_turn == 0 or response is None:
+        if max_turn == 0 or response is None:
             return "The task execute failed.", {"input": f"Your name is {self.name}.\n{instruction}", "action_list": [],
                                                 "final_answer": "The task execute failed.", "chain_input": llmhandler.chain_input, "seralized_input": llmhandler.seralized_input}
         # print(response)
@@ -1011,6 +1023,7 @@ class Agent():
         with open(f"data/history/{hash(response['input'])}.json", "w") as f:
             json.dump({"input": response["input"], "action_list": action_list, "final_answer": final_answer}, f,
                       indent=4)
+        self.update_history({"input": response["input"], "action_list": action_list, "final_answer": final_answer})
         return final_answer, {"input": response["input"], "action_list": action_list, "final_answer": final_answer}
 
     def chat(self, msg, async_tag=False):

@@ -77,7 +77,8 @@ def load_random_task():
 
 def auto_gen_one_task(use_existing_task=False):
     # Set Environment
-    env = VillagerBench(env_type.auto, task_id=0, _virtual_debug=False, dig_needed=False, host="10.214.180.148", task_name="auto_gen")
+    # env = VillagerBench(env_type.auto, task_id=0, _virtual_debug=False, dig_needed=False, host="10.214.180.148", task_name="auto_gen")
+    env = VillagerBench(env_type.auto, task_id=0, _virtual_debug=False, dig_needed=False, host="10.192.24.163", task_name="auto_gen")
 
     # Set Agent
     # api_key_list = ["sk-villageragent"]

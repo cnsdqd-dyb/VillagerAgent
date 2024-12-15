@@ -46,6 +46,7 @@ class BaseAgent:
         self.data_manager = data_manager
         self.llm = llm
         self.history_action_list = ["No action yet"]
+        self.reflect_info = {"prompt": [], "response": []}
         self.RL_mode = RL_mode
         self.logger = logger
         if not env.running:
@@ -60,6 +61,42 @@ class BaseAgent:
 
         self.instruction_history = []  # 新增：保存历史指令
         self.state_history = []        # 新增：保存历史状态
+
+    def update_reflect(self, system_prompt, user_prompt, response):
+        if type(user_prompt) == str:
+            user_prompt = [user_prompt]
+        prompt = str(system_prompt) + "\n"
+        for i in range(len(user_prompt)):
+            prompt += user_prompt[i] + "\n"
+
+        self.reflect_info["prompt"].append(prompt)
+        self.reflect_info["response"].append(response)
+        with open(".cache/meta_setting.json", "r") as f:
+            config = json.load(f)
+            task_name = config["task_name"]
+        if not os.path.exists("result/" + task_name):
+            os.mkdir(os.path.join("result/", task_name))
+        root = os.path.join("result/", task_name)
+        with open(os.path.join(root, f"{self.name}_reflect.json"), "w") as f:
+            json.dump(self.reflect_info, f, indent=4)
+
+    def update_reflect(self, system_prompt, user_prompt, response):
+        if type(user_prompt) == str:
+            user_prompt = [user_prompt]
+        prompt = str(system_prompt) + "\n"
+        for i in range(len(user_prompt)):
+            prompt += user_prompt[i] + "\n"
+
+        self.reflect_info["prompt"].append(prompt)
+        self.reflect_info["response"].append(response)
+        with open(".cache/meta_setting.json", "r") as f:
+            config = json.load(f)
+            task_name = config["task_name"]
+        if not os.path.exists("result/" + task_name):
+            os.mkdir(os.path.join("result/", task_name))
+        root = os.path.join("result/", task_name)
+        with open(os.path.join(root, f"{self.name}_reflect.json"), "w") as f:
+            json.dump(self.reflect_info, f, indent=4)
 
     def step(self, task:Task) -> (str, dict):
         '''
@@ -318,6 +355,7 @@ class BaseAgent:
                                    })
             response = self.llm.few_shot_generate_thoughts(reflect_system_prompt, prompt, cache_enabled=False, max_tokens=256, json_check=True)
         # print(response)
+        self.update_reflect(reflect_system_prompt, prompt, response)
         result = extract_info(response)[0]
         task.reflect = result
         task._summary.append(result["summary"])

@@ -6,14 +6,14 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Move to (5, -58, 3). You may need some block or tool to get to that position, you can find them in the inventory.",
-    "task_scenario": "move",
+    "task_goal": "Place the oak_fence_gate at (8, -58, 8), facing north. The oak_fence_gate is in the inventory.",
+    "task_scenario": "place",
     "evaluation_arg": {
-        "target": "",
-        "x": 5,
-        "y": -58,
-        "z": 3,
-        "facing": "",
+        "target": "oak_fence_gate",
+        "x": 8,
+        "y": -60,
+        "z": 8,
+        "facing": "north",
         "item_position": "inventory",
         "tool": "",
         "action": "",
@@ -21,7 +21,7 @@
         "other_arg": []
     },
     "document_file": "",
-    "host": "10.214.180.148",
+    "host": "10.192.24.163",
     "port": 25565,
-    "task_name": "move_id0"
+    "task_name": "meta_test"
 }

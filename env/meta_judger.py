@@ -109,7 +109,7 @@ def handleViewer(*args):
         bot.chat(f'/op {name}')
         time.sleep(.2) 
 
-    room_width = 15
+    room_width = 25
     room_height = 15
     wall_width = 1
 
@@ -164,7 +164,7 @@ def handleViewer(*args):
             if block:
                 if block["name"] == "air":
                     if flag:
-                        return y
+                        return y - 1
                     else:
                         flag = True # 至少连续两格为空气才认为是surface
                 else:
@@ -177,9 +177,20 @@ def handleViewer(*args):
             
         return ory + 1
     
-    def random_position(x1, z1, x2, z2, y_range):
+    def random_position(x1, z1, x2, z2, y_range, invalid_pos = []):
         randx = random.randint(x1, x2)
         randz = random.randint(z1, z2)
+        while True:
+            cover = False
+            for pos in invalid_pos:
+                if abs(pos[0] - randx) <= 2 and abs(pos[2] - randz) <= 2:
+                    cover = True
+                    break
+            if cover:
+                randx = random.randint(x1, x2)
+                randz = random.randint(z1, z2)
+            else:
+                break
         sur_y = get_surface_y(randx, randz)
         randy = sur_y + random.randint(1 , y_range) - 1
         return randx, randy, randz
@@ -196,7 +207,7 @@ def handleViewer(*args):
 
     def set_chest(invalid_position, items):
         chest_x, chest_y, chest_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
-        while ((chest_x, chest_y, chest_z) in invalid_position) or ((chest_x, chest_y+1, chest_z) in invalid_position):
+        while ((chest_x, chest_y, chest_z) in invalid_position) or ((chest_x, chest_y+1, chest_z) in invalid_position) or chest_y > ory + 4:
             chest_x, chest_y, chest_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
         item_str = "{Items:["
         for i, item in enumerate(items):
@@ -230,50 +241,62 @@ def handleViewer(*args):
     # bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
     # generate_hill(peakx, peakz, hill_height)
 
-    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width + 100} {ory + 4} {orz + room_width + 100} 0 0") #tp走防止在生成的地形里窒息
+    # bot.chat(f"/tp {agent_name} {orx - 10} {ory + 4} {orz - 10} 0 0") #tp走防止在生成的地形里窒息
     time.sleep(.2)
+
+    with open(".cache/meta_setting.json", "r") as f:
+        config = json.load(f)
+    arg_dict = config["evaluation_arg"]
 
     clear_w = 31
     clear_h = 6
     feature_list = ["desert", "plains", "savanna", "snowy", "taiga"]
     tree_list = ["acacia", "birch", "spruce", "oak", "jungle_tree", "dark_oak", "mangrove"]
     tree_weight = [5, 30, 5, 50, 4, 3, 3]
-    crx, cry, crz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
+    invalid_pos = []
+    if config["task_scenario"] in ["dig", "place", "move"] or (config["task_scenario"] == "useitem" and "sign" in arg_dict["target"]) or (config["task_scenario"] == "interact" and arg_dict["action"] == "store"):
+        invalid_pos.append((arg_dict['x'], arg_dict['y'], arg_dict['z']))
+    
+    crx, cry, crz = random_position(orx + wall_width + 3, orz + wall_width + 3, orx + room_width + wall_width - 3, orz + room_width + wall_width - 3, 1, invalid_pos)
     # 建筑位置
-    tx, ty, tz = random_position(orx + wall_width + room_width // 4, orz + wall_width + room_width // 4, orx + room_width + wall_width - room_width // 4, orz + room_width + wall_width - room_width // 4, 1)
+    tx, ty, tz = random_position(orx + wall_width + 3, orz + wall_width + 3, orx + room_width + wall_width - 3, orz + room_width + wall_width - 3, 1, invalid_pos)
     # 树位置
 
-    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + 1} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h + 1} {orz + wall_width + room_width // 2 + clear_w} air")
-    time.sleep(.2)
-    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 2 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
-    time.sleep(.2)
-    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * 2 + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 3 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
-    time.sleep(.2)
-    bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * 3 + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 4 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
-    time.sleep(.2)
-    bot.chat("/kill @e[type=!minecraft:player]")
-    time.sleep(.2)
+    for i in range(4):
+        bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * i + 1} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * (i+1) + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+        time.sleep(.2)
+
+    # bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + 1} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    # time.sleep(.2)
+    # bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 2 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    # time.sleep(.2)
+    # bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * 2 + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 3 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    # time.sleep(.2)
+    # bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * 3 + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 4 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
+    # time.sleep(.2)
+    # bot.chat("/kill @e[type=!minecraft:player]")
+    # time.sleep(.2)
     # 清空原来的环境
 
-    # peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
-    # hill_height = 3
-    # generate_hill(peakx, peakz, hill_height)
+    peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
+    hill_height = 3
+    generate_hill(peakx, peakz, hill_height)
     # 生成土丘
 
-    # feature = random.choice(feature_list)
-    # with open("data/template_houses.json", "r") as f:
-    #     template_houses = json.load(f)
-    # house = random.choice(template_houses[feature])
-    # bot.chat(f"/tp {crx} {ory + 1} {crz}")
-    # time.sleep(.2) 
-    # bot.chat(f"/place template village/{feature}/houses/{house}")
-    # time.sleep(.2)
-    # bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} air replace jigsaw")
-    # time.sleep(.2)
-    # bot.chat(f"/tp {tx} {get_surface_y(tx, tz)} {tz}")
-    # time.sleep(.2)
-    # bot.chat(f"/place feature {random.choices(tree_list, tree_weight)[0]}")
-    # time.sleep(.2)
+    feature = random.choice(feature_list)
+    with open("data/template_houses.json", "r") as f:
+        template_houses = json.load(f)
+    house = random.choice(template_houses[feature])
+    bot.chat(f"/tp {crx} {ory + 1} {crz}")
+    time.sleep(.2) 
+    bot.chat(f"/place template village/{feature}/houses/{house}")
+    time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} air replace jigsaw")
+    time.sleep(.2)
+    bot.chat(f"/tp {tx} {get_surface_y(tx, tz)} {tz}")
+    time.sleep(.2)
+    bot.chat(f"/place feature {random.choices(tree_list, tree_weight)[0]}")
+    time.sleep(.2)
     # 生成房屋和树
 
     bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz} glass")
@@ -289,7 +312,7 @@ def handleViewer(*args):
     bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory} {orz + room_width + wall_width} grass_block")
     time.sleep(.2)
     # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
-
+    
     bot.chat("/clear @e[distance=..10,type=player,gamemode=survival]")
     time.sleep(.2)
     bot.chat("/kill @e[type=!minecraft:player]")
@@ -302,13 +325,17 @@ def handleViewer(*args):
     bot.chat(f"/tp @s {orx + wall_width} {ory + room_height // 2} {orz + wall_width} -45 45")
     time.sleep(.2)
 
-    bot.chat(f"/tp @e[gamemode=survival] {orx + room_width // 2 + 1} {get_surface_y(orx + room_width // 2 + 1, orz + 4)} {orz + 4} 0 0")
+    sur_y = get_surface_y(orx + room_width // 2 + 1, orz + 4)
+    bot.chat(f"/tp {agent_name} {orx + room_width // 2 + 1} {sur_y} {orz + 4} 0 0")
+    time.sleep(.2)
+    bot.chat(f"/gamemode survival {agent_name}")
+    time.sleep(.2)
 
     global interact_arg, interact_type
-    with open(".cache/meta_setting.json", "r") as f:
-        config = json.load(f)
-    arg_dict = config["evaluation_arg"]
     
+    bot.chat(f"/give {agent_name} dirt 15")
+    time.sleep(.2)
+
     if config["task_scenario"] == "dig":
         if arg_dict["tool"]:
             if arg_dict["item_position"] == "chest":
@@ -317,6 +344,7 @@ def handleViewer(*args):
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}") 
+            time.sleep(.2)
         block = aligned_item_name(arg_dict["target"])
         bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} {block}")
 
@@ -357,7 +385,9 @@ def handleViewer(*args):
                         generate_recipe_hint([goal_item])
             else:
                 generate_recipe_hint([goal_item])
-        craft_x, craft_y, craft_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)        
+        craft_x, craft_y, craft_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
+        while craft_y > ory + 4:    # 避免生成在太高的地方
+            craft_x, craft_y, craft_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
         if arg_dict["item_position"] == "chest": # 材料在随机位置的箱子里
             set_chest([(craft_x, craft_y, craft_z)], ingredients_list)
         elif arg_dict["item_position"] == "inventory": # 材料在Agent身上
@@ -373,9 +403,9 @@ def handleViewer(*args):
 
         if arg_dict["item_position"] == "inventory":
             bot.chat(f"/give {agent_name} {goal_item} 1")
-            bot.chat(f"/give {agent_name} dirt 5")
+            bot.chat(f"/give {agent_name} dirt 15")
         elif arg_dict["item_position"] == "chest":
-            set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 5}])
+            set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 15}])
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
@@ -524,21 +554,11 @@ def handle(this):
         if aligned_item_name(Block["name"]) == goal_item:
             if len(pos_list) > 3:
                 facing = pos_list[3]
-                if Block._properties["facing"] and facing in ["W", "E", "S", "N"]:
-                    if Block._properties["facing"] == "east" and facing == "E":
-                        return True
-                    if Block._properties["facing"] == "west" and facing == "W":
-                        return True
-                    if Block._properties["facing"] == "south" and facing == "S":
-                        return True
-                    if Block._properties["facing"] == "north" and facing == "N":
+                if Block._properties["facing"] and facing in ["west", "east", "south", "north"]:
+                    if Block._properties["facing"] == facing:
                         return True
                 if Block._properties["axis"] and facing in ["x", "y", "z"]:
-                    if Block._properties["axis"] == "x" and facing == "x":
-                        return True
-                    if Block._properties["axis"] == "y" and facing == "y":
-                        return True
-                    if Block._properties["axis"] == "z" and facing == "z":
+                    if Block._properties["axis"] == facing:
                         return True
                 return False
             else:
@@ -597,8 +617,8 @@ def handle(this):
 
 
             if score == 100:
-                time.sleep(2)
-                if not os.path.exists("result" + task_name):
+                time.sleep(5)
+                if not os.path.exists("result/" + task_name):
                     os.mkdir(os.path.join("result/", task_name))
                 with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
                     json.dump({
@@ -614,7 +634,7 @@ def handle(this):
             if calculate_action_time() > max_action_time:
                 efficiency = 1
                 # 给出结束信号和写入文件
-                if not os.path.exists("result" + task_name):
+                if not os.path.exists("result/" + task_name):
                     os.mkdir(os.path.join("result/", task_name))
                 with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
                     json.dump({
