@@ -856,18 +856,18 @@ class Agent():
                 if tool.name == action:
                     recommended_tools.append(tool)
         
-        mix_tools = []
-        for tool in self.tools:
-            if tool not in recommended_tools:
-                mix_tools.append(tool)
+        # mix_tools = []
+        # for tool in self.tools:
+        #     if tool not in recommended_tools:
+        #         mix_tools.append(tool)
         
-        mix_tools += recommended_tools
+        # mix_tools += recommended_tools
 
         while max_try_turn > 0:
             random.shuffle(self.tools)
             llmhandler = LLMHandler()
             agent = initialize_agent(
-                tools=mix_tools,
+                tools=recommended_tools,
                 llm=self.llm,
                 verbose=Agent.verbose,
                 agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
@@ -957,55 +957,55 @@ class Agent():
             )
             agent.handle_parsing_errors = True
             response = None
-            try:
-                with get_openai_callback() as cb:
-                    start_time = time.time()
-                    if len(player_name_list) == 0:
-                        response = agent({"input": f"Your name is {self.name}.\n{instruction}"})
-                    else:
-                        response = agent(
-                            {"input": f"You should control {player_name_list} work together. \n{instruction}"})
-                    # print(llmhandler.chain_input)
-                    # print(llmhandler.seralized_input)
+            # try:
+            with get_openai_callback() as cb:
+                start_time = time.time()
+                if len(player_name_list) == 0:
+                    response = agent({"input": f"Your name is {self.name}.\n{instruction}"})
+                else:
+                    response = agent(
+                        {"input": f"You should control {player_name_list} work together. \n{instruction}"})
+                # print(llmhandler.chain_input)
+                # print(llmhandler.seralized_input)
 
-                    end_time = time.time()
-                    # save in pipeLine/tokens
-                    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    # if 'gpt' in Agent.model:
-                    #     from env.utils import parse_token_text
-                    #     token_usage = parse_token_text(cb)
-                    #     try:
-                    #         with open("data/tokens.json", "r") as f:
-                    #             tokens = json.load(f)
-                    #         tokens["dates"] = current_time
-                    #         tokens["tokens_used"] += token_usage["tokens_used"]
-                    #         tokens["prompt_tokens"] += token_usage["prompt_tokens"]
-                    #         tokens["completion_tokens"] += token_usage["completion_tokens"]
-                    #         tokens["successful_requests"] += token_usage["successful_requests"]
-                    #         tokens["total_cost"] += token_usage["total_cost"]
-                    #         tokens["action_cost"] += end_time - start_time
-                    #         with open("data/tokens.json", "w") as f:
-                    #             json.dump(tokens, f, indent=4)
-                    #     except KeyboardInterrupt:
-                    #         logging.info("KeyboardInterrupt")
-                    #         raise KeyboardInterrupt
-                    #     except Exception as e:
-                    #         logging.info(e)
-                break
-            except KeyboardInterrupt:
-                logging.info("KeyboardInterrupt")
-                raise KeyboardInterrupt
-            except ConnectionError as e:
-                logging.info(e)
-                raise ConnectionError
-            except ConnectionRefusedError as e:
-                logging.info(e)
-                raise ConnectionRefusedError
-            except Exception as e:
-                print(e)
-                print("retrying...")
-                time.sleep(1)
-                max_try_turn -= 1
+                end_time = time.time()
+                # save in pipeLine/tokens
+                current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                # if 'gpt' in Agent.model:
+                #     from env.utils import parse_token_text
+                #     token_usage = parse_token_text(cb)
+                #     try:
+                #         with open("data/tokens.json", "r") as f:
+                #             tokens = json.load(f)
+                #         tokens["dates"] = current_time
+                #         tokens["tokens_used"] += token_usage["tokens_used"]
+                #         tokens["prompt_tokens"] += token_usage["prompt_tokens"]
+                #         tokens["completion_tokens"] += token_usage["completion_tokens"]
+                #         tokens["successful_requests"] += token_usage["successful_requests"]
+                #         tokens["total_cost"] += token_usage["total_cost"]
+                #         tokens["action_cost"] += end_time - start_time
+                #         with open("data/tokens.json", "w") as f:
+                #             json.dump(tokens, f, indent=4)
+                #     except KeyboardInterrupt:
+                #         logging.info("KeyboardInterrupt")
+                #         raise KeyboardInterrupt
+                #     except Exception as e:
+                #         logging.info(e)
+            # break
+            # except KeyboardInterrupt:
+            #     logging.info("KeyboardInterrupt")
+            #     raise KeyboardInterrupt
+            # except ConnectionError as e:
+            #     logging.info(e)
+            #     raise ConnectionError
+            # except ConnectionRefusedError as e:
+            #     logging.info(e)
+            #     raise ConnectionRefusedError
+            # except Exception as e:
+            #     print(e)
+            #     print("retrying...")
+            #     time.sleep(1)
+            #     max_try_turn -= 1
 
         if max_turn == 0 or response is None:
             return "The task execute failed.", {"input": f"Your name is {self.name}.\n{instruction}", "action_list": [],
@@ -1044,20 +1044,24 @@ if __name__ == "__main__":
     Agent.api_key_list = [
         ""
     ]
-    Agent.model = "gpt-4-1106-preview"
+    Agent.model = "llama_gptq4/"
     agent1 = Agent(name="Alice", local_port=5001, tools=[Agent.equipItem, Agent.startFishing])
-    Agent.base_url = "https://api.chatanywhere.tech/v1"
-    Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+    Agent.base_url = "http://10.130.130.13:8000/v1"
+    Agent.api_key_list = ["sk-villageragent"]
     Agent.launch(host="10.214.180.148", port=25565)
-    Agent.ping("Alice")
+    # print(Agent.ping("Alice"))
     # url = Agent.get_url_prefix()["Alice"] + "/post_start_fishing"
     # data = {
     #         "fish_name": "cod",
     #     }
     # response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
     # print(response.json())
-    Prompt = "You are Alice, you have a fishing rod in your hand, cating some salmon."
-    agent1.run(Prompt)
+    from langchain.chat_models import ChatOpenAI
+    llm = ChatOpenAI(model=Agent.model, temperature=0, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
+    response = llm.invoke("你好，请介绍一下自己")
+    print(response)
+    # Prompt = "You are Alice, you have a fishing rod in your hand, cating some salmon."
+    # agent1.run(Prompt)
     # actions = []
     # observations = []
     # while True:

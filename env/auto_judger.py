@@ -33,7 +33,7 @@ mineflayer = require('mineflayer')
 pathfinder = require('mineflayer-pathfinder')
 collectBlock = require('mineflayer-collectblock')
 pvp = require("mineflayer-pvp").plugin
-minecraftHawkEye = require("minecrafthawkeye")
+minecraftHawkEye = require("minecrafthawkeye").default
 Vec3 = require("vec3")
 Socks = require("socks5-client")
 minecraftData = require('minecraft-data')
@@ -65,6 +65,20 @@ with open(".cache/load_status.cache", "w") as f:
 
 if not os.path.exists("result"):
     os.makedirs("result")
+
+import re
+
+def process_quotes_regex(s):
+    # 找到所有的 \"
+    s = s.replace('"','\\\"')
+    matches = list(re.finditer(r'\\\"', s))
+    print(s)
+    if matches:
+        # 替换第一个和最后一个
+        s = s[:matches[0].start()] + '"' + s[matches[0].end():]
+        s = s[:matches[-1].start()-1] + '"' + s[matches[-1].end()-1:]
+    print(s)
+    return s
 
 @On(bot, 'spawn')
 def handleViewer(*args):
@@ -105,6 +119,8 @@ def handleViewer(*args):
     bot.chat(f'/fill -20 {y_b} 20 20 {y_b + 15} 20 minecraft:glass')
     time.sleep(.1)
     bot.chat(f'/fill 20 {y_b} -20 20 {y_b + 15} 20 minecraft:glass')
+    time.sleep(.1)
+    bot.chat(f'/fill 40 -61 40 -40 -61 -40 minecraft:grass_block')
 
     
 
@@ -121,6 +137,8 @@ def handleViewer(*args):
     bot.chat(place_op_full)
     time.sleep(.2)
     for op in op_commands["blocks_op"]:
+        if "Text" in op:
+            bot.chat(process_quotes_regex(op))
         bot.chat(op)
         time.sleep(.2)
     bot.chat("/setblock 5 -60 0 crafting_table")
