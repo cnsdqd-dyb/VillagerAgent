@@ -12,7 +12,8 @@ from datetime import datetime
 if __name__ == "__main__":
 
     # Set Environment
-    env = VillagerBench(env_type.auto, task_id=0, _virtual_debug=False, dig_needed=False, host="10.214.180.148", task_name="auto_gen")
+    # env = VillagerBench(env_type.auto, task_id=0, _virtual_debug=False, dig_needed=False, host="10.214.180.148", task_name="auto_gen")
+    env = VillagerBench(env_type.auto, task_id=0, _virtual_debug=False, dig_needed=False, host="10.192.24.163", task_name="auto_gen")
 
     # Set Agent
     api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"] # use OPENAI as an example
@@ -54,7 +55,7 @@ if __name__ == "__main__":
         "Agent can feed animals, mount the horse.",
         "Agent can use chest, furnace, you can ask the agent to store items, withdraw items, or smelting items, cooking food, but you need to set the chest, furnace, and required items.",
         "Agent can sleep and wake up, please set the bed and the time.",
-        "Agent can fish, you need to set the water and the fish and the fishing rod.",
+        # "Agent can fish, you need to set the water and the fish and the fishing rod.",
         "Agent can get the information of the entities or agents, you can ask the agent to get the information of the entities or agents.",
         "Agent can perform movement, you can ask the agent to jump forward back left right for Seconds.",
     ]

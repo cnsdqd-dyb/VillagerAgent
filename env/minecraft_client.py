@@ -125,7 +125,7 @@ class Agent():
         self.prompt = prompt
         self.local_port = local_port
         self.model = Agent.model if model == "" else model
-        self.action_history = {"prompt": [], "response": []}
+        self.action_history = []
         self.basic_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
             Agent.UseItemOnEntity, Agent.fetchContainerContents,
@@ -822,9 +822,8 @@ class Agent():
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
 
-    def update_history(self, prompt, response):
-        self.action_history["prompt"].append(prompt)
-        self.action_history["response"].append(response)
+    def update_history(self, response):
+        self.action_history.append(response)
         with open(".cache/meta_setting.json", "r") as f:
             config = json.load(f)
             task_name = config["task_name"]
@@ -918,6 +917,8 @@ class Agent():
                 max_turn -= 1
 
         if max_turn == 0 or response is None:
+            self.update_history({"input": f"Your name is {self.name}.\n{instruction}", "action_list": [],
+                                                "final_answer": "The task execute failed.", "chain_input": llmhandler.chain_input, "seralized_input": llmhandler.seralized_input})
             return "The task execute failed.", {"input": f"Your name is {self.name}.\n{instruction}", "action_list": [],
                                                 "final_answer": "The task execute failed.", "chain_input": llmhandler.chain_input, "seralized_input": llmhandler.seralized_input}
         # print(response)
@@ -932,6 +933,7 @@ class Agent():
         with open(f"data/history/{hash(response['input'])}.json", "w") as f:
             json.dump({"input": response["input"], "action_list": action_list, "final_answer": final_answer}, f,
                       indent=4)
+        self.update_history({"input": response["input"], "action_list": action_list, "final_answer": final_answer})
         return final_answer, {"input": response["input"], "action_list": action_list, "final_answer": final_answer}
 
     def chat(self, msg, async_tag=False):

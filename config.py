@@ -9,7 +9,7 @@ from pipeline.utils import *
 from model.init_model import init_language_model
 from model.openai_models import OpenAILanguageModel
 
-room_width = 15
+room_width = 25
 room_height = 15
 wall_width = 1
 
@@ -17,7 +17,7 @@ orx = 0     #origin_point
 ory = -61
 orz = 0
 
-task_number = 1
+task_number = 2
 
 logger = init_logger("TASK_GOAL", dump=False, level=logging.DEBUG, silent=False)
 
@@ -278,7 +278,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 if "values" in state and not all(faceable in allowed_facing for faceable in state["values"]):
                     placeable = False
                     break
-            if "potted" in block["name"] or "_cauldron" in block["name"]:
+            if "potted" in block["name"] or "_cauldron" in block["name"] or "bed" in block["name"] or "door" in block["name"]:
                 placeable = False
             if placeable:
                 placeable_blocks.append(block)

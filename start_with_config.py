@@ -7,7 +7,7 @@ import psutil
 import time
 from env.env import VillagerBench, env_type, Agent
 
-start_time = time.time
+start_time = time.time()
 from pipeline.controller_tiny import GlobalController
 from pipeline.data_manager import DataManager
 from pipeline.task_manager import TaskManager
