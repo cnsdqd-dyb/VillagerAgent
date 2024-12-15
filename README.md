@@ -20,6 +20,8 @@ Customize your private tasks in your Minecraft server with our VillagerAgent mul
 ---
 
 ## News
+\[2024.12.11\] Support LLM api ranking with PPO method.
+
 \[2024.12.08\] LLM driven AutoGen task to get data for Agent-tuning.
 
 <table> <tr> <td><img src="img/chat.png" width="100%" /></td> <td><img src="img/chat2.png" width="100%" /></td> </tr> <tr> <td><img src="img/chat3.png" width="100%" /></td> <td><img src="img/chat4.png" width="100%" /></td> </tr> </table>

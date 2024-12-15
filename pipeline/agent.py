@@ -10,6 +10,10 @@ from pipeline.utils import *
 from model.openai_models import OpenAILanguageModel
 from random import random, randint, choice
 from pipeline.agent_prompt import *
+from pipeline.agent_rl_prompt import *
+from rl_env import *
+import numpy as np
+import torch
 
 class AgentFeedback:
     def __init__(self, task:Task, detail, status):
@@ -24,33 +28,6 @@ class AgentFeedback:
             "status": self.status,
         }
 
-# class ChatPlugin:
-#     '''
-#     ### ChatPlugin is the plugin for the agent to chat with the environment
-#     # TODO: still need to be implemented
-#     '''
-#     def __init__(self, llm:OpenAILanguageModel, env:VillagerBench, logger:logging.Logger = None, silent = False, **kwargs):
-#         self.llm = llm
-#         self.logger = logger
-#         if self.logger is None:
-#             self.logger = init_logger("ChatPlugin", dump=True, silent=silent)
-
-#         self.chat_history = []
-#         self.important_info = []
-#         self.role_description = ""
-#         self.name = ""
-#         self.env = env
-
-
-#     def chat(self):
-#         message = self.env.get_msg(self.name)
-#         self.chat_history.append(message)
-#         if isinstance(self.llm, OpenAILanguageModel):
-#             response = self.llm.few_shot_generate_thoughts(self.role_description, message, cache_enabled=False, max_tokens=256, json_check=True)
-#         else:
-#             response = self.llm.few_shot_generate_thoughts(self.role_description, message, cache_enabled=False, max_tokens=256, json_check=True)
-#         self.chat_history.append({"name": self.name, "message": response})
-        
         
 
 class BaseAgent:
@@ -62,19 +39,44 @@ class BaseAgent:
     to_json: return the json format of the agent
     '''
     _virtual_debug = False
-    def __init__(self, llm:OpenAILanguageModel , env:VillagerBench, data_manager:DataManager, name:str, logger:logging.Logger = None, silent = False, **kwargs):
+    def __init__(self, llm:OpenAILanguageModel , env:VillagerBench, data_manager:DataManager, name:str, logger:logging.Logger = None, silent = False, 
+    RL_mode = "", rl_env = None, rl_model = None, **kwargs):
         self.env = env
         self.name = name
         self.data_manager = data_manager
         self.llm = llm
         self.history_action_list = ["No action yet"]
         self.reflect_info = {"prompt": [], "response": []}
+        self.RL_mode = RL_mode
         self.logger = logger
         if not env.running:
             BaseAgent._virtual_debug = True
 
         if self.logger is None:
             self.logger = init_logger("BaseAgent", dump=True, silent=silent)
+        
+        if self.RL_mode == "PPO":
+            self.rl_env = rl_env
+            self.rl_model = rl_model
+        
+
+    def update_reflect(self, system_prompt, user_prompt, response):
+        if type(user_prompt) == str:
+            user_prompt = [user_prompt]
+        prompt = str(system_prompt) + "\n"
+        for i in range(len(user_prompt)):
+            prompt += user_prompt[i] + "\n"
+
+        self.reflect_info["prompt"].append(prompt)
+        self.reflect_info["response"].append(response)
+        with open(".cache/meta_setting.json", "r") as f:
+            config = json.load(f)
+            task_name = config["task_name"]
+        if not os.path.exists("result/" + task_name):
+            os.mkdir(os.path.join("result/", task_name))
+        root = os.path.join("result/", task_name)
+        with open(os.path.join(root, f"{self.name}_reflect.json"), "w") as f:
+            json.dump(self.reflect_info, f, indent=4)
 
     def update_reflect(self, system_prompt, user_prompt, response):
         if type(user_prompt) == str:
@@ -101,6 +103,126 @@ class BaseAgent:
         '''
         if BaseAgent._virtual_debug:
             return self.virtual_step(task)
+
+        if self.RL_mode != "":
+            return self.rl_step(task)
+
+        else:
+            return self.normal_step(task)    
+        
+    def rl_step(self, task:Task) -> (str, dict):
+        if len(task._agent) == 1:
+            task_str = format_string(agent_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
+                                    "env": self.data_manager.query_env_with_task(task.description),
+                                    "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
+                                    "agent_name": self.name,
+                                    "agent_state": self.data_manager.query_history(self.name),
+                                    "other_agents": self.other_agents(),
+                                    "agent_action_list": self.history_action_list,
+                                    "minecraft_knowledge_card": minecraft_knowledge_card})
+        else:
+            task_str = format_string(agent_cooper_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
+                                    "env": self.data_manager.query_env_with_task(task.description),
+                                    "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
+                                    "agent_name": self.name,
+                                    "agent_state": self.data_manager.query_history(self.name),
+                                    "other_agents": self.other_agents(),
+                                    "agent_action_list": self.history_action_list,
+                                    "team_members": ", ".join(task._agent),
+                                    "minecraft_knowledge_card": minecraft_knowledge_card})
+            
+        self.logger.debug("="*20 + " Agent Step " + "="*20)
+        self.logger.info(f"{self.name} try task:\n {task.description}")
+        self.logger.info(f"{self.history_action_list}")
+        self.logger.info(f"other agents: {self.other_agents()}")
+        self.logger.info(f"{self.name} status:\n {self.data_manager.query_history(self.name)}")
+        
+        
+        instruction = format_string(task_prompt, {
+            "task_description": task.description,
+            "milestone_description": task.milestones,
+        })
+        basic_state = format_string(state_prompt, {
+            "env": self.data_manager.query_env_with_task(task.description),
+            "relevant_data": smart_truncate(task.content, max_length=4096), 
+        })
+        if self.RL_mode == "DQN":
+            self.rl_env.set_current_state(
+                instrucition=task_str,
+                state=task_str,
+            )
+        elif self.RL_mode == "PPO":
+            instr_token, basic_state_token = self.rl_env.token_current_state(instruction, basic_state)
+            
+        max_rl_steps = 5
+        actions = []
+        observations = []
+        act_obs_state_token = None
+        task_status = False
+
+        while max_rl_steps > 0 and not task_status:
+            transition_dict = {}
+            if self.RL_mode == "PPO":
+                if act_obs_state_token is None:
+                    state_token = basic_state_token
+                else:
+                    state_token = np.concatenate([basic_state_token, next_act_obs_state_token], axis=0)
+
+                state_token = np.concatenate([instr_token, state_token], axis=0)
+            else:
+                raise NotImplementedError
+            # print(state_token)
+            rl_action = self.rl_model.take_action(state_token)
+            assert rl_action < len(self.rl_env.available_actions) and rl_action >= 0, f"{rl_action} must in 0-{len(self.rl_env.available_actions)}"
+            rl_api = self.rl_env._get_available_actions()[rl_action]
+            print(f"{rl_action} - {rl_api}")
+            # input("press")
+            (act, obs), detail = self.env.rl_step(self.name, task_str, actions=actions, observations=observations, recommended_actions=[rl_api])
+            next_act_obs_state_token = self.rl_env.token_current_action_observation(act, obs)
+            # ts = torch.tensor(next_act_obs_state_token, dtype=torch.float32)
+            # print(ts.shape)
+            # input("press")
+            if act == None:
+                continue
+            actions.append(act)
+            observations.append(obs)
+            max_rl_steps -= 1
+
+
+            reward, task_status, summary = self.rl_one_step_reflect(task.description, task.milestones, actions=actions, observations=observations, rl_action=rl_api)
+
+            if self.RL_mode == "PPO":
+                if act_obs_state_token is None:
+                    state_token = basic_state_token
+                else:
+                    state_token = np.concatenate([basic_state_token, next_act_obs_state_token], axis=0)
+                next_state_token = next_act_obs_state_token
+
+                state_token = np.concatenate([instr_token, state_token], axis=0)
+                next_state_token = np.concatenate([instr_token, next_state_token], axis=0)
+            else:
+                raise NotImplementedError
+            
+            transition_dict["states"] = state_token
+            transition_dict["next_states"] = next_state_token
+            transition_dict["actions"] = rl_action
+            transition_dict["rewards"] = reward
+            transition_dict["dones"] = task_status
+
+            act_obs_state_token = next_act_obs_state_token
+            self.rl_model.update(transition_dict)
+
+            if self.RL_mode == "PPO":
+                self.rl_model.train_step()
+              
+        status = self.env.agent_status(self.name)
+        self.data_manager.update_database(AgentFeedback(task, detail, status).to_json())
+
+        # self.data_manager.save()
+        return summary, detail
+    
+
+    def normal_step(self, task:Task) -> (str, dict):
         if len(task._agent) == 1:
             task_str = format_string(agent_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
                                     "env": self.data_manager.query_env_with_task(task.description),
@@ -127,6 +249,19 @@ class BaseAgent:
         self.logger.info(f"other agents: {self.other_agents()}")
         self.logger.info(f"{self.name} status:\n {self.data_manager.query_history(self.name)}")
         max_retry = 3
+        
+        instruction = format_string(task_prompt, {
+            "task_description": task.description,
+            "milestone_description": task.milestones,
+        })
+        state = format_string(state_prompt, {
+            "other_agents": self.other_agents(),
+            "agent_name": self.name,
+            "env": self.data_manager.query_env_with_task(task.description),
+            "relevant_data": smart_truncate(task.content, max_length=4096), 
+            "agent_state": self.data_manager.query_history(self.name),
+        })
+      
         while max_retry > 0:
             try:
                 feedback, detail = self.env.step(self.name, task_str)
@@ -146,9 +281,11 @@ class BaseAgent:
                 time.sleep(3)
         status = self.env.agent_status(self.name)
         self.data_manager.update_database(AgentFeedback(task, detail, status).to_json())
+
         # self.data_manager.save()
         return feedback, detail
-    
+   
+
     def other_agents(self) -> [str]:
         '''
         return the feedback of other agent's pretask
@@ -158,6 +295,30 @@ class BaseAgent:
     def action_format(self, action:dict) -> str:
         action_str = '''{{message}}'''
         return format_string(action_str, action["feedback"])
+    
+    def rl_one_step_reflect(self, task_description, milestone_description, actions, observations, rl_action):
+        '''
+        One step reflect
+        '''
+        act_obs = ""
+        for act, obs in zip(actions, observations):
+            act_obs += f"\n{act['log']}\n{obs}"
+        
+        prompt = format_string(one_step_reflect_prompt,
+            {
+                "task_description": task_description,
+                "milestone_description": milestone_description,
+                "action_observation": act_obs,
+                "rl_action": rl_action
+            })
+        
+        response = self.llm.few_shot_generate_thoughts(reflect_system_prompt, prompt, cache_enabled=False, max_tokens=256, json_check=True)
+        print(response)
+        result = extract_info(response)[0]
+        summary = result["summary"]
+        reward = result["reward"]
+        task_status = result["task_status"]
+        return reward, task_status, summary
     
     def reflect(self, task: Task, detail) -> bool:
         '''

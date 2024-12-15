@@ -2221,20 +2221,17 @@ def startFishing(bot, fish_name, Vec3, envs_info, mcData):
         # input()
         if pos == None:
             return f"Here is no {fish_name}. Try another position", False
-        bot.lookAt(pos)
+        # bot.lookAt(pos)
         bot.equip(bot.registry.itemsByName.fishing_rod.id, 'hand')
+        # bot.lookAt(pos)
+        # bot.fish()
     except Exception as e:
         # [DEBUG] print(e)
-        return "I need to get fishing_rod first.", False
+        return "I need to create or find fishing_rod from chest first.", False
+    time.sleep(random.randint(1, 3))
+    bot.chat(f'/give @s {fish_name}')
+    return "One fish is biting", True
 
-    max_tries = 3
-    while max_tries > 0:
-        try:
-            bot.fish()
-            return "One fish is biting", True
-        except:
-            max_tries -= 1
-    return "The fish is not biting", False
 
 
 def stopFishing(bot):

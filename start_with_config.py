@@ -53,7 +53,9 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
     elif task_type == "meta":
         agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.UseItemOnEntity, Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback,
                       Agent.MineBlock, Agent.placeBlock, Agent.equipItem, Agent.handoverBlock, Agent.SmeltingCooking, Agent.withdrawItem, 
-                      Agent.storeItem, Agent.craftBlock, Agent.enchantItem, Agent.trade, Agent.repairItem, Agent.eat, Agent.fetchContainerContents, Agent.ToggleAction]
+                      Agent.storeItem, Agent.craftBlock, Agent.eat, Agent.fetchContainerContents, Agent.ToggleAction, 
+                      Agent.openContainer, Agent.closeContainer,Agent.get_entity_info, Agent.get_environment_info, Agent.performMovement, Agent.startFishing,
+                      Agent.read, Agent.write, Agent.mountEntity, Agent.dismountEntity, Agent.rideEntity, Agent.disrideEntity]
     else:
         raise NotImplementedError
 

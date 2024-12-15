@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class OpenAILanguageModel(AbstractLanguageModel):
-    _supported_models = ["gpt-4o", "gpt-4-0125-preview", "gpt-4-1106-preview", "gpt-4", "gpt-4-0314", "gpt-4-0613", "gpt-4-32k", "gpt-4-32k-0314",
+    _supported_models = ["gpt-4o-mini", "gpt-4o", "gpt-4-0125-preview", "gpt-4-1106-preview", "gpt-4", "gpt-4-0314", "gpt-4-0613", "gpt-4-32k", "gpt-4-32k-0314",
                          "gpt-4-32k-0613", "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-0301",
                          "gpt-3.5-turbo-0613", "gpt-3.5-turbo-1106", "gpt-3.5-turbo-16k-0613", "gpt-3.5-turbo-instruct"]
     
@@ -171,10 +171,10 @@ class OpenAILanguageModel(AbstractLanguageModel):
             if num_tokens >= 1024 * 128 - max_output_tokens:
                 logger.warning(f"num_tokens {num_tokens} auto resize waiting please")
             return self.resizing_token(1024 * 128 - max_output_tokens, encoding_name, messages)
-        elif self.api_model == "gpt-4":
+        elif self.api_model == "gpt-4" or self.api_model == "gpt-4o-mini":
             if num_tokens >= 1024 * 8 - max_output_tokens:
                 logger.warning(f"num_tokens {num_tokens} auto resize waiting please")
-            return self.resizing_token(1024 * 8 - max_output_tokens, encoding_name, messages)
+            return self.resizing_token(1024 * 8 - max_output_tokens, "gpt-4", messages)
         elif self.api_model == "gpt-4-32k":
             if num_tokens >= 1024 * 32 - max_output_tokens:
                 logger.warning(f"num_tokens {num_tokens} auto resize waiting please")
@@ -286,17 +286,17 @@ class OpenAILanguageModel(AbstractLanguageModel):
                     messages.append({"role": "assistant", "content": example_prompt[i]})
 
             # dynamic change timeout by token number
-            messages = self.guard_token_number(messages, api_model, max_tokens)
+            # messages = self.guard_token_number(messages, api_model, max_tokens)
 
             if stream:
                 content = self.gpt_api_stream(messages, api_model, temperature)
-                usage_data = {"prompt_tokens": self.num_tokens_from_string(prompt, api_model),
-                            "completion_tokens": self.num_tokens_from_string(content, api_model)}
-                self.update_token_usage(usage_data["prompt_tokens"], usage_data["completion_tokens"])
+                # usage_data = {"prompt_tokens": self.num_tokens_from_string(prompt, api_model),
+                #             "completion_tokens": self.num_tokens_from_string(content, api_model)}
+                # self.update_token_usage(usage_data["prompt_tokens"], usage_data["completion_tokens"])
             else:
                 response = self.gpt_api(messages, api_model, temperature)
 
-                self.update_token_usage(response.usage.prompt_tokens, response.usage.completion_tokens)
+                # self.update_token_usage(response.usage.prompt_tokens, response.usage.completion_tokens)
 
                 content = response.choices[0].message.content
 

@@ -2,11 +2,12 @@ from model.google_model import GoogleLanguageModel
 from model.openai_models import OpenAILanguageModel
 from model.zhipu_model import ZhipuLanguageModel
 from model.huggingface_model import HFLanguageModel
+from model.vllm_model import VLLMLanguageModel
 
 def init_language_model(args: dict):
     api_model = args.get("api_model", "")
 
-    if "gpt" in api_model:
+    if "gpt" in api_model and 'llama' not in api_model:
         new_args = {
             "api_key": args.get("api_key", None),
             "api_model": api_model,
@@ -37,6 +38,14 @@ def init_language_model(args: dict):
         }
         new_args = {k: v for k, v in new_args.items() if v is not None}
         return ZhipuLanguageModel(**new_args)
+    elif "vllm" in api_model or "llama" in api_model:
+        new_args = {
+            "api_key": args.get("api_key", None),
+            "api_model": api_model,
+            "role_name": args.get("role_name", None),
+        }
+        new_args = {k: v for k, v in new_args.items() if v is not None}
+        return VLLMLanguageModel(**new_args)
     else:
         new_args = {
             "api_key": args.get("api_key", None),

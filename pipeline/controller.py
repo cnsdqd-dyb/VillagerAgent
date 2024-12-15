@@ -32,7 +32,7 @@ class GlobalController:
     
     '''
     def __init__(self, llm_config: dict, task_manager: TaskManager, data_manager: DataManager, env: VillagerBench,
-                 silent: bool = False, max_workers=4):
+                 silent: bool = False, max_workers=4, RL_mode="", rl_env=None, rl_model=None):
         self.task_manager = task_manager
 
         tm_llm_config = llm_config.copy()
@@ -49,7 +49,7 @@ class GlobalController:
         self.data_manager.llm = init_language_model(dm_llm_config)
 
         llm = init_language_model(llm_config)
-        self.agent_list = [BaseAgent(llm, env, data_manager, name=a.name, silent=False) for a in env.agent_pool]
+        self.agent_list = [BaseAgent(llm, env, data_manager, name=a.name, silent=False, RL_mode=RL_mode, rl_env=rl_env, rl_model=rl_model) for a in env.agent_pool]
         self.task_manager.agent_list = self.agent_list
         self.task_manager.agent_describe = env.get_all_agent_description_tiny()
         self.assignment = {}
@@ -91,6 +91,9 @@ class GlobalController:
 
         # start time
         self.start_time = time.time()
+
+        self.rl_env = rl_env
+        self.rl_model = rl_model
 
     def set_stop_condition(self, max_execution_time: int, stop_after_fail_times: int, stop_after_success_times: int):
         self.max_execution_time = max_execution_time

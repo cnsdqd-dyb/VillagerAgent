@@ -7,21 +7,45 @@ import json
 from model.init_model import init_language_model
 import random
 import os
+import torch
 from datetime import datetime
+from rl_env.minecraft_ppo import PPO
+from rl_env.minecraft_rl_env import MinecraftRLEnv
 
-if __name__ == "__main__":
+import re
+
+def convert_sign_command(command):
+    # 匹配两种可能的格式
+    pattern = r'/setblock\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(\w+)\[facing=(\w+)\]{Text1:[\'\"]?(.*?)[\'\"]?,\s*Text2:[\'\"]?(.*?)[\'\"]?}'
+    
+    match = re.match(pattern, command)
+    if match:
+        x, y, z, block, facing, text1, text2 = match.groups()
+        
+        # 移除可能存在的引号并清理空格
+        text1 = text1.strip('\'"').strip()
+        text2 = text2.strip('\'"').strip()
+        
+        # 构造新的命令格式
+        new_command = f"/setblock {x} {y} {z} {block}[facing={facing}]{{Text1:\"{{\\\"text\\\":\\\"{text1}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{text2}\\\"}}\"}}"
+        return new_command
+    else:
+        return "Sign Command format not recognized"
+    
+def auto_gen_one_task():
 
     # Set Environment
     # env = VillagerBench(env_type.auto, task_id=0, _virtual_debug=False, dig_needed=False, host="10.214.180.148", task_name="auto_gen")
     env = VillagerBench(env_type.auto, task_id=0, _virtual_debug=False, dig_needed=False, host="10.192.24.163", task_name="auto_gen")
 
     # Set Agent
-    api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"] # use OPENAI as an example
-    base_url = "https://api.chatanywhere.tech/v1"
+    api_key_list = ["sk-villageragent"]
+    base_url = "https://10.130.130.13:8000/v1"
     llm_config = {
-        "api_model": "gpt-4-1106-preview", # for example, "gpt-4-1106-preview"
-        "api_base": base_url, # for example, "https://api.openai.com/v1"
-        "api_key_list": api_key_list
+        "api_base": "http://10.130.130.13:8000/v1",
+        "api_model": "llama_gptq4",
+        "api_key": "sk-villageragent",
+
     }
 
     Agent.model = llm_config["api_model"]
@@ -211,27 +235,12 @@ if __name__ == "__main__":
     # /setblock x y z jungle_wall_sign[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{Text you want to write 1.}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{Text you want to write 2.}\\\"}}\"}}
     response = llm.few_shot_generate_thoughts("", op_prompt, cache_enabled=True, json_check=True)
     op_command = extract_info(response)[0]
-    print(op_command)
     # input()
 
-    # OP rewrite
-    prompt_op_command_prefix = """
-    You should rewrite the OP command to the correct format.
-    The OP command is:
-    """
-    prompt_op_command_postfix = """
-    The correct format is:
-    /setblock x y z jungle_wall_sign[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{Text you want to write 1.}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{Text you want to write 2.}\\\"}}\"}}
-    return in json format.
-    {
-        "rewrite_op": str, "The rewrited OP command."
-    }
-    """
     for i, op in enumerate(op_command["blocks_op"]):
         if "Text1" in op:
-            prompt_op_command = prompt_op_command_prefix + op + prompt_op_command_postfix
-            response = llm.few_shot_generate_thoughts("", prompt_op_command, cache_enabled=True, json_check=True)
-            op_command["blocks_op"][i] = extract_info(response)[0]["rewrite_op"]
+            op_command["blocks_op"][i] = convert_sign_command(op)
+    print(op_command)
     # Save OP to JSON
     op_filename = datetime.now().strftime("%Y%m%d%H%M%S_op.json")
     op_filepath = os.path.join("auto_task/op_commands", op_filename)
@@ -242,6 +251,26 @@ if __name__ == "__main__":
     env.op_path = op_filepath
     print(f"OP commands saved to {op_filepath}")
     # input()
+
+    rl_env = MinecraftRLEnv(
+        tokenizer_name = "openai-gpt",
+        max_instruction_length = 128,
+        max_state_length = 256,
+        max_history_length = 512,
+    )
+    rl_model = PPO(
+        vocab_size = rl_env.vocab_size,
+        state_dim = rl_env.state_dim,
+        hidden_dim = 256,
+        action_dim = rl_env.action_dim,
+        actor_lr = 3e-4,
+        critic_lr = 1e-3,
+        gamma = 0.99,
+        lmbda = 0.95,
+        eps = 0.2,
+        device = "cuda" if torch.cuda.is_available() else "cpu",
+        buffer_size = 10000
+    )
 
     # Register Agent
     env.agent_register(agent_tool=agent_tool, agent_number=len(task_description["agents"]), name_list=task_description["agents"]) # Attention that the agent number should be consistent with the agent_tool
@@ -257,7 +286,11 @@ if __name__ == "__main__":
         tm = TaskManager(silent=False)
 
         # Set Controller
-        ctrl = GlobalController(llm_config, tm, dm, env)
+        ctrl = GlobalController(llm_config, tm, dm, env
+                                , RL_mode="PPO"
+                                , rl_env=rl_env
+                                , rl_model=rl_model)
+
         ctrl.set_stop_condition(max_execution_time=600, stop_after_fail_times=2, stop_after_success_times=3)
 
         # Set Task
@@ -265,3 +298,8 @@ if __name__ == "__main__":
 
         # Run Controller
         ctrl.run()
+    
+    rl_model.save_ckpt(actor_path="rl_env/ckpt/actor.pth", critic_path="rl_env/ckpt/critic.pth")
+
+if __name__ == "__main__":
+    auto_gen_one_task()
