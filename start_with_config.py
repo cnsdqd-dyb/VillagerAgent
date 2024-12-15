@@ -7,7 +7,7 @@ import psutil
 import time
 from env.env import VillagerBench, env_type, Agent
 
-start_time = time.time
+start_time = time.time()
 from pipeline.controller_tiny import GlobalController
 from pipeline.data_manager import DataManager
 from pipeline.task_manager import TaskManager
@@ -17,15 +17,30 @@ print(f"pipeline Time taken: {time.time() - start_time}")
 start_time = time.time()
 
 
-def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num: int, dig_needed: bool, max_task_num: int, task_goal: str, document_file: str, host: str, port: int, task_name: str, role: str = "same"):
+def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num: int, dig_needed: bool, max_task_num: int, task_goal: str, document_file: str, host: str, port: int, task_name: str, role: str = "same", api_key_list: list = []):
     start_time = time.time()
 
-    # 设置agent，都使用gpt-4-0125-preview
-    Agent.model = "gpt-4-1106-preview"
-    # Agent.model = "gpt-3.5-turbo-1106"
-    # Agent.base_url = "https://api.openai.com/v1/"
-    Agent.base_url = "https://api.chatanywhere.tech/v1"
-    Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+    # # 设置agent，都使用gpt-4-0125-preview
+    # Agent.model = "gpt-4-1106-preview"
+    # # Agent.model = "gpt-3.5-turbo-1106"
+    # # Agent.base_url = "https://api.openai.com/v1/"
+    # Agent.base_url = "https://api.chatanywhere.tech/v1"
+    # Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+
+    # # Agent use llama_gptq4
+    # Agent.model = "llama_gptq4/"
+    # Agent.base_url = "http://10.130.130.13:8000/v1"
+    # Agent.api_key_list = ["sk-villageragent"]
+
+    # # Agent use Qwen2.5-0.5B-Instruct-GPTQ-Int8
+    # Agent.model = "Qwen2.5-0.5B-Instruct-GPTQ-Int8"
+    # Agent.base_url = "http://10.130.130.13:8002/v1"
+    # Agent.api_key_list = ["sk-qwen05b"]
+
+    # Agent use Qwen2.5-7B-Instruct-GPTQ-Int4
+    Agent.model = "Qwen2.5-7B-Instruct-GPTQ-Int4"
+    Agent.base_url = "http://10.130.130.13:8003/v1"
+    Agent.api_key_list = ["sk-qwen7b"]
 
     # 设置env
     if task_type == "construction":
@@ -95,7 +110,14 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         start_time = time.time()
 
         # 设置llm
-        if "gpt" in api_model:  # https://api.chatanywhere.tech/v1 default_base_url
+        if "vllm" in api_model or "llama" in api_model or "NAS" in api_model:
+            ap
+            llm_config = {
+                "api_model": api_model,
+                "api_base": api_base,
+                "api_key": api_key_list[0]
+            }
+        elif "gpt" in api_model:  # https://api.chatanywhere.tech/v1 default_base_url
             api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 
             llm_config = {
@@ -132,7 +154,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
 if __name__ == "__main__":
 
-    with open("meta_test_config.json", "r") as f:
+    with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/_mount_NAS1_public_Qwen2_5_0_5B_Instruct_GPTQ_Int8_launch_config_meta.json", "r") as f:
         launch_config = json.load(f)
     for i, config in enumerate(launch_config):
 
@@ -149,9 +171,26 @@ if __name__ == "__main__":
         if os.path.exists(".cache/heart_beat.cache"):
             os.remove(".cache/heart_beat.cache")
 
+        # llm_config = {
+        #     "api_key": "sk-villageragent",
+        #     "api_base": "http://10.130.130.13:8000/v1",
+        #     "api_model": "llama_gptq4/"
+        # }
+        # llm_config = {
+        #     "api_key": "sk-qwen05b",
+        #     "api_base": "http://10.130.130.13:8002/v1",
+        #     "api_model": "/mount/NAS1/public/Qwen2.5-0.5B-Instruct-GPTQ-Int8"
+        # }
+        llm_config = {
+            "api_key": "sk-qwen7b",
+            "api_base": "http://10.130.130.13:8003/v1",
+            "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4"
+        }
+
+
         process = multiprocessing.Process(target=run,
-                                            args=(config["api_model"],
-                                                config["api_base"],
+                                            args=(llm_config["api_model"],
+                                                llm_config["api_base"],
                                                 config["task_type"],
                                                 config["task_idx"],
                                                 config["agent_num"],
@@ -162,7 +201,8 @@ if __name__ == "__main__":
                                                 config["host"],
                                                 config["port"],
                                                 config["task_name"],
-                                                config.get("role", "same")
+                                                config.get("role", "same"),
+                                                [llm_config["api_key"]]
                                             )
                                           )
         process.start()

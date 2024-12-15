@@ -38,10 +38,11 @@ def init_language_model(args: dict):
         }
         new_args = {k: v for k, v in new_args.items() if v is not None}
         return ZhipuLanguageModel(**new_args)
-    elif "vllm" in api_model or "llama" in api_model:
+    elif "vllm" in api_model or "llama" in api_model or "NAS" in api_model:
         new_args = {
             "api_key": args.get("api_key", None),
             "api_model": api_model,
+            "api_base": args.get("api_base", None),
             "role_name": args.get("role_name", None),
         }
         new_args = {k: v for k, v in new_args.items() if v is not None}

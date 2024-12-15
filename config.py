@@ -17,18 +17,28 @@ orx = 0     #origin_point
 ory = -61
 orz = 0
 
-task_number = 1
+task_number = 3
 
 logger = init_logger("TASK_GOAL", dump=False, level=logging.DEBUG, silent=False)
 
 api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+# llm_config = {
+#     # "api_model": "gpt-4o",
+#     "api_model": "gpt-4-1106-preview",
+#     # "api_base": "https://api.openai.com/v1/",
+#     "api_base": "https://api.chatanywhere.tech/v1",
+#     "api_key_list": api_key_list
+# }
 llm_config = {
-    # "api_model": "gpt-4o",
-    "api_model": "gpt-4-1106-preview",
-    # "api_base": "https://api.openai.com/v1/",
-    "api_base": "https://api.chatanywhere.tech/v1",
-    "api_key_list": api_key_list
+    "api_key": "sk-villageragent",
+    "api_base": "http://10.130.130.13:8000/v1",
+    "api_model": "llama_gptq4/"
 }
+# llm_config = {
+#     "api_key": "sk-qwen05b",
+#     "api_base": "http://10.130.130.13:8002/v1",
+#     "api_model": "/mount/NAS1/public/Qwen2.5-0.5B-Instruct-GPTQ-Int8"
+# }
 llm = init_language_model(llm_config)
 # task_goal_prompt = "Randomly choose another way to express the following sentence. Try to change the sentence pattern instead of replacing words and try to avoid repetitive sentence patterns as much as possible. Making sure the meaning does not change: "
 task_goal_prompt = """
@@ -41,7 +51,6 @@ You can diversify the sentence structure by:
 3. Switching between active and passive voice.
 4. Incorporating participle phrases or dependent clauses.
 You should randomly select only one sentence from your rewritten version and return it.
-Original Sentence:
 
 """
 
@@ -140,13 +149,14 @@ def generate_task_goal(task_scenario, arg_dict):
     if random.randint(1, 10) == 1: # 有小概率直接用原始的prompt
         task_goal = template_prompt
     else:
+        template_prompt = "Original Sentence: " + template_prompt
         task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.7)
     logger.warning(task_goal)
     logger.debug("-" * 50)
     return task_goal
 
 def generate_config(task, api_model, host, port, agent_num=2):
-    assert api_model in ["gpt-4-1106-preview", "gpt-3.5-turbo-1106", "glm-4", "glm-3-turbo", "gemini-pro"], "api_model not supported"
+    # assert api_model in ["gpt-4-1106-preview", "gpt-3.5-turbo-1106", "glm-4", "glm-3-turbo", "gemini-pro"], "api_model not supported"
     # assert task in ["construction", "farming", "puzzle"], "task not supported"
 
     config_list = []
@@ -200,7 +210,235 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 config["task_name"] = f"{config['api_model']}_{task}_task{i}_{config['agent_num']}p" + f"_idx{j}"
                 config["document_file"] = ""
                 config_list.append(config)
+    elif task == "meta":
+        for i in range(0, 100):
+            random_task = random.choice(["dig", "craft", "place", "useitem", "move", "interact"])
+            if random_task == "dig":
+                with open("data/blocks.json", "r") as f:
+                    blocks = json.load(f)
+                block_id_list = random.sample(range(len(blocks)), k=task_number)
+                for i, id in enumerate(block_id_list):
+                    block = blocks[id]
+                    tool = block["material"]
+                    config = template.copy()
+                    arg_dict = arg_template.copy()
+                    arg_dict["target"] = block["name"]
+                    arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                    arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                    arg_dict["y"] = random.randint(ory + 1, ory + 4)
+                    if tool == "coweb":
+                        tool = "sword"
+                        arg_dict["tool"] = f"diamond_{tool}"
+                        # # #
+                        arg_dict["item_position"] = "inventory"
+                        # # #
+                    elif "mineable" in tool:
+                        tool = block["material"].split("/", 1)[1]
+                        arg_dict["tool"] = f"diamond_{tool}"
+                        # # #
+                        arg_dict["item_position"] = "inventory"
+                        # # #
+                    else:
+                        tool = "default"
+                    config["task_type"] = "meta"
+                    config["task_idx"] = i
+                    config["agent_num"] = 1
+                    config["task_scenario"] = "dig"
+                    config["evaluation_arg"] = arg_dict
+                    config["task_goal"] = generate_task_goal(random_task, arg_dict)
+                    config["host"] = host
+                    config["port"] = port
+                    if tool != "default":
+                        config["task_name"] = f"dig_{arg_dict['target']}_{tool}_{arg_dict['item_position']}_id{i}"
+                    else:
+                        config["task_name"] = f"dig_{arg_dict['target']}_{tool}_id{i}"
+                    config_list.append(config)
 
+            elif random_task == "craft":
+                with open("data/recipes.json", "r") as f:
+                    recipes = json.load(f)
+                item_id_list = random.sample(range(len(recipes)), k=task_number)
+                for i, id in enumerate(item_id_list):
+                    item = recipes[id]["result"]
+                    config = template.copy()
+                    arg_dict = arg_template.copy()
+                    arg_dict["target"] = item["name"]
+                    # # #
+                    arg_dict["item_position"] = "inventory" 
+                    arg_dict["step"] = 1
+                    # # #
+                    config["task_type"] = "meta"
+                    config["task_idx"] = i
+                    config["agent_num"] = 1
+                    config["task_goal"] = generate_task_goal(random_task, arg_dict)
+                    config["task_scenario"] = "craft"
+                    config["evaluation_arg"] = arg_dict
+                    config["document_file"] = "data\\recipes_hint.json"
+                    config["host"] = host
+                    config["port"] = port
+                    config["task_name"] = f"craft_{arg_dict['target']}_{arg_dict['item_position']}_{arg_dict['step']}_id{i}"
+                    config_list.append(config)
+
+            elif random_task == "place":
+                with open("data/blocks.json", "r") as f:
+                    blocks = json.load(f)
+                placeable_blocks = []
+                allowed_facing = {"north", "south", "east", "west", "x", "y", "z"}
+                for block in blocks:
+                    placeable = True
+                    for state in block["states"]:
+                        if "values" in state and not all(faceable in allowed_facing for faceable in state["values"]):
+                            placeable = False
+                            break
+                    if "potted" in block["name"] or "_cauldron" in block["name"]:
+                        placeable = False
+                    if placeable:
+                        placeable_blocks.append(block)
+                block_id_list = random.sample(range(len(placeable_blocks)), k=task_number)
+                for i, id in enumerate(block_id_list):
+                    block = placeable_blocks[id]
+                    config = template.copy()
+                    arg_dict = arg_template.copy()
+                    arg_dict["target"] = block["name"]
+                    arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                    arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                    arg_dict["y"] = random.randint(ory + 1, ory + 4)
+                    facing = []
+                    for state in block["states"]:
+                        if "values" in state:
+                            for face in state["values"]:
+                                facing.append(face)
+                    if facing:
+                        arg_dict["facing"] = random.choice(facing)
+                    # # #
+                    arg_dict["item_position"] = "inventory"
+                    # # #
+                    config["task_type"] = "meta"
+                    config["task_idx"] = i
+                    config["agent_num"] = 1
+                    config["task_scenario"] = "place"
+                    config["evaluation_arg"] = arg_dict
+                    config["task_goal"] = generate_task_goal(random_task, arg_dict)
+                    config["host"] = host
+                    config["port"] = port
+                    if facing:
+                        config["task_name"] = f"place_{arg_dict['target']}_{arg_dict['facing']}_{arg_dict['item_position']}_id{i}"
+                    else:
+                        config["task_name"] = f"place_{arg_dict['target']}_{arg_dict['item_position']}_id{i}"
+                    config_list.append(config)
+
+            elif random_task == "useitem":
+                target = "equipment"
+                # target = random.choice(["equipment", "sign"])
+                material = ["chainmail", "iron", "diamond", "golden", "netherite"]
+                equipment = ["helmet", "chestplate", "leggings", "boots"]
+                charset = string.ascii_letters + string.digits
+                for i in range(task_number):
+                    config = template.copy()
+                    arg_dict = arg_template.copy()
+                    if target == "sign":
+                        arg_dict["target"] = random.choice(["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]) + "_sign"
+                        arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                        arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                        arg_dict["y"] = random.randint(ory + 1, ory + 3)
+                        text_len = random.randint(5, 8)
+                        arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
+                    else:
+                        arg_dict["target"] = random.choice(material) + "_" + random.choice(equipment)
+
+                    config["task_type"] = "meta"
+                    config["task_idx"] = i
+                    config["agent_num"] = 1
+                    config["task_scenario"] = "useitem"
+                    config["evaluation_arg"] = arg_dict
+                    config["task_goal"] = generate_task_goal(random_task, arg_dict)
+                    config["host"] = host
+                    config["port"] = port
+                    config["task_name"] = f"useitem_{arg_dict['target']}_id{i}"
+                    config_list.append(config)
+
+            elif random_task == "move":
+                for i in range(task_number):
+                    config = template.copy()
+                    arg_dict = arg_template.copy()
+                    arg_dict["target"] = ""
+                    arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                    arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                    arg_dict["y"] = random.randint(ory + 1, ory + 5)
+                    config["task_type"] = "meta"
+                    config["task_idx"] = i
+                    config["agent_num"] = 1
+                    config["task_scenario"] = "move"
+                    config["evaluation_arg"] = arg_dict
+                    config["task_goal"] = generate_task_goal(random_task, arg_dict)
+                    config["host"] = host
+                    config["port"] = port
+                    config["task_name"] = f"move_id{i}"
+                    config_list.append(config)
+                    
+            elif random_task == "interact":
+                animal_list = [{"name": "sheep", "food": ["wheat"]}, {"name": "cow", "food": ["wheat"]}, {"name": "rabbit", "food": ["carrot"]}, 
+                            {"name": "pig", "food": ["potato", "beetroot", "carrot"]}, {"name": "chicken", "food": ["wheat_seeds", "melon_seeds", "pumpkin_seeds", "beetroot_seeds"]}, ]
+                cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
+                action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "chat"]
+                for i in range(task_number):
+                    # action = "feed"
+                    action = random.choices(action_list, [10, 10, 9, 28, 28, 2, 2, 10])[0]
+                    config = template.copy()
+                    arg_dict = arg_template.copy()
+                    if action == "cook":
+                        target = random.choice(cooked_list)
+                        arg_dict["target"] = "furnace"
+                    elif action == "store":
+                        target = "chest"
+                        arg_dict["target"] = "chest"
+                        arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                        arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                        arg_dict["y"] = random.randint(ory + 1, ory + 3)
+                    elif action in ["handover", "chat"]:
+                        target = "Bob"
+                        arg_dict["target"] = "Bob"
+                    elif action == "shear":
+                        target = "sheep"
+                        arg_dict["target"] = "sheep"
+                    elif action == "milk":
+                        target = "cow"
+                        arg_dict["target"] = "cow"
+                    else:
+                        target = random.choice(animal_list)
+                        arg_dict["target"] = target["name"]
+                    arg_dict["action"] = action
+                    if action == "attack":
+                        arg_dict["tool"] = "iron_sword"
+                    elif action == "feed":
+                        arg_dict["tool"] = random.choice(target["food"])
+                    elif action == "cook":
+                        arg_dict["other_arg"] = ["coal", target]
+                    elif action == "shear":
+                        arg_dict["tool"] = "shears"
+                    elif action == "milk":
+                        arg_dict["tool"] = "bucket"
+                    elif action in ["handover", "store"]:
+                        with open("data/items.json", "r") as f:
+                            items = json.load(f)
+                        arg_dict["other_arg"] = [random.choice(items)["name"]]
+                    elif action == "chat":
+                        charset = string.ascii_letters + string.digits
+                        text_len = random.randint(5, 8)
+                        arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
+                    # # #
+                    arg_dict["item_position"] = "inventory"
+                    # # #
+                    config["task_type"] = "meta"
+                    config["task_idx"] = i
+                    config["agent_num"] = 1
+                    config["task_scenario"] = "interact"
+                    config["evaluation_arg"] = arg_dict
+                    config["task_goal"] = generate_task_goal(random_task, arg_dict)
+                    config["host"] = host
+                    config["port"] = port
+                    config["task_name"] = f"interact_{action}_id{i}"
+                    config_list.append(config)
     elif task == "dig":
         with open("data/blocks.json", "r") as f:
             blocks = json.load(f)
@@ -440,4 +678,6 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=25565, help="port")
     parser.add_argument("--agent_num", type=int, default=1, help="agent number")
     args = parser.parse_args()
-    generate_config(args.task, args.api_model, args.host, args.port, args.agent_num)
+
+    api_model = args.api_model.replace("-", "_").replace(".", "_").replace(" ", "_").replace("/", "_")
+    generate_config(args.task, api_model, args.host, args.port, args.agent_num)

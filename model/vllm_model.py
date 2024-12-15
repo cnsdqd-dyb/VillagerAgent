@@ -20,12 +20,8 @@ class VLLMLanguageModel(AbstractLanguageModel):
                  api_model="llama_gptq4", role_name=""):
         self.api_key = api_key
         self.api_base = api_base
-        
-        if api_model in VLLMLanguageModel._supported_models:
-            self.api_model = api_model
-        else:
-            raise Exception(f"only support {VLLMLanguageModel._supported_models}, but got {api_model}")
-            
+        self.api_model = api_model
+      
         self.role_name = role_name
         self.cache_path = "vllm.cache"
         
@@ -129,7 +125,7 @@ class VLLMLanguageModel(AbstractLanguageModel):
 
             # Make API call
             response = self.client.chat.completions.create(
-                model=f"{api_model}/",
+                model=f"{api_model}",
                 messages=messages,
                 temperature=temperature,
                 top_p=top_p,

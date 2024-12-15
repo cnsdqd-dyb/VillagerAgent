@@ -6,13 +6,13 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "At coordinates (8, -50, 8), position a cobblestone taken from the inventory.",
-    "task_scenario": "place",
+    "task_goal": "Move to (5, -58, 3). You may need some block or tool to get to that position, you can find them in the inventory.",
+    "task_scenario": "move",
     "evaluation_arg": {
-        "target": "cobblestone",
-        "x": 8,
-        "y": -50,
-        "z": 8,
+        "target": "",
+        "x": 5,
+        "y": -58,
+        "z": 3,
         "facing": "",
         "item_position": "inventory",
         "tool": "",
@@ -23,5 +23,5 @@
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "place_cobblestone_inventory_id0"
+    "task_name": "move_id0"
 }
