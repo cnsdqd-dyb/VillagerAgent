@@ -4,11 +4,13 @@ import time
 from typing import List, Dict, Tuple, Union
 import sys
 import os
+import json
 sys.path.append(os.getcwd())
 import difflib
 from pipeline.utils import document2string
 from concurrent.futures import ThreadPoolExecutor
-
+os.environ["OPENAI_API_KEY"] = json.load(open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/API_KEY_LIST", "r"))["AGENT_KEY"][0]
+os.environ["OPENAI_API_BASE"] = "https://api.chatanywhere.tech/v1"
 class Retriever:
     '''
     This class is the retriever for the pipeline, it is used to retrieve the most similar data from the given data.
