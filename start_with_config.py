@@ -111,7 +111,6 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
         # 设置llm
         if "vllm" in api_model or "llama" in api_model or "NAS" in api_model:
-            ap
             llm_config = {
                 "api_model": api_model,
                 "api_base": api_base,
