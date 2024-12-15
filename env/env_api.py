@@ -673,12 +673,12 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
             max_steps -= 1
             # bot.chat(f'bot seems like in an idle state.')
 
-    if max_steps <= 0 and distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL + 1.4:
+    if max_steps <= 0 and distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL + 1.5:
         # # bot.chat('can not reach the position')
         if bot.blockAt(pos)['name'] == 'air':
-            return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z}, the position is in the air, check the environment"
+            return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z}, your pos: {bot.entity.position.x} {bot.entity.position.y} {bot.entity.position.z}, you need to jump or use dirt block to reach the position"
         else:
-            return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z}, the position is blocked, check the environment"
+            return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z}, your pos: {bot.entity.position.x} {bot.entity.position.y} {bot.entity.position.z}, the position is blocked, check the environment"
 
     # bot.lookAt(pos.offset(0, 0, 0))
 
