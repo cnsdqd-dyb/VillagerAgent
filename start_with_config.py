@@ -33,12 +33,12 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
     # Agent.api_key_list = ["sk-villageragent"]
 
     # # Agent use Qwen2.5-0.5B-Instruct-GPTQ-Int8
-    # Agent.model = "Qwen2.5-0.5B-Instruct-GPTQ-Int8"
+    # Agent.model = "/mount/NAS1/public/Qwen2.5-0.5B-Instruct-GPTQ-Int8"
     # Agent.base_url = "http://10.130.130.13:8002/v1"
     # Agent.api_key_list = ["sk-qwen05b"]
 
     # Agent use Qwen2.5-7B-Instruct-GPTQ-Int4
-    Agent.model = "Qwen2.5-7B-Instruct-GPTQ-Int4"
+    Agent.model = "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4"
     Agent.base_url = "http://10.130.130.13:8003/v1"
     Agent.api_key_list = ["sk-qwen7b"]
 

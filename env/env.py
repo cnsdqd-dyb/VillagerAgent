@@ -357,7 +357,7 @@ class VillagerBench:
         else:
             return {"message": "env not running", "status": False}
 
-    def step(self, agent_name: str, action: str, max_turn: int = 2):
+    def step(self, agent_name: str, action: str, max_turn: int = 10):
         '''
         final_answer, {"input": response["input"], "action_list": action_list, "final_answer": final_answer}
         '''
@@ -367,7 +367,7 @@ class VillagerBench:
         find_agent = False
         for agent in self.agent_pool:
             if agent.name == agent_name:
-                feedback, detail = agent.run(action, max_turn=max_turn)
+                feedback, detail = agent.run(action, max_iterations=max_turn)
 
                 self.log[agent_name].append(detail)
 

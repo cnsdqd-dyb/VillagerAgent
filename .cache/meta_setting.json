@@ -2,17 +2,17 @@
     "api_model": "gpt-4-1106-preview",
     "api_base": "https://api.chatanywhere.tech/v1",
     "task_type": "meta",
-    "task_idx": 0,
+    "task_idx": 1,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Move to (5, -58, 3). You may need some block or tool to get to that position, you can find them in the inventory.",
-    "task_scenario": "move",
+    "task_goal": "With all ingredients readily available in the inventory, utilize the crafting_table to create a chest.",
+    "task_scenario": "craft",
     "evaluation_arg": {
-        "target": "",
-        "x": 5,
-        "y": -58,
-        "z": 3,
+        "target": "chest",
+        "x": 8,
+        "y": -60,
+        "z": 8,
         "facing": "",
         "item_position": "inventory",
         "tool": "",
@@ -20,8 +20,8 @@
         "step": 1,
         "other_arg": []
     },
-    "document_file": "",
+    "document_file": "data\\recipes_hint.json",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "move_id0"
+    "task_name": "craft_chest_inventory_1_id1"
 }

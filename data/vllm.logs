@@ -16086,3 +16086,837 @@ So, 1 subtasks is the maximum number of subtasks you can give.
 Response should contain a list of subtask-structure JSON.
 
 
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 13], 'held_items': {'dirt': 10}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 12]}, {'name': 'dirt', 'position': [-10, -61, 12]}, {'name': 'grass_block', 'position': [-12, -61, 12]}, {'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'dirt', 'position': [-10, -61, 14]}, {'name': 'dirt', 'position': [-9, -61, 10]}, {'name': 'glass', 'position': [0, -60, 12]}, {'name': 'glass', 'position': [0, -59, 12]}, {'name': 'glass', 'position': [0, -60, 13]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : Move Alice from (-10, -59, 13) to (5, -58, 3).cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 13], 'held_items': {'dirt': 10}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'grass_block', 'position': [-10, -61, 13]}, {'name': 'grass_block', 'position': [-12, -61, 13]}, {'name': 'dirt', 'position': [-11, -61, 12]}, {'name': 'dirt', 'position': [-10, -61, 14]}, {'name': 'dirt', 'position': [-9, -61, 10]}, {'name': 'glass', 'position': [0, -60, 13]}, {'name': 'glass', 'position': [0, -59, 13]}, {'name': 'glass', 'position': [0, -60, 14]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : To reach the position at (15, -58, 7), you may require a certain block or tool, which can be located in your inventory.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : Your current mission is to leader all the players and execute a set of specified tasks within the Minecraft environment.
+--- Background Information ---
+Our system manages the task as a Directed Acyclic Graph (DAG).
+In this turn, you need to decompose the tasks and arrange them in chronological order. Next turn we will analyse your result json to a graph.
+
+A subtask-structure has the following json component:
+{
+    "id": int, id of the subtask start from 1,
+    "description": string, description of the subtask, more detail than a name, for example, place block need position and facing, craft or collect items need the number of items.
+    "milestones": list[string]. Make it detailed and specific,
+    "retrieval paths": list[string], [~/...] task data is a dict or list, please give the relative path to the data, for example, if the data useful is {"c": 1} dict is {"meta-data": {"blueprint": [{"c": 1}, ]}}, the retrieval path is "~/meta-data/blueprint/0",
+    "required subtasks": list[int], if this subtask is directly prerequisite for other subtasks before it, list the subtask id here.
+    "assigned agents": list[string], name of agents. dispatch the subtask to the agents.
+}
+
+
+*** Important Notice ***
+- The system do not allow agents communicate with each other, so you need to make sure the subtasks are independent.
+- Sub-task Dispatch: Post decomposition, the next step is to distribute the sub-tasks amongst yourselves. This will require further communication, where you consider each player's skills, resources, and availability. Ensure the dispatch facilitates smooth, ** parallel ** execution.
+- Task Decomposition: These sub-tasks should be small, specific, and executable with MineFlayer code, as you will be using MineFlayer to play MineCraft. The task decomposition will not be a one-time process but an iterative one. At regular intervals during playing the game, agents will be paused and you will plan again based on their progress. You'll propose new sub-tasks that respond to the current circumstances. So you don't need to plan far ahead, but make sure your proposed sub-tasks are small, simple and achievable, to ensure smooth progression. Each sub-task should contribute to the completion of the overall task. That means, the number of sub-tasks should no more than numbers of agents. When necessary, the sub-tasks can be identical for faster task accomplishment. Be specific for the sub-tasks, for example, make sure to specify how many materials are needed.
+- In Minecraft, item can be put in agent's inventory, chest, or on the ground. You can use the item in agent's inventory or chest, but you can not use the item on the ground unless you dig it up first.
+- The block at lower place should be placed first, and the block at higher place should be placed later. [x,-60,z] is the lowest place. For example, if a task is placing block at x -57 z, then y  -60, -59 and -58 should be placed first and in order.
+- Integration and Finalization: In some tasks, you will need to integrate your individual efforts. For example, when crafting complicated stuff that require various materials, after collecting them, you need to consolidate all the materials with one of players.
+- You can stop to generate the subtask-structure json if you think the task need the information from the environment, and you can not get the information from the environment now. 
+
+This is not the first time you are handling the task, so you should give part of decompose subtask-structure json feedback. Here is the query:
+"""
+the environment information around:
+Summary of the environment info:
+- **Entity:**
+  - Alice is located at position [-10, -59, 13] and is holding 10 dirt.
+
+- **Blocks:**
+  - grass_block at positions [-11, -61, 13], [-10, -61, 13], [-12, -61, 13].
+  - dirt at positions [-11, -61, 12], [-10, -61, 14].
+  - glass at positions [0, -60, 13], [0, -59, 13], [0, -60, 14].
+
+- **Creatures:**
+  - None found in the nearby entities list.
+
+- **Interactive-Items:**
+  - None found in the nearby entities list.
+
+To reach the position (15, -58, 7), Alice will need to move east by 25 blocks and up by 1 block. She currently has 10 dirt blocks which can be used for pathfinding or building a path. The glass blocks can also be used for visibility or as a pathway.
+Sign info: cannot find the specific sign within 16 blocks
+
+
+The high-level task:
+{'description': 'To reach the position at (15, -58, 7), you may require a certain block or tool, which can be located in your inventory.', 'meta-data': {}}
+
+
+Agent ability: (This is just telling you what the agent can do in one step, subtask should be harder than one step)
+None
+"""
+Your response should exclusively include the identified sub-task or the next step intended for the agent to execute.
+So, 1 subtasks is the maximum number of subtasks you can give.
+Response should contain a list of subtask-structure JSON.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 13], 'held_items': {'dirt': 10}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'grass_block', 'position': [-10, -61, 13]}, {'name': 'grass_block', 'position': [-12, -61, 13]}, {'name': 'dirt', 'position': [-11, -61, 12]}, {'name': 'dirt', 'position': [-10, -61, 14]}, {'name': 'dirt', 'position': [-9, -61, 10]}, {'name': 'glass', 'position': [0, -60, 13]}, {'name': 'glass', 'position': [0, -59, 13]}, {'name': 'glass', 'position': [0, -60, 14]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : Move Alice east by 25 blocks and up by 1 block to reach the position (15, -58, 7).cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 13], 'held_items': {'dirt': 10}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'grass_block', 'position': [-10, -61, 13]}, {'name': 'grass_block', 'position': [-12, -61, 13]}, {'name': 'dirt', 'position': [-11, -61, 12]}, {'name': 'dirt', 'position': [-10, -61, 14]}, {'name': 'dirt', 'position': [-9, -61, 10]}, {'name': 'glass', 'position': [0, -60, 13]}, {'name': 'glass', 'position': [0, -59, 13]}, {'name': 'glass', 'position': [0, -60, 14]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : To reach the position at (15, -58, 7), you may require a certain block or tool, which can be located in your inventory.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : Your current mission is to leader all the players and execute a set of specified tasks within the Minecraft environment.
+--- Background Information ---
+Our system manages the task as a Directed Acyclic Graph (DAG).
+In this turn, you need to decompose the tasks and arrange them in chronological order. Next turn we will analyse your result json to a graph.
+
+A subtask-structure has the following json component:
+{
+    "id": int, id of the subtask start from 1,
+    "description": string, description of the subtask, more detail than a name, for example, place block need position and facing, craft or collect items need the number of items.
+    "milestones": list[string]. Make it detailed and specific,
+    "retrieval paths": list[string], [~/...] task data is a dict or list, please give the relative path to the data, for example, if the data useful is {"c": 1} dict is {"meta-data": {"blueprint": [{"c": 1}, ]}}, the retrieval path is "~/meta-data/blueprint/0",
+    "required subtasks": list[int], if this subtask is directly prerequisite for other subtasks before it, list the subtask id here.
+    "assigned agents": list[string], name of agents. dispatch the subtask to the agents.
+}
+
+*** Important Notice ***
+- The system do not allow agents communicate with each other, so you need to make sure the subtasks are independent.
+- Sub-task Dispatch: Post decomposition, the next step is to distribute the sub-tasks amongst yourselves. This will require further communication, where you consider each player's skills, resources, and availability. Ensure the dispatch facilitates smooth, ** parallel ** execution.
+- Task Decomposition: These sub-tasks should be small, specific, and executable with MineFlayer code, as you will be using MineFlayer to play MineCraft. The task decomposition will not be a one-time process but an iterative one. At regular intervals during playing the game, agents will be paused and you will plan again based on their progress. You'll propose new sub-tasks that respond to the current circumstances. So you don't need to plan far ahead, but make sure your proposed sub-tasks are small, simple and achievable, to ensure smooth progression. Each sub-task should contribute to the completion of the overall task. That means, the number of sub-tasks should no more than numbers of agents. When necessary, the sub-tasks can be identical for faster task accomplishment. Be specific for the sub-tasks, for example, make sure to specify how many materials are needed.
+- In Minecraft, item can be put in agent's inventory, chest, or on the ground. You can use the item in agent's inventory or chest, but you can not use the item on the ground unless you dig it up first.
+- The block at lower place should be placed first, and the block at higher place should be placed later. [x,-60,z] is the lowest place. For example, if a task is placing block at x -57 z, then y  -60, -59 and -58 should be placed first and in order.
+- Integration and Finalization: In some tasks, you will need to integrate your individual efforts. For example, when crafting complicated stuff that require various materials, after collecting them, you need to consolidate all the materials with one of players.
+- You can stop to generate the subtask-structure json if you think the task need the information from the environment, and you can not get the information from the environment now. 
+
+This is not the first time you are handling the task, so you should give a decompose subtask-structure json feedback. Here is the query:
+"""
+the environment information around:
+Summary of the environment info:
+- **Entity:**
+  - Alice is located at position [-10, -59, 13] and is holding 10 dirt.
+
+- **Blocks:**
+  - grass_block at positions [-11, -61, 13], [-10, -61, 13], [-12, -61, 13].
+  - dirt at positions [-11, -61, 12], [-10, -61, 14].
+  - glass at positions [0, -60, 13], [0, -59, 13], [0, -60, 14].
+
+- **Creatures:**
+  - None detected.
+
+- **Interactive-Items:**
+  - None detected.
+
+**Task:** To reach the position at (15, -58, 7), Alice will need to find a way to navigate through the grass blocks and dirt. The glass blocks are nearby and could potentially be used for visibility or as a path. However, no specific sign or interactive items are present within the given area.
+Sign info: cannot find the specific sign within 16 blocks
+
+agent state:
+['No history found.']
+
+success previous subtask tracking:
+[]
+
+failure previous subtask tracking:
+["['Alice'] execute task Move Alice east by 25 blocks and up by 1 block to reach the position (15, -58, 7). and feedback: "]
+
+Agent ability: (This is just telling you what the agent can do in one step, subtask should be harder than one step)
+None
+
+The high-level task
+{'description': 'To reach the position at (15, -58, 7), you may require a certain block or tool, which can be located in your inventory.', 'meta-data': {}}
+"""
+Your response should exclusively include the identified sub-task or the next step intended for the agent to execute.
+So, 1 subtasks is the maximum number of subtasks you can give.
+Response should contain a list of subtask-structure JSON.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 13], 'held_items': {'dirt': 10}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'grass_block', 'position': [-10, -61, 13]}, {'name': 'grass_block', 'position': [-12, -61, 13]}, {'name': 'dirt', 'position': [-11, -61, 12]}, {'name': 'dirt', 'position': [-10, -61, 14]}, {'name': 'dirt', 'position': [-9, -61, 10]}, {'name': 'glass', 'position': [0, -60, 13]}, {'name': 'glass', 'position': [0, -59, 13]}, {'name': 'glass', 'position': [0, -60, 14]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : Alice needs to move east by 5 blocks and up by 1 block to reach the position (15, -58, 7).cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 13], 'held_items': {'dirt': 10}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'grass_block', 'position': [-10, -61, 13]}, {'name': 'grass_block', 'position': [-12, -61, 13]}, {'name': 'dirt', 'position': [-11, -61, 12]}, {'name': 'glass', 'position': [0, -60, 13]}, {'name': 'glass', 'position': [0, -59, 13]}, {'name': 'glass', 'position': [0, -60, 14]}, {'name': 'dirt', 'position': [-11, -60, 12]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : To reach the position (7, -58, 11), you may require a certain block or tool, which can be located in your inventory.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : Your current mission is to leader all the players and execute a set of specified tasks within the Minecraft environment.
+--- Background Information ---
+Our system manages the task as a Directed Acyclic Graph (DAG).
+In this turn, you need to decompose the tasks and arrange them in chronological order. Next turn we will analyse your result json to a graph.
+
+A subtask-structure has the following json component:
+{
+    "id": int, id of the subtask start from 1,
+    "description": string, description of the subtask, more detail than a name, for example, place block need position and facing, craft or collect items need the number of items.
+    "milestones": list[string]. Make it detailed and specific,
+    "retrieval paths": list[string], [~/...] task data is a dict or list, please give the relative path to the data, for example, if the data useful is {"c": 1} dict is {"meta-data": {"blueprint": [{"c": 1}, ]}}, the retrieval path is "~/meta-data/blueprint/0",
+    "required subtasks": list[int], if this subtask is directly prerequisite for other subtasks before it, list the subtask id here.
+    "assigned agents": list[string], name of agents. dispatch the subtask to the agents.
+}
+
+
+*** Important Notice ***
+- The system do not allow agents communicate with each other, so you need to make sure the subtasks are independent.
+- Sub-task Dispatch: Post decomposition, the next step is to distribute the sub-tasks amongst yourselves. This will require further communication, where you consider each player's skills, resources, and availability. Ensure the dispatch facilitates smooth, ** parallel ** execution.
+- Task Decomposition: These sub-tasks should be small, specific, and executable with MineFlayer code, as you will be using MineFlayer to play MineCraft. The task decomposition will not be a one-time process but an iterative one. At regular intervals during playing the game, agents will be paused and you will plan again based on their progress. You'll propose new sub-tasks that respond to the current circumstances. So you don't need to plan far ahead, but make sure your proposed sub-tasks are small, simple and achievable, to ensure smooth progression. Each sub-task should contribute to the completion of the overall task. That means, the number of sub-tasks should no more than numbers of agents. When necessary, the sub-tasks can be identical for faster task accomplishment. Be specific for the sub-tasks, for example, make sure to specify how many materials are needed.
+- In Minecraft, item can be put in agent's inventory, chest, or on the ground. You can use the item in agent's inventory or chest, but you can not use the item on the ground unless you dig it up first.
+- The block at lower place should be placed first, and the block at higher place should be placed later. [x,-60,z] is the lowest place. For example, if a task is placing block at x -57 z, then y  -60, -59 and -58 should be placed first and in order.
+- Integration and Finalization: In some tasks, you will need to integrate your individual efforts. For example, when crafting complicated stuff that require various materials, after collecting them, you need to consolidate all the materials with one of players.
+- You can stop to generate the subtask-structure json if you think the task need the information from the environment, and you can not get the information from the environment now. 
+
+This is not the first time you are handling the task, so you should give part of decompose subtask-structure json feedback. Here is the query:
+"""
+the environment information around:
+Summary of the environment info:
+- **Entity:**
+  - Alice is located at position [-10, -59, 13] and is holding 10 dirt.
+
+- **Blocks:**
+  - grass_block at positions [-11, -61, 13], [-10, -61, 13], [-12, -61, 13].
+  - dirt at positions [-11, -61, 12], [-11, -60, 12].
+  - glass at positions [0, -60, 13], [0, -59, 13], [0, -60, 14].
+
+- **Creatures:**
+  - None detected.
+
+- **Interactive-Items:**
+  - None detected.
+
+- **Task:**
+  - Reach position (7, -58, 11).
+
+To reach the target position (7, -58, 11), Alice will need to move east and slightly upwards. The closest blocks are glass and dirt. Alice can use the dirt in her inventory to place blocks as needed.
+Sign info: cannot find the specific sign within 16 blocks
+
+
+The high-level task:
+{'description': 'To reach the position (7, -58, 11), you may require a certain block or tool, which can be located in your inventory.', 'meta-data': {}}
+
+
+Agent ability: (This is just telling you what the agent can do in one step, subtask should be harder than one step)
+None
+"""
+Your response should exclusively include the identified sub-task or the next step intended for the agent to execute.
+So, 1 subtasks is the maximum number of subtasks you can give.
+Response should contain a list of subtask-structure JSON.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 13], 'held_items': {'dirt': 10}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'grass_block', 'position': [-10, -61, 13]}, {'name': 'grass_block', 'position': [-12, -61, 13]}, {'name': 'dirt', 'position': [-11, -61, 12]}, {'name': 'glass', 'position': [0, -60, 13]}, {'name': 'glass', 'position': [0, -59, 13]}, {'name': 'glass', 'position': [0, -60, 14]}, {'name': 'dirt', 'position': [-11, -60, 12]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : Move Alice to position [-10, -58, 13] and place a dirt block at this position.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 13], 'held_items': {'dirt': 10}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'grass_block', 'position': [-10, -61, 13]}, {'name': 'grass_block', 'position': [-12, -61, 13]}, {'name': 'dirt', 'position': [-11, -61, 12]}, {'name': 'glass', 'position': [0, -60, 13]}, {'name': 'glass', 'position': [0, -59, 13]}, {'name': 'glass', 'position': [0, -60, 14]}, {'name': 'dirt', 'position': [-11, -60, 12]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : To reach the position (7, -58, 11), you may require a certain block or tool, which can be located in your inventory.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : Your current mission is to leader all the players and execute a set of specified tasks within the Minecraft environment.
+--- Background Information ---
+Our system manages the task as a Directed Acyclic Graph (DAG).
+In this turn, you need to decompose the tasks and arrange them in chronological order. Next turn we will analyse your result json to a graph.
+
+A subtask-structure has the following json component:
+{
+    "id": int, id of the subtask start from 1,
+    "description": string, description of the subtask, more detail than a name, for example, place block need position and facing, craft or collect items need the number of items.
+    "milestones": list[string]. Make it detailed and specific,
+    "retrieval paths": list[string], [~/...] task data is a dict or list, please give the relative path to the data, for example, if the data useful is {"c": 1} dict is {"meta-data": {"blueprint": [{"c": 1}, ]}}, the retrieval path is "~/meta-data/blueprint/0",
+    "required subtasks": list[int], if this subtask is directly prerequisite for other subtasks before it, list the subtask id here.
+    "assigned agents": list[string], name of agents. dispatch the subtask to the agents.
+}
+
+*** Important Notice ***
+- The system do not allow agents communicate with each other, so you need to make sure the subtasks are independent.
+- Sub-task Dispatch: Post decomposition, the next step is to distribute the sub-tasks amongst yourselves. This will require further communication, where you consider each player's skills, resources, and availability. Ensure the dispatch facilitates smooth, ** parallel ** execution.
+- Task Decomposition: These sub-tasks should be small, specific, and executable with MineFlayer code, as you will be using MineFlayer to play MineCraft. The task decomposition will not be a one-time process but an iterative one. At regular intervals during playing the game, agents will be paused and you will plan again based on their progress. You'll propose new sub-tasks that respond to the current circumstances. So you don't need to plan far ahead, but make sure your proposed sub-tasks are small, simple and achievable, to ensure smooth progression. Each sub-task should contribute to the completion of the overall task. That means, the number of sub-tasks should no more than numbers of agents. When necessary, the sub-tasks can be identical for faster task accomplishment. Be specific for the sub-tasks, for example, make sure to specify how many materials are needed.
+- In Minecraft, item can be put in agent's inventory, chest, or on the ground. You can use the item in agent's inventory or chest, but you can not use the item on the ground unless you dig it up first.
+- The block at lower place should be placed first, and the block at higher place should be placed later. [x,-60,z] is the lowest place. For example, if a task is placing block at x -57 z, then y  -60, -59 and -58 should be placed first and in order.
+- Integration and Finalization: In some tasks, you will need to integrate your individual efforts. For example, when crafting complicated stuff that require various materials, after collecting them, you need to consolidate all the materials with one of players.
+- You can stop to generate the subtask-structure json if you think the task need the information from the environment, and you can not get the information from the environment now. 
+
+This is not the first time you are handling the task, so you should give a decompose subtask-structure json feedback. Here is the query:
+"""
+the environment information around:
+Summary of the environment info:
+- **Entity:**
+  - Alice is located at position [-10, -59, 13] and is holding 10 dirt.
+
+- **Blocks:**
+  - grass_block at positions [-11, -61, 13], [-10, -61, 13], [-12, -61, 13].
+  - dirt at positions [-11, -61, 12], [-11, -60, 12].
+  - glass at positions [0, -60, 13], [0, -59, 13], [0, -60, 14].
+
+- **Creatures:**
+  - None detected.
+
+- **Interactive-Items:**
+  - None detected.
+
+- **Task:**
+  - Reach position (7, -58, 11).
+
+To reach the target position (7, -58, 11), Alice will need to move east and slightly upwards. The closest blocks are:
+- grass_block at [-12, -61, 13]
+- grass_block at [-10, -61, 1
+Sign info: cannot find the specific sign within 16 blocks
+
+agent state:
+['No history found.']
+
+success previous subtask tracking:
+[]
+
+failure previous subtask tracking:
+["['Alice'] execute task Move Alice to position [-10, -58, 13] and place a dirt block at this position. and feedback: "]
+
+Agent ability: (This is just telling you what the agent can do in one step, subtask should be harder than one step)
+None
+
+The high-level task
+{'description': 'To reach the position (7, -58, 11), you may require a certain block or tool, which can be located in your inventory.', 'meta-data': {}}
+"""
+Your response should exclusively include the identified sub-task or the next step intended for the agent to execute.
+So, 1 subtasks is the maximum number of subtasks you can give.
+Response should contain a list of subtask-structure JSON.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 14], 'held_items': {'dark_oak_log': 3}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'grass_block', 'position': [-10, -61, 13]}, {'name': 'grass_block', 'position': [-12, -61, 13]}, {'name': 'dirt', 'position': [-11, -61, 12]}, {'name': 'glass', 'position': [0, -60, 13]}, {'name': 'glass', 'position': [0, -59, 13]}, {'name': 'glass', 'position': [0, -60, 14]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : With all the necessary ingredients readily available in the inventory, utilize the crafting_table to create a soul_campfire.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : Your current mission is to leader all the players and execute a set of specified tasks within the Minecraft environment.
+--- Background Information ---
+Our system manages the task as a Directed Acyclic Graph (DAG).
+In this turn, you need to decompose the tasks and arrange them in chronological order. Next turn we will analyse your result json to a graph.
+
+A subtask-structure has the following json component:
+{
+    "id": int, id of the subtask start from 1,
+    "description": string, description of the subtask, more detail than a name, for example, place block need position and facing, craft or collect items need the number of items.
+    "milestones": list[string]. Make it detailed and specific,
+    "retrieval paths": list[string], [~/...] task data is a dict or list, please give the relative path to the data, for example, if the data useful is {"c": 1} dict is {"meta-data": {"blueprint": [{"c": 1}, ]}}, the retrieval path is "~/meta-data/blueprint/0",
+    "required subtasks": list[int], if this subtask is directly prerequisite for other subtasks before it, list the subtask id here.
+    "assigned agents": list[string], name of agents. dispatch the subtask to the agents.
+}
+
+
+*** Important Notice ***
+- The system do not allow agents communicate with each other, so you need to make sure the subtasks are independent.
+- Sub-task Dispatch: Post decomposition, the next step is to distribute the sub-tasks amongst yourselves. This will require further communication, where you consider each player's skills, resources, and availability. Ensure the dispatch facilitates smooth, ** parallel ** execution.
+- Task Decomposition: These sub-tasks should be small, specific, and executable with MineFlayer code, as you will be using MineFlayer to play MineCraft. The task decomposition will not be a one-time process but an iterative one. At regular intervals during playing the game, agents will be paused and you will plan again based on their progress. You'll propose new sub-tasks that respond to the current circumstances. So you don't need to plan far ahead, but make sure your proposed sub-tasks are small, simple and achievable, to ensure smooth progression. Each sub-task should contribute to the completion of the overall task. That means, the number of sub-tasks should no more than numbers of agents. When necessary, the sub-tasks can be identical for faster task accomplishment. Be specific for the sub-tasks, for example, make sure to specify how many materials are needed.
+- In Minecraft, item can be put in agent's inventory, chest, or on the ground. You can use the item in agent's inventory or chest, but you can not use the item on the ground unless you dig it up first.
+- The block at lower place should be placed first, and the block at higher place should be placed later. [x,-60,z] is the lowest place. For example, if a task is placing block at x -57 z, then y  -60, -59 and -58 should be placed first and in order.
+- Integration and Finalization: In some tasks, you will need to integrate your individual efforts. For example, when crafting complicated stuff that require various materials, after collecting them, you need to consolidate all the materials with one of players.
+- You can stop to generate the subtask-structure json if you think the task need the information from the environment, and you can not get the information from the environment now. 
+
+This is not the first time you are handling the task, so you should give part of decompose subtask-structure json feedback. Here is the query:
+"""
+the environment information around:
+The summary of the environment info:
+- **Entity:**
+  - Alice is located at position [-10, -59, 14] and is holding 3 dark oak logs.
+
+- **Blocks:**
+  - grass_block at positions [-11, -61, 13], [-10, -61, 13], and [-12, -61, 13].
+  - dirt at position [-11, -61, 12].
+  - glass at positions [0, -60, 13], [0, -59, 13], and [0, -60, 14].
+
+- **Creatures:**
+  - No creatures are present in the environment.
+
+- **Interactive-Items:**
+  - No specific interactive items like a crafting table or furnace are mentioned in the environment.
+
+- **Time:**
+  - The time is day.
+
+**Note:** The task requires using a crafting table to create a soul campfire. However, no crafting table is present in the environment. Additionally, there is no sign found within the specified range.
+Sign info: cannot find the specific sign within 16 blocks
+
+
+The high-level task:
+{'description': 'With all the necessary ingredients readily available in the inventory, utilize the crafting_table to create a soul_campfire.', 'meta-data': {}}
+
+
+Agent ability: (This is just telling you what the agent can do in one step, subtask should be harder than one step)
+None
+"""
+Your response should exclusively include the identified sub-task or the next step intended for the agent to execute.
+So, 1 subtasks is the maximum number of subtasks you can give.
+Response should contain a list of subtask-structure JSON.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [-10, -59, 14], 'held_items': {'dark_oak_log': 3}}], 'blocks_info': [{'name': 'grass_block', 'position': [-11, -61, 13]}, {'name': 'grass_block', 'position': [-10, -61, 13]}, {'name': 'grass_block', 'position': [-12, -61, 13]}, {'name': 'dirt', 'position': [-11, -61, 12]}, {'name': 'glass', 'position': [0, -60, 13]}, {'name': 'glass', 'position': [0, -59, 13]}, {'name': 'glass', 'position': [0, -60, 14]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : Craft a soul campfire using the crafting table.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [3, -59, 11], 'held_items': {'oak_planks': 8}}], 'blocks_info': [{'name': 'grass_block', 'position': [2, -61, 10]}, {'name': 'grass_block', 'position': [3, -61, 10]}, {'name': 'glass', 'position': [0, -60, 10]}, {'name': 'grass_block', 'position': [1, -61, 10]}, {'name': 'glass', 'position': [0, -59, 10]}, {'name': 'glass', 'position': [0, -60, 11]}, {'name': 'crafting_table', 'position': [7, -59, 9]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : With all ingredients readily available in the inventory, utilize the crafting_table to create a chest.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : Your current mission is to leader all the players and execute a set of specified tasks within the Minecraft environment.
+--- Background Information ---
+Our system manages the task as a Directed Acyclic Graph (DAG).
+In this turn, you need to decompose the tasks and arrange them in chronological order. Next turn we will analyse your result json to a graph.
+
+A subtask-structure has the following json component:
+{
+    "id": int, id of the subtask start from 1,
+    "description": string, description of the subtask, more detail than a name, for example, place block need position and facing, craft or collect items need the number of items.
+    "milestones": list[string]. Make it detailed and specific,
+    "retrieval paths": list[string], [~/...] task data is a dict or list, please give the relative path to the data, for example, if the data useful is {"c": 1} dict is {"meta-data": {"blueprint": [{"c": 1}, ]}}, the retrieval path is "~/meta-data/blueprint/0",
+    "required subtasks": list[int], if this subtask is directly prerequisite for other subtasks before it, list the subtask id here.
+    "assigned agents": list[string], name of agents. dispatch the subtask to the agents.
+}
+
+
+*** Important Notice ***
+- The system do not allow agents communicate with each other, so you need to make sure the subtasks are independent.
+- Sub-task Dispatch: Post decomposition, the next step is to distribute the sub-tasks amongst yourselves. This will require further communication, where you consider each player's skills, resources, and availability. Ensure the dispatch facilitates smooth, ** parallel ** execution.
+- Task Decomposition: These sub-tasks should be small, specific, and executable with MineFlayer code, as you will be using MineFlayer to play MineCraft. The task decomposition will not be a one-time process but an iterative one. At regular intervals during playing the game, agents will be paused and you will plan again based on their progress. You'll propose new sub-tasks that respond to the current circumstances. So you don't need to plan far ahead, but make sure your proposed sub-tasks are small, simple and achievable, to ensure smooth progression. Each sub-task should contribute to the completion of the overall task. That means, the number of sub-tasks should no more than numbers of agents. When necessary, the sub-tasks can be identical for faster task accomplishment. Be specific for the sub-tasks, for example, make sure to specify how many materials are needed.
+- In Minecraft, item can be put in agent's inventory, chest, or on the ground. You can use the item in agent's inventory or chest, but you can not use the item on the ground unless you dig it up first.
+- The block at lower place should be placed first, and the block at higher place should be placed later. [x,-60,z] is the lowest place. For example, if a task is placing block at x -57 z, then y  -60, -59 and -58 should be placed first and in order.
+- Integration and Finalization: In some tasks, you will need to integrate your individual efforts. For example, when crafting complicated stuff that require various materials, after collecting them, you need to consolidate all the materials with one of players.
+- You can stop to generate the subtask-structure json if you think the task need the information from the environment, and you can not get the information from the environment now. 
+
+This is not the first time you are handling the task, so you should give part of decompose subtask-structure json feedback. Here is the query:
+"""
+the environment information around:
+Summary of the environment info:
+
+- **Entity:**
+  - Alice is located at position [3, -59, 11] and is holding 8 oak planks.
+
+- **Blocks:**
+  - grass_block at [2, -61, 10]
+  - grass_block at [3, -61, 10]
+  - glass at [0, -60, 10]
+  - grass_block at [1, -61, 10]
+  - glass at [0, -59, 10]
+  - glass at [0, -60, 11]
+  - crafting_table at [7, -59, 9]
+
+- **Creatures:**
+  - None
+
+- **Interactive-Items:**
+  - None
+
+The task is to use the crafting table at [7, -59, 9] to create a chest using the oak planks Alice is holding. Note that there are no nearby entities or creatures to interact with.
+Sign info: cannot find the specific sign within 16 blocks
+
+
+The high-level task:
+{'description': 'With all ingredients readily available in the inventory, utilize the crafting_table to create a chest.', 'meta-data': {}}
+
+
+Agent ability: (This is just telling you what the agent can do in one step, subtask should be harder than one step)
+None
+"""
+Your response should exclusively include the identified sub-task or the next step intended for the agent to execute.
+So, 1 subtasks is the maximum number of subtasks you can give.
+Response should contain a list of subtask-structure JSON.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [3, -59, 11], 'held_items': {'oak_planks': 8}}], 'blocks_info': [{'name': 'grass_block', 'position': [2, -61, 10]}, {'name': 'grass_block', 'position': [3, -61, 10]}, {'name': 'glass', 'position': [0, -60, 10]}, {'name': 'grass_block', 'position': [1, -61, 10]}, {'name': 'glass', 'position': [0, -59, 10]}, {'name': 'glass', 'position': [0, -60, 11]}, {'name': 'crafting_table', 'position': [7, -59, 9]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : Use the crafting table at [7, -59, 9] to craft a chest using the 8 oak planks Alice is holding.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [3, -59, 11], 'held_items': {'oak_planks': 8}}], 'blocks_info': [{'name': 'grass_block', 'position': [2, -61, 10]}, {'name': 'grass_block', 'position': [3, -61, 10]}, {'name': 'glass', 'position': [0, -60, 10]}, {'name': 'grass_block', 'position': [1, -61, 10]}, {'name': 'glass', 'position': [0, -59, 10]}, {'name': 'glass', 'position': [0, -60, 11]}, {'name': 'crafting_table', 'position': [7, -59, 9]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : With all ingredients readily available in the inventory, utilize the crafting_table to create a chest.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : Your current mission is to leader all the players and execute a set of specified tasks within the Minecraft environment.
+--- Background Information ---
+Our system manages the task as a Directed Acyclic Graph (DAG).
+In this turn, you need to decompose the tasks and arrange them in chronological order. Next turn we will analyse your result json to a graph.
+
+A subtask-structure has the following json component:
+{
+    "id": int, id of the subtask start from 1,
+    "description": string, description of the subtask, more detail than a name, for example, place block need position and facing, craft or collect items need the number of items.
+    "milestones": list[string]. Make it detailed and specific,
+    "retrieval paths": list[string], [~/...] task data is a dict or list, please give the relative path to the data, for example, if the data useful is {"c": 1} dict is {"meta-data": {"blueprint": [{"c": 1}, ]}}, the retrieval path is "~/meta-data/blueprint/0",
+    "required subtasks": list[int], if this subtask is directly prerequisite for other subtasks before it, list the subtask id here.
+    "assigned agents": list[string], name of agents. dispatch the subtask to the agents.
+}
+
+*** Important Notice ***
+- The system do not allow agents communicate with each other, so you need to make sure the subtasks are independent.
+- Sub-task Dispatch: Post decomposition, the next step is to distribute the sub-tasks amongst yourselves. This will require further communication, where you consider each player's skills, resources, and availability. Ensure the dispatch facilitates smooth, ** parallel ** execution.
+- Task Decomposition: These sub-tasks should be small, specific, and executable with MineFlayer code, as you will be using MineFlayer to play MineCraft. The task decomposition will not be a one-time process but an iterative one. At regular intervals during playing the game, agents will be paused and you will plan again based on their progress. You'll propose new sub-tasks that respond to the current circumstances. So you don't need to plan far ahead, but make sure your proposed sub-tasks are small, simple and achievable, to ensure smooth progression. Each sub-task should contribute to the completion of the overall task. That means, the number of sub-tasks should no more than numbers of agents. When necessary, the sub-tasks can be identical for faster task accomplishment. Be specific for the sub-tasks, for example, make sure to specify how many materials are needed.
+- In Minecraft, item can be put in agent's inventory, chest, or on the ground. You can use the item in agent's inventory or chest, but you can not use the item on the ground unless you dig it up first.
+- The block at lower place should be placed first, and the block at higher place should be placed later. [x,-60,z] is the lowest place. For example, if a task is placing block at x -57 z, then y  -60, -59 and -58 should be placed first and in order.
+- Integration and Finalization: In some tasks, you will need to integrate your individual efforts. For example, when crafting complicated stuff that require various materials, after collecting them, you need to consolidate all the materials with one of players.
+- You can stop to generate the subtask-structure json if you think the task need the information from the environment, and you can not get the information from the environment now. 
+
+This is not the first time you are handling the task, so you should give a decompose subtask-structure json feedback. Here is the query:
+"""
+the environment information around:
+Summary of the environment info:
+
+- **Entity:**
+  - Alice is located at position [3, -59, 11] and is holding 8 oak planks.
+
+- **Blocks:**
+  - grass_block at [2, -61, 10]
+  - grass_block at [3, -61, 10]
+  - glass at [0, -60, 10]
+  - grass_block at [1, -61, 10]
+  - glass at [0, -59, 10]
+  - glass at [0, -60, 11]
+  - crafting_table at [7, -59, 9]
+
+- **Creatures:**
+  - None
+
+- **Interactive-Items:**
+  - None
+
+The task is to use the crafting table at [7, -59, 9] to create a chest using the oak planks Alice is holding. Note that there are no nearby entities or creatures to interact with.
+Sign info: cannot find the specific sign within 16 blocks
+
+agent state:
+['No history found.']
+
+success previous subtask tracking:
+[]
+
+failure previous subtask tracking:
+["['Alice'] execute task Use the crafting table at [7, -59, 9] to craft a chest using the 8 oak planks Alice is holding. and feedback: "]
+
+Agent ability: (This is just telling you what the agent can do in one step, subtask should be harder than one step)
+None
+
+The high-level task
+{'description': 'With all ingredients readily available in the inventory, utilize the crafting_table to create a chest.', 'meta-data': {}}
+"""
+Your response should exclusively include the identified sub-task or the next step intended for the agent to execute.
+So, 1 subtasks is the maximum number of subtasks you can give.
+Response should contain a list of subtask-structure JSON.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [3, -59, 11], 'held_items': {'oak_planks': 8}}], 'blocks_info': [{'name': 'grass_block', 'position': [2, -61, 10]}, {'name': 'grass_block', 'position': [3, -61, 10]}, {'name': 'glass', 'position': [0, -60, 10]}, {'name': 'grass_block', 'position': [1, -61, 10]}, {'name': 'glass', 'position': [0, -59, 10]}, {'name': 'glass', 'position': [0, -60, 11]}, {'name': 'crafting_table', 'position': [7, -59, 9]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : Use the crafting table at [7, -59, 9] to craft a chest using the 8 oak planks Alice is holding.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [3, -59, 11], 'held_items': {'oak_planks': 8}}], 'blocks_info': [{'name': 'grass_block', 'position': [2, -61, 10]}, {'name': 'grass_block', 'position': [3, -61, 10]}, {'name': 'glass', 'position': [0, -60, 10]}, {'name': 'grass_block', 'position': [1, -61, 10]}, {'name': 'glass', 'position': [0, -59, 10]}, {'name': 'glass', 'position': [0, -60, 11]}, {'name': 'crafting_table', 'position': [7, -59, 9]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : With all ingredients readily available in the inventory, utilize the crafting_table to create a chest.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
+
+-----------
+Prompt : You are a helpful assistant in Minecraft.
+Based on the environment info and the task, extract the key information and summarize the environment info in a concise and informative way.
+You should focus on the entities, blocks, and creatures in the environment, and provide a summary of the environment info.
+
+The environment info:
+{"person_info": [{"name": "Tom", "position": [-1, -59, 1], "held_items": {"spruce_planks": 1}}], "blocks_info": [{"spruce_planks": [-3, -60, 0]}, {"grass_block": [-2, -61, 0]}, {"chest": [-4, -60, 0], "facing": "W"}, {"oak Log": [-3, -61, 0]}, {"birch_slab": [-3, -60, -1]}, {"birch_slab": [-3, -60, 1]}, {"dirt": [-2, -62, 0]}, {"grass_block": [-2, -61, -1]}, {"grass_block": [-2, -61, 1]}, {"crafting_table": [-4, -60, -1]}, {"facing": "W", "furnace": [-4, -60, 1]}, {"stone_pressure_plate": [-3, -60, 2]}], {"juggle_button": [-3, -60, 3]}], "time": "sunrise"},
+nearby_entities': [{'Alice': [42, -59, 125], 'other_entity': 'Alice'}, {'pig': [-3, -59, 0]}, {'pig': [-3, -59, 2]}]
+*** The task *** : cook meat in the Minecraft.
+
+The summary of the environment info:
+Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank, Alice is located at position [42, -59, 125].
+Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
+Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
+Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+
+The environment info:
+{'person_info': [{'name': 'Alice', 'position': [3, -59, 11], 'held_items': {'oak_planks': 8}}], 'blocks_info': [{'name': 'grass_block', 'position': [2, -61, 10]}, {'name': 'grass_block', 'position': [3, -61, 10]}, {'name': 'glass', 'position': [0, -60, 10]}, {'name': 'grass_block', 'position': [1, -61, 10]}, {'name': 'glass', 'position': [0, -59, 10]}, {'name': 'glass', 'position': [0, -60, 11]}, {'name': 'crafting_table', 'position': [7, -59, 9]}], 'sign_info': 'cannot find the specific sign within 16 blocks', 'nearby_entities': [], 'time': 'day'}
+*** The task *** : Use the crafting table at [7, -59, 9] to craft a chest using the 8 oak planks Alice is holding.cannot find the specific sign within 16 blocks.
+Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+
+
