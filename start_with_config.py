@@ -67,10 +67,11 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         agent_tool = [Agent.placeBlock, Agent.fetchContainerContents, Agent.MineBlock, Agent.scanNearbyEntities, Agent.equipItem,
                       Agent.navigateTo, Agent.withdrawItem, Agent.ToggleAction, Agent.handoverBlock]
     elif task_type == "meta":
-        agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.useItemOnEntity, Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback,
+        agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.useItemOnEntity, 
                       Agent.MineBlock, Agent.placeBlock, Agent.equipItem, Agent.handoverBlock, Agent.SmeltingCooking, Agent.withdrawItem, 
-                      Agent.storeItem, Agent.craftBlock, Agent.eat, Agent.fetchContainerContents, Agent.ToggleAction, 
-                      Agent.openContainer, Agent.closeContainer, Agent.performMovement, Agent.startFishing,
+                      Agent.storeItem, Agent.craftBlock, Agent.eat, Agent.fetchContainerContents, 
+                      Agent.openContainer, Agent.closeContainer, Agent.performMovement, 
+                      Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback, Agent.startFishing, Agent.ToggleAction, 
                       Agent.read, Agent.write, Agent.mountEntity, Agent.dismountEntity, Agent.rideEntity, Agent.disrideEntity]
     else:
         raise NotImplementedError
@@ -180,7 +181,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
 if __name__ == "__main__":
 
-    with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/meta_100_config.json", "r") as f:
+    with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/filtered_tasks.json", "r") as f:
         launch_config = json.load(f)
     for i, config in enumerate(launch_config):
 

@@ -23,18 +23,19 @@ task_number = 3
 logger = init_logger("TASK_GOAL", dump=False, level=logging.ERROR, silent=False)
 
 api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
-# llm_config = {
-#     # "api_model": "gpt-4o",
-#     "api_model": "gpt-4-1106-preview",
-#     # "api_base": "https://api.openai.com/v1/",
-#     "api_base": "https://api.chatanywhere.tech/v1",
-#     "api_key_list": api_key_list
-# }
 llm_config = {
-    "api_key": "sk-villageragent",
-    "api_base": "http://10.130.130.13:8000/v1",
-    "api_model": "llama_gptq4/"
+    # "api_model": "gpt-4o",
+    "api_model": "gpt-4-1106-preview",
+    # "api_base": "https://api.openai.com/v1/",
+    "api_base": "https://api.chatanywhere.tech/v1",
+    "api_key_list": api_key_list,
+    "api_key": api_key_list[0]
 }
+# llm_config = {
+#     "api_key": "sk-villageragent",
+#     "api_base": "http://10.130.130.13:8000/v1",
+#     "api_model": "llama_gptq4/"
+# }
 # llm_config = {
 #     "api_key": "sk-qwen05b",
 #     "api_base": "http://10.130.130.13:8002/v1",
@@ -149,7 +150,50 @@ def generate_task_goal(task_scenario, arg_dict):
             template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
         elif arg_dict["action"] == "chat":
             template_prompt = f"Send a message to Bob with content '{arg_dict['other_arg'][0]}'."
-    logger.warning(template_prompt)
+            # "till", "fishing", "bone_meal", "garden", "fence", "wall", "stair", "chat", "sign", "redstone", "saddle", "boat", "minecart", "bed"
+        elif arg_dict["action"] == "till":
+            size = arg_dict["other_arg"][0]["size"]
+            template_prompt = f"Till the {size} land (omit water which is useful) at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The hoe is in the {arg_dict['item_position']}, plant the {arg_dict['other_arg'][0]['crops']} in the land."
+        elif arg_dict["action"] == "fishing":
+            template_prompt = f"Go fishing at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The fishing rod is in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "bone_meal":
+            template_prompt = f"Use bone meal to grow the {arg_dict['other_arg'][0]['crops']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The bone meal is in the {arg_dict['item_position']}. If the {arg_dict['other_arg'][0]['crops']} is not in the {arg_dict['item_position']}, you can find seeds or crop in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "garden":
+            size = arg_dict["other_arg"][0]["size"]
+            template_prompt = f"Plant a {size} garden with flower at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The flowers are in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "fence":
+            size = arg_dict["other_arg"][0]["size"]
+            fence = arg_dict["target"]
+            template_prompt = f"Build a {fence} around the {size} building at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The fence is in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "wall":
+            wall = arg_dict["target"]
+            size = arg_dict["other_arg"][0]["size"]
+            template_prompt = f"Build a {size} {wall} wall at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The wall is in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "stair":
+            stair = arg_dict["target"]
+            size = arg_dict["other_arg"][0]["size"]
+            template_prompt = f"Build {size}-{stair} upward from ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The stair is in the {arg_dict['item_position']}, you may use some dirts internally to place the stair."
+        elif arg_dict["action"] == "sign":
+            sign = arg_dict["target"]
+            template_prompt = f"Read the content on the {sign} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
+        elif arg_dict["action"] == "redstone":
+            template_prompt = f"Build a circuit with redstone to control the {arg_dict['other_arg'][0]} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The redstone, the {arg_dict['other_arg'][0]} and the switch are in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "saddle":
+            template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']}, feed it and ride it, then dismount it. The {arg_dict['tool']} and the food are in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "boat":
+            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The boat is in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "minecart":
+            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The minecart is in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "bed":
+            template_prompt = f"Sleep in the {arg_dict['target']}. The bed is in the {arg_dict['item_position']}, then wake up."
+        elif arg_dict["action"] == "chat":
+            positive_attribute = arg_dict["other_arg"][0]["positive_attribute"]
+            negative_attribute = arg_dict["other_arg"][0]["negative_attribute"]
+            topic = arg_dict["other_arg"][0]["topic"]
+            template_prompt = f"You are a {positive_attribute} but {negative_attribute} person. You are talking with Bob about {topic}."
+        elif arg_dict["action"] == "ladder":
+            size = arg_dict["other_arg"][0]["size"]
+            template_prompt = f"Build a {size} ladder upward start from ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The ladder is in the {arg_dict['item_position']}, you may use some dirts internally on the other side to place the ladder."
     if random.randint(1, 3) == 1: # 有小概率直接用原始的prompt
         task_goal = template_prompt
     else:
@@ -215,8 +259,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 config["document_file"] = ""
                 config_list.append(config)
     elif task == "meta":
-        for i in tqdm.tqdm(range(0, 2000)):
-            random_task = random.choice(["dig", "craft", "place", "useitem", "move", "interact"])
+        for i in tqdm.tqdm(range(0, 100)):
+            random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [0.1, 0.2, 0.1, 0.05, 0.05, 0.4])[0]
             if random_task == "dig":
                 with open("data/blocks.json", "r") as f:
                     blocks = json.load(f)
@@ -229,18 +273,18 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     arg_dict["target"] = block["name"]
                     arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                     arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-                    arg_dict["y"] = random.randint(ory + 1, ory + 4)
+                    arg_dict["y"] = random.randint(ory + 1, ory + 3)
                     if tool == "coweb":
                         tool = "sword"
                         arg_dict["tool"] = f"diamond_{tool}"
                         # # #
-                        arg_dict["item_position"] = "inventory"
+                        arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
                         # # #
                     elif "mineable" in tool:
                         tool = block["material"].split("/", 1)[1]
                         arg_dict["tool"] = f"diamond_{tool}"
                         # # #
-                        arg_dict["item_position"] = "inventory"
+                        arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
                         # # #
                     else:
                         tool = "default"
@@ -268,7 +312,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     arg_dict = arg_template.copy()
                     arg_dict["target"] = item["name"]
                     # # #
-                    arg_dict["item_position"] = "inventory" 
+                    arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"]) 
                     arg_dict["step"] = 1
                     # # #
                     config["task_type"] = "meta"
@@ -306,7 +350,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     arg_dict["target"] = block["name"]
                     arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                     arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-                    arg_dict["y"] = random.randint(ory + 1, ory + 4)
+                    arg_dict["y"] = random.randint(ory + 1, ory + 2)
                     facing = []
                     for state in block["states"]:
                         if "values" in state:
@@ -315,7 +359,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     if facing:
                         arg_dict["facing"] = random.choice(facing)
                     # # #
-                    arg_dict["item_position"] = "inventory"
+                    arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
                     # # #
                     config["task_type"] = "meta"
                     config["task_idx"] = i
@@ -368,7 +412,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     arg_dict["target"] = ""
                     arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                     arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-                    arg_dict["y"] = random.randint(ory + 1, ory + 5)
+                    arg_dict["y"] = random.randint(ory + 1, ory + 3)
                     config["task_type"] = "meta"
                     config["task_idx"] = i
                     config["agent_num"] = 1
@@ -382,67 +426,272 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     
             elif random_task == "interact":
                 animal_list = [{"name": "sheep", "food": ["wheat"]}, {"name": "cow", "food": ["wheat"]}, {"name": "rabbit", "food": ["carrot"]}, 
-                            {"name": "pig", "food": ["potato", "beetroot", "carrot"]}, {"name": "chicken", "food": ["wheat_seeds", "melon_seeds", "pumpkin_seeds", "beetroot_seeds"]}, ]
+                            {"name": "pig", "food": ["potato", "beetroot", "carrot"]}, {"name": "chicken", "food": ["wheat_seeds", "melon_seeds", "pumpkin_seeds", "beetroot_seeds"]}, 
+                            {"name": "horse", "food": ["golden_carrot", "golden_apple", "sugar", "apple"]}, {"name": "wolf", "food": ["bone"]}, {"name": "cat", "food": ["cod", "salmon"]},
+                            {"name": "parrot", "food": ["melon_seeds", "pumpkin_seeds"]}, {"name": "fox", "food": ["sweet_berries"]}, {"name": "turtle", "food": ["seagrass"]}, 
+                            {"name": "panda", "food": ["bamboo"]}]
                 cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
                 action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "chat"]
+                # 额外的几个任务 1. 耕地-并加种子 2. 钓鱼 3.作物加骨粉催熟 4. 小花园 5. 建造一个矩形的栅栏 6. 聊天对话 7. 读写牌子上面的内容
+                # 8. 由一个红石线，一个（门/灯）和一个开关组成的电路，要求开关能控制门/灯的开关
+                # 9. 给马加上马鞍，并且给马喂食，骑马，下马 / 给猪背上胡萝卜杆，骑猪
+                # 10. 乘船，下船。乘矿车，下矿车
+                # 11. 建造一面墙
+                # 12. 放置床睡觉，然后起床 
+                # 13. 搭梯子
+                additional_task_list = ["till", "fishing", "bone_meal", "garden", "fence", "wall", "stair", "chat", "sign", "redstone", "saddle", "boat", "minecart", "bed", "ladder"]
+
+
                 for i in range(task_number):
                     # action = "feed"
-                    action = random.choices(action_list, [10, 10, 9, 28, 28, 2, 2, 10])[0]
-                    config = template.copy()
-                    arg_dict = arg_template.copy()
-                    if action == "cook":
-                        target = random.choice(cooked_list)
-                        arg_dict["target"] = "furnace"
-                    elif action == "store":
-                        target = "chest"
-                        arg_dict["target"] = "chest"
-                        arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
-                        arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-                        arg_dict["y"] = random.randint(ory + 1, ory + 3)
-                    elif action in ["handover", "chat"]:
-                        target = "Bob"
-                        arg_dict["target"] = "Bob"
-                    elif action == "shear":
-                        target = "sheep"
-                        arg_dict["target"] = "sheep"
-                    elif action == "milk":
-                        target = "cow"
-                        arg_dict["target"] = "cow"
+                    task_level = random.choice(["basic", "advanced"])
+                    if task_level == "basic":
+                        action = random.choices(action_list, [10, 10, 9, 28, 28, 2, 2, 10])[0]
+                        config = template.copy()
+                        arg_dict = arg_template.copy()
+                        if action == "cook":
+                            target = random.choice(cooked_list)
+                            arg_dict["target"] = "furnace"
+                        elif action == "store":
+                            target = "chest"
+                            arg_dict["target"] = "chest"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = random.randint(ory + 1, ory + 3)
+                        elif action in ["handover", "chat"]:
+                            target = "Bob"
+                            arg_dict["target"] = "Bob"
+                        elif action == "shear":
+                            target = "sheep"
+                            arg_dict["target"] = "sheep"
+                        elif action == "milk":
+                            target = "cow"
+                            arg_dict["target"] = "cow"
+                        else:
+                            target = random.choice(animal_list)
+                            arg_dict["target"] = target["name"]
+                        arg_dict["action"] = action
+                        if action == "attack":
+                            arg_dict["tool"] = "iron_sword"
+                        elif action == "feed":
+                            arg_dict["tool"] = random.choice(target["food"])
+                        elif action == "cook":
+                            arg_dict["other_arg"] = ["coal", target]
+                        elif action == "shear":
+                            arg_dict["tool"] = "shears"
+                        elif action == "milk":
+                            arg_dict["tool"] = "bucket"
+                        elif action in ["handover", "store"]:
+                            with open("data/items.json", "r") as f:
+                                items = json.load(f)
+                            arg_dict["other_arg"] = [random.choice(items)["name"]]
+                        elif action == "chat":
+                            charset = string.ascii_letters + string.digits
+                            text_len = random.randint(5, 8)
+                            arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
+                        # # #
+                        arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                        # # #
+                        config["task_type"] = "meta"
+                        config["task_idx"] = i
+                        config["agent_num"] = 1
+                        config["task_scenario"] = "interact"
+                        config["evaluation_arg"] = arg_dict
+                        config["task_goal"] = generate_task_goal(random_task, arg_dict)
+                        config["host"] = host
+                        config["port"] = port
+                        config["task_name"] = f"interact_{action}_id{i}"
+                        config_list.append(config)
                     else:
-                        target = random.choice(animal_list)
-                        arg_dict["target"] = target["name"]
-                    arg_dict["action"] = action
-                    if action == "attack":
-                        arg_dict["tool"] = "iron_sword"
-                    elif action == "feed":
-                        arg_dict["tool"] = random.choice(target["food"])
-                    elif action == "cook":
-                        arg_dict["other_arg"] = ["coal", target]
-                    elif action == "shear":
-                        arg_dict["tool"] = "shears"
-                    elif action == "milk":
-                        arg_dict["tool"] = "bucket"
-                    elif action in ["handover", "store"]:
-                        with open("data/items.json", "r") as f:
-                            items = json.load(f)
-                        arg_dict["other_arg"] = [random.choice(items)["name"]]
-                    elif action == "chat":
-                        charset = string.ascii_letters + string.digits
-                        text_len = random.randint(5, 8)
-                        arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
-                    # # #
-                    arg_dict["item_position"] = "inventory"
-                    # # #
-                    config["task_type"] = "meta"
-                    config["task_idx"] = i
-                    config["agent_num"] = 1
-                    config["task_scenario"] = "interact"
-                    config["evaluation_arg"] = arg_dict
-                    config["task_goal"] = generate_task_goal(random_task, arg_dict)
-                    config["host"] = host
-                    config["port"] = port
-                    config["task_name"] = f"interact_{action}_id{i}"
-                    config_list.append(config)
+                        action = random.choice(additional_task_list)
+                        config = template.copy()
+                        arg_dict = arg_template.copy()
+                        arg_dict["action"] = action
+                        if action == "till":
+                            arg_dict["target"] = "farmland"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = ory + 1
+                            origin_block = random.choice(["dirt", "grass_block", "coarse_dirt", "podzol", "dirt_path"])
+                            # 作物列表
+                            crops = ["wheat_seeds", "beetroot_seeds", "melon_seeds", "pumpkin_seeds", "carrot", "potato"]
+
+                            # 锄头列表
+                            hoes = ["wooden", "stone", "iron", "golden", "diamond"]
+                            arg_dict["tool"] = f"{random.choice(hoes)}_hoe"
+
+
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+
+                            size = random.choice(["1x2", "2x1", "2x2"])
+
+                            arg_dict["other_arg"] = [{"origin_block": origin_block, "crops": random.choice(crops), "size": size}]
+
+                        elif action == "fishing":
+                            fish = ["cod", "salmon", "tropical_fish", "pufferfish"]
+                            arg_dict["target"] = random.choice(fish)
+                            
+                            arg_dict["tool"] = "fishing_rod"
+
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = random.randint(ory - 2, ory - 1)
+                        
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+
+                        elif action == "bone_meal":
+                            crops_seeds_in_dirt = ["bamboo", "wheat_seeds", "beetroot_seeds", "melon_seeds", "pumpkin_seeds", "carrot", "potato", "nether_wart"]
+                            crops_on_sand = ["bamboo", "sugar_cane"]
+                            tree_saplings = ["oak_sapling", "spruce_sapling", "birch_sapling", "acacia_sapling", "jungle_sapling", "dark_oak_sapling", "mangrove_sapling"]
+                            crops_on_grass = ["tall_grass", "large_fern", "rose_bush", "peony", "lilac", "sunflower"]
+                            crops_on_farmland = ["wheat", "beetroot", "carrot", "potato"]
+
+                            base_block = random.choice(["dirt", "grass_block", "coarse_dirt", "podzol", "dirt_path", "farmland"])
+                            if base_block == "farmland":
+                                crops = random.choice(crops_on_farmland)
+                            elif base_block == "dirt":
+                                crops = random.choice(crops_seeds_in_dirt)
+                            elif base_block == "grass_block":
+                                crops = random.choice(crops_on_grass)
+                            elif base_block == "coarse_dirt":
+                                crops = random.choice(crops_on_sand)
+                            else:
+                                crops = random.choice(tree_saplings)
+                            arg_dict["target"] = "bone_meal"
+                            arg_dict["other_arg"] = [{"base_block": base_block, "crops": crops}]
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            arg_dict["tool"] = "bone_meal"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = random.randint(ory + 1, ory + 1)
+
+                        elif action == "garden":
+                            arg_dict["target"] = "garden"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = random.randint(ory + 1, ory + 1)
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            size = random.choice(["1x2", "2x1", "2x2"])
+                            arg_dict["other_arg"] = [{"size": size}]
+
+                        elif action == "fence":
+                            fence_material = ["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]
+                            arg_dict["target"] = random.choice(fence_material) + "_fence"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = random.randint(ory + 1, ory + 3)
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            size = random.choice(["1x2", "2x1", "2x2"])
+                            arg_dict["other_arg"] = [{"size": size}]
+
+                        elif action == "wall":
+                            wall_material = ["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]
+                            arg_dict["target"] = random.choice(wall_material) + "_planks"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = random.randint(ory + 1, ory + 3)
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            size = random.choice(["1x2", "2x1", "2x2"])
+                            arg_dict["other_arg"] = [{"size": size}]
+
+                        elif action == "stair":
+                            stair_material = ["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]
+                            arg_dict["target"] = random.choice(stair_material) + "_stairs"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = random.randint(ory + 1, ory + 3)
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"]) 
+                            arg_dict["facing"] = random.choice(["north", "south", "east", "west"])
+                            size = random.choice(['2', '3'])
+                            arg_dict["other_arg"] = [{"size": size}]
+                        
+                        
+                        elif action == "chat":
+                            # 性格设定
+                            positivae_attribute = ["kind", "funny", "smart", "cute", "cool", "brave", "strong", "friendly", "honest", "helpful"]
+                            negative_attribute = ["stupid", "boring", "ugly", "weak", "mean", "scary", "selfish", "lazy", "rude", "useless"]
+                            # 话题设定
+                            topic = ["chest", "inventory", "furnace", "recipe", "animals", "crops", "life", "weather", "zombies"]
+
+                            arg_dict["target"] = random.choice(["Alex", "Steve", "Bob", "Cindy", "David", "Emily", "Frank", "Grace", "Henry", "Ivy"])
+                            arg_dict["other_arg"] = [{
+                                "positive_attribute": random.choice(positivae_attribute),
+                                "negative_attribute": random.choice(negative_attribute),
+                                "topic": random.choice(topic)
+                            }]
+
+                        elif action == "sign":
+                            sign_instruction_easy = ["Welcome to the room", "Please close the door", "Don't touch my stuff", "I'm watching you", "Be careful of the trap", "Don't break the block", "Don't feed the animals", "Don't steal my items", "Don't kill the animals", "Don't destroy the crops"]
+                            sign_instruction_hard = ["withdraw items from the chest", "place a dirt block", "dig a hole", "craft a wooden sword"]
+                            arg_dict["target"] = "oak_sign"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = random.randint(ory + 1, ory + 3)
+                            if random.randint(1, 3) == 1:
+                                arg_dict["other_arg"] = [random.choice(sign_instruction_hard)]
+                            else:
+                                arg_dict["other_arg"] = [random.choice(sign_instruction_easy)]
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+
+                        elif action == "redstone":
+                            trigger = ["button", "lever"]
+                            device = ["red_stone_lamp", "piston", "oak_door", "iron_door", "mangrove_trapdoor", "oak_trapdoor", "oak_fence_gate", "iron_trapdoor", "iron_fence_gate"]
+                            arg_dict["target"] = random.choice(device)
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = ory + 1
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            arg_dict["other_arg"] = [{"trigger": random.choice(trigger)}]
+
+                        elif action == "saddle":
+                            arg_dict["target"] = random.choice(["horse", "pig"])
+                            if arg_dict["target"] == "horse":
+                                arg_dict["tool"] = "saddle"
+                            else:
+                                arg_dict["tool"] = "carrot_on_a_stick"
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+
+                        elif action == "boat":
+                            arg_dict["target"] = "boat"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = ory + 1
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                        
+                        elif action == "minecart":
+                            arg_dict["target"] = "minecart"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = ory + 1
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+
+                        elif action == "bed":
+                            arg_dict["target"] = "bed"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = ory + 1
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+
+                        elif action == "ladder":
+                            arg_dict["target"] = "ladder"
+                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                            arg_dict["y"] = ory + 1
+                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            size = random.choice(["2", "3"])
+                            arg_dict["other_arg"] = [{"size": size}]
+                        
+                        config["task_type"] = "meta"
+                        config["task_idx"] = i
+                        config["agent_num"] = 1
+                        config["task_scenario"] = "interact"
+                        config["evaluation_arg"] = arg_dict
+                        config["task_goal"] = generate_task_goal(random_task, arg_dict)
+                        config["host"] = host
+                        config["port"] = port
+                        config["task_name"] = f"interact_{action}_id{i}"
+                        config_list.append(config)
+
     elif task == "dig":
         with open("data/blocks.json", "r") as f:
             blocks = json.load(f)
@@ -455,18 +704,18 @@ def generate_config(task, api_model, host, port, agent_num=2):
             arg_dict["target"] = block["name"]
             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-            arg_dict["y"] = random.randint(ory + 1, ory + 4)
+            arg_dict["y"] = random.randint(ory + 1, ory + 3)
             if tool == "coweb":
                 tool = "sword"
                 arg_dict["tool"] = f"diamond_{tool}"
                 # # #
-                arg_dict["item_position"] = "inventory"
+                arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
                 # # #
             elif "mineable" in tool:
                 tool = block["material"].split("/", 1)[1]
                 arg_dict["tool"] = f"diamond_{tool}"
                 # # #
-                arg_dict["item_position"] = "inventory"
+                arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
                 # # #
             else:
                 tool = "default"
@@ -494,7 +743,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             arg_dict = arg_template.copy()
             arg_dict["target"] = item["name"]
             # # #
-            arg_dict["item_position"] = "inventory" 
+            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"]) 
             arg_dict["step"] = 1
             # # #
             config["task_type"] = "meta"
@@ -541,7 +790,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             if facing:
                 arg_dict["facing"] = random.choice(facing)
             # # #
-            arg_dict["item_position"] = "inventory"
+            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
             # # #
             config["task_type"] = "meta"
             config["task_idx"] = i
@@ -594,7 +843,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             arg_dict["target"] = ""
             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-            arg_dict["y"] = random.randint(ory + 1, ory + 5)
+            arg_dict["y"] = random.randint(ory + 1, ory + 3)
             config["task_type"] = "meta"
             config["task_idx"] = i
             config["agent_num"] = 1
@@ -657,7 +906,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 text_len = random.randint(5, 8)
                 arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
             # # #
-            arg_dict["item_position"] = "inventory"
+            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
             # # #
             config["task_type"] = "meta"
             config["task_idx"] = i

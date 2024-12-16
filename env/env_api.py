@@ -13,7 +13,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf8')
 env_infos = None
 update_time = 0
 update_interval = .5
-
+last_jump_time = 0
 
 def getBlock(bot, Vec3, x, y, z):
     while True:
@@ -650,7 +650,6 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
     while distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL and max_steps > 0 and distanceTo(
             bot.entity.position, Vec3(pos.x, pos.y, pos.z)) > 1:
         try_num = 3
-        jump = False
         while try_num > 0:
             try:
                 bot.pathfinder.setGoal(pathfinder.goals.GoalNear(pos.x, pos.y, pos.z, range_to_block))
@@ -672,13 +671,12 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
         # bot.chat(f'moving {max_steps}')
         if mean_v < 0.2:
             max_steps -= 1
-        if mean_v < 0.05 and not jump:
+        if mean_v < 0.05 and last_jump_time < time.time() - 5:
             x, y, z = bot.entity.position.x, bot.entity.position.y, bot.entity.position.z
             # tp to the y+2
             if bot.blockAt(Vec3(x, y + 1.2, z))['name'] == 'air':
                 bot.chat(f'/tp @s {x} {y + 1.2} {z}')
-                jump = True
-                time.sleep(.5)
+                last_jump_time = time.time()
             # bot.chat(f'bot seems like in an idle state.')
 
     if max_steps <= 0 and distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL + 1.5:

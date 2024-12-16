@@ -440,7 +440,24 @@ def handleViewer(*args):
                     if animal["name"] == target:   
                         interact_type = "animal"
                         break
-        if interact_type == "animal":
+
+        if arg_dict["action"] == "bone_meal":
+            base_block = aligned_item_name(arg_dict["other_arg"][0]['base_block'])
+            crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
+            
+            bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} {base_block}")
+            if arg_dict["item_position"] == "inventory":
+                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                bot.chat(f"/give {agent_name} {crop} {random.randint(1, 2)}")
+            elif arg_dict["item_position"] == "chest":
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}])
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": crop, "count": random.randint(1, 2)}])
+        
+        elif arg_dict["action"] == "ladder":
+            pass
+
+        
+        elif interact_type == "animal":
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
@@ -480,6 +497,7 @@ def handleViewer(*args):
             bot.chat(f"/tp Bob {npc_x} {npc_y} {npc_z}")
             if arg_dict["action"] == "handover":
                 bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]}")
+
 
     else:
         bot.chat("/tellraw @a {\"text\":\"INVALID SCENARIO!\", \"color\":\"red\"}")
@@ -602,6 +620,11 @@ def handle(this):
 
             elif config["task_scenario"]  == "interact":
                 target = aligned_item_name(arg_dict["target"]) 
+                
+                if arg_dict["action"] == "bone_meal":
+                    bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
+                    bot.chat(f'/data get entity {agent_name}')
+                
                 if interact_type == "block":
                     if arg_dict["action"] == "cook":
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
@@ -619,7 +642,6 @@ def handle(this):
                     if arg_dict["action"] == "handover":
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {arg_dict["target"]}')
-
 
             if score == 100:
                 time.sleep(5)
@@ -825,6 +847,13 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                     if f"Text{i}" in data:
                         if data[f"Text{i}"]["text"] == arg_dict["other_arg"][0]:
                             score = 100
+
+            elif config["task_scenario"] == "interact" and arg_dict["action"] == "bone_meal":
+                if "Items" in data:
+                    for item in data["Items"]:
+                        score = 100
+                        if aligned_item_name(item["id"]) == "milk_bucket":
+                            score = 0
             # info_count += 1
             # if info_count % 20 == 0:
             #     bot.chat(f'score: {score}')

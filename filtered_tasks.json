@@ -1,0 +1,450 @@
+[
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 0,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Use bone meal to grow the large_fern at (23, -60, 24). The bone meal is in the inventory. If the large_fern is not in the inventory, you can find seeds or crop in the inventory.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "bone_meal",
+            "x": 23,
+            "y": -60,
+            "z": 24,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "bone_meal",
+            "action": "bone_meal",
+            "step": 1,
+            "other_arg": [
+                {
+                    "base_block": "grass_block",
+                    "crops": "large_fern"
+                }
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_bone_meal_id0"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 2,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Build a 3 ladder upward start from (13, -60, 9). The ladder is in the chest, you may use some dirts internally on the other side to place the ladder.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "ladder",
+            "x": 13,
+            "y": -60,
+            "z": 9,
+            "facing": "",
+            "item_position": "chest",
+            "tool": "",
+            "action": "ladder",
+            "step": 1,
+            "other_arg": [
+                {
+                    "size": "3"
+                }
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_ladder_id2"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 0,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Ensure you disembark after taking a ride in the minecart, which you will find stored within the chest.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "minecart",
+            "x": 4,
+            "y": -60,
+            "z": 25,
+            "facing": "",
+            "item_position": "chest",
+            "tool": "",
+            "action": "minecart",
+            "step": 1,
+            "other_arg": []
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_minecart_id0"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 2,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "The inventory contains the fishing rod; use it to fish at coordinates (1, -63, 22).",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "salmon",
+            "x": 1,
+            "y": -63,
+            "z": 22,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "fishing_rod",
+            "action": "fishing",
+            "step": 1,
+            "other_arg": []
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_fishing_id2"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 0,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Build 3-jungle_stairs upward from (19, -60, 7). The stair is in the inventory, you may use some dirts internally to place the stair.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "jungle_stairs",
+            "x": 19,
+            "y": -60,
+            "z": 7,
+            "facing": "west",
+            "item_position": "inventory",
+            "tool": "",
+            "action": "stair",
+            "step": 1,
+            "other_arg": [
+                {
+                    "size": "3"
+                }
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_stair_id0"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 1,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Erect a wall using 1x2 birch_planks at coordinates (10, -59, 21), which are available in the inventory.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "birch_planks",
+            "x": 10,
+            "y": -59,
+            "z": 21,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "",
+            "action": "wall",
+            "step": 1,
+            "other_arg": [
+                {
+                    "size": "1x2"
+                }
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_wall_id1"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 0,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Ride the boat and dismount it. The boat is in the inventory.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "boat",
+            "x": 24,
+            "y": -60,
+            "z": 16,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "",
+            "action": "boat",
+            "step": 1,
+            "other_arg": []
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_boat_id0"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 1,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Ensuring the horse is saddled and fed from the inventory, you may then proceed to ride it before dismounting.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "horse",
+            "x": 8,
+            "y": -60,
+            "z": 8,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "saddle",
+            "action": "saddle",
+            "step": 1,
+            "other_arg": []
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_saddle_id1"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 1,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "A message containing the content '{'positive_attribute': 'cool', 'negative_attribute': 'boring', 'topic': 'life'}' should be dispatched to Bob.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "Grace",
+            "x": 8,
+            "y": -60,
+            "z": 8,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "",
+            "action": "chat",
+            "step": 1,
+            "other_arg": [
+                {
+                    "positive_attribute": "cool",
+                    "negative_attribute": "boring",
+                    "topic": "life"
+                }
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_chat_id1"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 0,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "In the inventory, you will find the flowers needed to establish a 1x2 garden at coordinates (12, -60, 23).",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "garden",
+            "x": 12,
+            "y": -60,
+            "z": 23,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "",
+            "action": "garden",
+            "step": 1,
+            "other_arg": [
+                {
+                    "size": "1x2"
+                }
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_garden_id0"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 1,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Till the 1x2 land (omit water which is useful) at (9, -60, 20). The hoe is in the chest, plant the potato in the land.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "farmland",
+            "x": 9,
+            "y": -60,
+            "z": 20,
+            "facing": "",
+            "item_position": "chest",
+            "tool": "wooden_hoe",
+            "action": "till",
+            "step": 1,
+            "other_arg": [
+                {
+                    "origin_block": "podzol",
+                    "crops": "potato",
+                    "size": "1x2"
+                }
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_till_id1"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 2,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Awaken after having slept in the bed that resides within the inventory.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "bed",
+            "x": 25,
+            "y": -60,
+            "z": 9,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "",
+            "action": "bed",
+            "step": 1,
+            "other_arg": []
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_bed_id2"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 2,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Read the content on the oak_sign at (2, -60, 14).",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "oak_sign",
+            "x": 2,
+            "y": -60,
+            "z": 14,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "",
+            "action": "sign",
+            "step": 1,
+            "other_arg": [
+                "withdraw items from the chest"
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_sign_id2"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 1,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "Build a spruce_fence around the 2x2 building at (24, -58, 8). The fence is in the chest.",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "spruce_fence",
+            "x": 24,
+            "y": -58,
+            "z": 8,
+            "facing": "",
+            "item_position": "chest",
+            "tool": "",
+            "action": "fence",
+            "step": 1,
+            "other_arg": [
+                {
+                    "size": "2x2"
+                }
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_fence_id1"
+    },
+    {
+        "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        "api_base": "http://10.130.130.13:8003/v1",
+        "task_type": "meta",
+        "task_idx": 1,
+        "agent_num": 1,
+        "dig_needed": false,
+        "max_task_num": 0,
+        "task_goal": "In the inventory, you will find the redstone, the {'trigger': 'button'}, and the switch; use these to construct a circuit that enables control of the {'trigger': 'button'} located at (21, -60, 8).",
+        "task_scenario": "interact",
+        "evaluation_arg": {
+            "target": "iron_door",
+            "x": 21,
+            "y": -60,
+            "z": 8,
+            "facing": "",
+            "item_position": "inventory",
+            "tool": "",
+            "action": "redstone",
+            "step": 1,
+            "other_arg": [
+                {
+                    "trigger": "button"
+                }
+            ]
+        },
+        "document_file": "",
+        "host": "10.214.180.148",
+        "port": 25565,
+        "task_name": "interact_redstone_id1"
+    }
+]
