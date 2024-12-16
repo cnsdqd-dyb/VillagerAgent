@@ -3,6 +3,7 @@ import argparse
 import os
 import random
 import string
+import tqdm
 
 import logging
 from pipeline.utils import *
@@ -19,7 +20,7 @@ orz = 0
 
 task_number = 3
 
-logger = init_logger("TASK_GOAL", dump=False, level=logging.DEBUG, silent=False)
+logger = init_logger("TASK_GOAL", dump=False, level=logging.ERROR, silent=False)
 
 api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 # llm_config = {
@@ -50,13 +51,16 @@ You can diversify the sentence structure by:
 2. Using synonyms or rephrasing.
 3. Switching between active and passive voice.
 4. Incorporating participle phrases or dependent clauses.
+
+Remember, You should still keep the original meaning of the sentence, and avoid making changes that alter the original meaning.
+Make the task description clear and concise, and avoid unnecessary information.
 You should randomly select only one sentence from your rewritten version and return it.
 
 """
 
 template = {
-    "api_model": "gpt-4-1106-preview",
-    "api_base": "https://api.chatanywhere.tech/v1",
+    "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+    "api_base": "http://10.130.130.13:8003/v1",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
@@ -146,11 +150,11 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "chat":
             template_prompt = f"Send a message to Bob with content '{arg_dict['other_arg'][0]}'."
     logger.warning(template_prompt)
-    if random.randint(1, 10) == 1: # 有小概率直接用原始的prompt
+    if random.randint(1, 3) == 1: # 有小概率直接用原始的prompt
         task_goal = template_prompt
     else:
         template_prompt = "Original Sentence: " + template_prompt
-        task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.7)
+        task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.2)
     logger.warning(task_goal)
     logger.debug("-" * 50)
     return task_goal
@@ -211,7 +215,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 config["document_file"] = ""
                 config_list.append(config)
     elif task == "meta":
-        for i in range(0, 100):
+        for i in tqdm.tqdm(range(0, 2000)):
             random_task = random.choice(["dig", "craft", "place", "useitem", "move", "interact"])
             if random_task == "dig":
                 with open("data/blocks.json", "r") as f:
@@ -681,3 +685,5 @@ if __name__ == "__main__":
 
     api_model = args.api_model.replace("-", "_").replace(".", "_").replace(" ", "_").replace("/", "_")
     generate_config(args.task, api_model, args.host, args.port, args.agent_num)
+
+    # python config.py --task meta --api_model /mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4 

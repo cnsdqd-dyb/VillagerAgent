@@ -27,9 +27,8 @@ def timeit(func):
         # 确保data目录存在
         if not os.path.exists("data"):
             os.makedirs("data")
-        
         max_try = 3
-        while max_try:
+        while max_try > 0:
             try:
                 # action log
                 action_log_path = "data/action_log.json"
@@ -128,7 +127,7 @@ class Agent():
         self.action_history = []
         self.basic_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
-            Agent.UseItemOnEntity, Agent.fetchContainerContents,
+            Agent.useItemOnEntity, Agent.fetchContainerContents,
             Agent.MineBlock, Agent.placeBlock, Agent.equipItem,
             Agent.handoverBlock, Agent.SmeltingCooking, Agent.talkTo, Agent.waitForFeedback,
             Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,Agent.ToggleAction, 
@@ -136,7 +135,7 @@ class Agent():
         self.all_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
             Agent.navigateToBuilding, Agent.navigateToAnimal, Agent.navigateToPlayer,
-            Agent.UseItemOnEntity, Agent.sleep, Agent.wake,
+            Agent.useItemOnEntity, Agent.sleep, Agent.wake,
             Agent.MineBlock, Agent.placeBlock, Agent.waitForFeedback, Agent.equipItem,
             Agent.tossItem, Agent.talkTo, Agent.handoverBlock,
             Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,
@@ -189,9 +188,12 @@ class Agent():
     
     def ping(player_name: str):
         """Ping the Server"""
-        url = Agent.get_url_prefix()[player_name] + "/post_ping"
-        response = requests.get(url)
-        return response.json()
+        try:
+            url = Agent.get_url_prefix()[player_name] + "/post_ping"
+            response = requests.get(url)
+            return response.json()
+        except Exception as e:
+            return {'message': 'Exception', 'status': False}
 
     @staticmethod
     def launch(host="10.21.31.18", port=25565, world="world", verbose=False, ignore_name=[], debug=False, fast=False):
@@ -378,7 +380,7 @@ class Agent():
 
     @tool
     @timeit
-    def UseItemOnEntity(player_name: str, item_name: str, entity_name: str):
+    def useItemOnEntity(player_name: str, item_name: str, entity_name: str):
         """Use a Specific Item on a Specific Entity, return string result"""
         url = Agent.get_url_prefix()[player_name] + "/post_use_on"
         data = {
@@ -446,7 +448,7 @@ class Agent():
     @tool
     @timeit
     def equipItem(player_name: str, slot: str, item_name: str):
-        """Equip a Specific Item on a Specific Slot | to equip item on hand,head,torso,legs,feet,off-hand."""
+        """Equip a Specific Item on a Specific Slot | to equip item on hand,head,torso,legs,feet."""
         url = Agent.get_url_prefix()[player_name] + "/post_equip"
         data = {
             "slot": slot,
@@ -958,57 +960,57 @@ class Agent():
             )
             agent.handle_parsing_errors = True
             response = None
-            # try:
-            with get_openai_callback() as cb:
-                start_time = time.time()
-                if len(player_name_list) == 0:
-                    response = agent({"input": f"Your name is {self.name}.\n{instruction}"})
-                else:
-                    response = agent(
-                        {"input": f"You should control {player_name_list} work together. \n{instruction}"})
-                # print(llmhandler.chain_input)
-                # print(llmhandler.seralized_input)
+            try:
+                with get_openai_callback() as cb:
+                    start_time = time.time()
+                    if len(player_name_list) == 0:
+                        response = agent({"input": f"Your name is {self.name}.\n{instruction}"})
+                    else:
+                        response = agent(
+                            {"input": f"You should control {player_name_list} work together. \n{instruction}"})
+                    # print(llmhandler.chain_input)
+                    # print(llmhandler.seralized_input)
 
-                end_time = time.time()
-                # save in pipeLine/tokens
-                current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                # if 'gpt' in Agent.model:
-                #     from env.utils import parse_token_text
-                #     token_usage = parse_token_text(cb)
-                #     try:
-                #         with open("data/tokens.json", "r") as f:
-                #             tokens = json.load(f)
-                #         tokens["dates"] = current_time
-                #         tokens["tokens_used"] += token_usage["tokens_used"]
-                #         tokens["prompt_tokens"] += token_usage["prompt_tokens"]
-                #         tokens["completion_tokens"] += token_usage["completion_tokens"]
-                #         tokens["successful_requests"] += token_usage["successful_requests"]
-                #         tokens["total_cost"] += token_usage["total_cost"]
-                #         tokens["action_cost"] += end_time - start_time
-                #         with open("data/tokens.json", "w") as f:
-                #             json.dump(tokens, f, indent=4)
-                #     except KeyboardInterrupt:
-                #         logging.info("KeyboardInterrupt")
-                #         raise KeyboardInterrupt
-                #     except Exception as e:
-                #         logging.info(e)
-            # break
-            # except KeyboardInterrupt:
-            #     logging.info("KeyboardInterrupt")
-            #     raise KeyboardInterrupt
-            # except ConnectionError as e:
-            #     logging.info(e)
-            #     raise ConnectionError
-            # except ConnectionRefusedError as e:
-            #     logging.info(e)
-            #     raise ConnectionRefusedError
-            # except Exception as e:
-            #     print(e)
-            #     print("retrying...")
-            #     time.sleep(1)
-            #     max_try_turn -= 1
+                    end_time = time.time()
+                    # save in pipeLine/tokens
+                    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    # if 'gpt' in Agent.model:
+                    #     from env.utils import parse_token_text
+                    #     token_usage = parse_token_text(cb)
+                    #     try:
+                    #         with open("data/tokens.json", "r") as f:
+                    #             tokens = json.load(f)
+                    #         tokens["dates"] = current_time
+                    #         tokens["tokens_used"] += token_usage["tokens_used"]
+                    #         tokens["prompt_tokens"] += token_usage["prompt_tokens"]
+                    #         tokens["completion_tokens"] += token_usage["completion_tokens"]
+                    #         tokens["successful_requests"] += token_usage["successful_requests"]
+                    #         tokens["total_cost"] += token_usage["total_cost"]
+                    #         tokens["action_cost"] += end_time - start_time
+                    #         with open("data/tokens.json", "w") as f:
+                    #             json.dump(tokens, f, indent=4)
+                    #     except KeyboardInterrupt:
+                    #         logging.info("KeyboardInterrupt")
+                    #         raise KeyboardInterrupt
+                    #     except Exception as e:
+                    #         logging.info(e)
+                break
+            except KeyboardInterrupt:
+                logging.info("KeyboardInterrupt")
+                raise KeyboardInterrupt
+            except ConnectionError as e:
+                logging.info(e)
+                raise ConnectionError
+            except ConnectionRefusedError as e:
+                logging.info(e)
+                raise ConnectionRefusedError
+            except Exception as e:
+                print(e)
+                print("retrying...")
+                time.sleep(1)
+                max_try_turn -= 1
 
-        if max_turn == 0 or response is None:
+        if max_try_turn < 0 or response is None:
             return "The task execute failed.", {"input": f"Your name is {self.name}.\n{instruction}", "action_list": [],
                                                 "final_answer": "The task execute failed.", "chain_input": llmhandler.chain_input, "seralized_input": llmhandler.seralized_input}
         # print(response)

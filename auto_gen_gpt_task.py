@@ -140,7 +140,7 @@ def auto_gen_one_task(use_existing_task=False):
             
             basic_tools = [
                 Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
-                Agent.UseItemOnEntity,
+                Agent.useItemOnEntity,
                 Agent.MineBlock, Agent.placeBlock, Agent.equipItem,
                 Agent.handoverBlock, Agent.SmeltingCooking, Agent.talkTo, Agent.waitForFeedback,
                 Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,Agent.ToggleAction, 
@@ -167,7 +167,7 @@ def auto_gen_one_task(use_existing_task=False):
         # more agent tools can be added here you can refer to the agent_tool in doc/api_library.md
         basic_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
-            Agent.UseItemOnEntity,
+            Agent.useItemOnEntity,
             Agent.MineBlock, Agent.placeBlock, Agent.equipItem,
             Agent.handoverBlock, Agent.SmeltingCooking, Agent.talkTo, Agent.waitForFeedback,
             Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,Agent.ToggleAction, 
@@ -258,7 +258,7 @@ def auto_gen_one_task(use_existing_task=False):
         # Use LLM to select the agent tool
         prompt_agent_tool = """
         Select the agent tool for the agent to complete the task in the Minecraft environment. The agent basic tools are:
-        attackTarget, UseItemOnEntity, equipItem, handoverBlock, SmeltingCooking, 
+        attackTarget, useItemOnEntity, equipItem, handoverBlock, SmeltingCooking, 
         talkTo, waitForFeedback, storeItem, ToggleAction,
         sleep, wake, tossItem, read, get_entity_info, get_environment_info, performMovement,
         startFishing, stopFishing, mountEntity, dismountEntity.

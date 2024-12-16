@@ -196,7 +196,7 @@ class TaskManager:
                                                                      "meta-data": content},
                                                             "agent_ability": self.agent_describe,
                                                             "env": env_description,
-                                                            "num": len(self.agent_list)})
+                                                            "num": max(len(self.agent_list), 3)})
         elif self.manage_method == "merge":
             system_prompt = DECOMPOSE_SYSTEM_PROMPT
             user_prompt = format_string(DECOMPOSE_USER_PROMPT, {"task": {"description": description, 
@@ -213,7 +213,7 @@ class TaskManager:
                                                        check_tags=["description", "milestones", "assigned agents"])
         self.update_history(system_prompt, user_prompt, response)
         result = extract_info(response, guard_keys=["description", "milestones"])
-        omit_keys = [("assigned agent", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
+        omit_keys = [("assigned agents", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
         result = self.fill_keys_omit(result, omit_keys) # fill the result with empty data
         self.logger.warning(response)
 
@@ -306,16 +306,34 @@ class TaskManager:
         for res in result:
             for key in keys:
                 if key[0] not in res.keys():
-                    if key[1] == "dict":
-                        res[key[0]] = {}
-                    elif key[1] == "list":
-                        res[key[0]] = []
-                    elif key[1] == "str":
-                        res[key[0]] = ""
-                    elif key[1] == "int" or key[1] == "float":
-                        res[key[0]] = 0
+                    # 从keys中找到最相近的key， 相似度大于0.8
+                    similar_key = None
+                    similar_score = 0
+                    for k in res.keys():
+                        similar_score = 0
+                        if k.replace(" ", "") == key[0] or \
+                            k.replace("_", "") == key[0] or \
+                            k.replace(" ", "_") == key[0] or \
+                            k.replace("_", " ") == key[0] or \
+                            k.upper() == key[0].upper() or \
+                            k.lower() == key[0].lower():
+                            similar_score = 1
+                            similar_key = k
+                    if similar_score > 0.8:
+                        print(f"match key {key[0]} to {similar_key}")
+                        res[key[0]] = res[similar_key]
+
                     else:
-                        res[key[0]] = None
+                        if key[1] == "dict":
+                            res[key[0]] = {}
+                        elif key[1] == "list":
+                            res[key[0]] = []
+                        elif key[1] == "str":
+                            res[key[0]] = ""
+                        elif key[1] == "int" or key[1] == "float":
+                            res[key[0]] = 0
+                        else:
+                            res[key[0]] = None
         return result
 
     
@@ -472,7 +490,7 @@ class TaskManager:
                                                             "agent_state": [self.dm.query_history(agent.name) for agent in self.agent_list], 
                                                             "failure_previous_subtask": self.fail_trace_description,
                                                             "success_previous_subtask": self.task_trace_description,
-                                                            "num": len(self.agent_list)})
+                                                            "num": max(len(self.agent_list), 3)})
     
 
 
@@ -483,7 +501,7 @@ class TaskManager:
                                                        check_tags=["description", "milestones", "assigned agents"])
         self.update_history(system_prompt, user_prompt, response)
         result = extract_info(response, guard_keys=["description", "milestones", "assigned agents"])
-        omit_keys = [("assigned agent", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
+        omit_keys = [("assigned agents", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
         result = self.fill_keys_omit(result, omit_keys)
         result
         self.logger.warning(response)

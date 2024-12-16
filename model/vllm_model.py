@@ -78,7 +78,7 @@ class VLLMLanguageModel(AbstractLanguageModel):
     def evaluate_states(self, states):
         pass
 
-    @retry(tries=5, delay=10, backoff=2, max_delay=60)
+    @retry(tries=5, delay=1, backoff=2, max_delay=5)
     def few_shot_generate_thoughts(self, system_prompt: str = "", example_prompt: [str] or str = [], 
                                  max_tokens=2048, temperature=0.2, top_p=0.7, top_k=1,
                                  stop: [str]=None, cache_enabled=True, api_model="",
@@ -143,7 +143,9 @@ class VLLMLanguageModel(AbstractLanguageModel):
             
             # Validate response
             for tag in check_tags:
-                if tag not in content:
+                if tag not in content and tag.lower() not in content and tag.upper() not in content \
+                    and tag.capitalize() not in content and tag.replace("_", " ") not in content \
+                        and tag.replace(" ", "_") not in content:
                     raise Exception(f"tag {tag} not in content {content}")
             if json_check:
                 if len(extract_info(content)) == 0:

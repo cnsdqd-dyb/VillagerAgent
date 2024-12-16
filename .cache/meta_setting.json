@@ -1,27 +1,30 @@
 {
-    "api_model": "gpt-4-1106-preview",
-    "api_base": "https://api.chatanywhere.tech/v1",
+    "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+    "api_base": "http://10.130.130.13:8003/v1",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Place the oak_fence_gate at (8, -58, 8), facing north. The oak_fence_gate is in the inventory.",
-    "task_scenario": "place",
+    "task_goal": "Cook the cod in furnace by coal. The coal and the cod are in the inventory.",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "oak_fence_gate",
+        "target": "furnace",
         "x": 8,
         "y": -60,
         "z": 8,
-        "facing": "north",
+        "facing": "",
         "item_position": "inventory",
         "tool": "",
-        "action": "",
+        "action": "cook",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "coal",
+            "cod"
+        ]
     },
     "document_file": "",
-    "host": "10.192.24.163",
+    "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "meta_test"
+    "task_name": "interact_cook_id0"
 }
