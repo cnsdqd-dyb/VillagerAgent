@@ -208,6 +208,8 @@ if __name__ == "__main__":
         #     "api_base": "http://10.130.130.13:8002/v1",
         #     "api_model": "/mount/NAS1/public/Qwen2.5-0.5B-Instruct-GPTQ-Int8"
         # }
+
+        api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
         llm_config = {
             # "api_model": "gpt-4o",
             "api_model": "gpt-4-1106-preview",

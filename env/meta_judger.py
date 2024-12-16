@@ -728,7 +728,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
         
         elif config["task_scenario"] == "interact":
             if arg_dict["action"] == "cook":
-                if aligned_item_name(arg_dict["other_org"][-1]) != "potato":
+                if aligned_item_name(arg_dict["other_arg"][-1]) != "potato":
                     goal_item = "cooked_" + aligned_item_name(arg_dict["other_arg"][-1])  # 设置最后一个位置是放置需要烤的东西
                 else:
                     goal_item = "baked_" + aligned_item_name(arg_dict["other_arg"][-1])   
