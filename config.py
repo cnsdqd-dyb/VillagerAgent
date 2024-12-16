@@ -17,7 +17,7 @@ orx = 0     #origin_point
 ory = -61
 orz = 0
 
-task_number = 3
+task_number = 100
 
 logger = init_logger("TASK_GOAL", dump=False, level=logging.DEBUG, silent=False)
 
@@ -301,7 +301,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     arg_dict["target"] = block["name"]
                     arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                     arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-                    arg_dict["y"] = random.randint(ory + 1, ory + 4)
+                    arg_dict["y"] = random.randint(ory + 1, ory + 2)
                     facing = []
                     for state in block["states"]:
                         if "values" in state:

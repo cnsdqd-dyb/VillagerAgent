@@ -6,19 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Place the oak_fence_gate at (8, -58, 8), facing north. The oak_fence_gate is in the inventory.",
-    "task_scenario": "place",
+    "task_goal": "Cook the cod in furnace by coal. The coal and the cod are in the inventory.",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "oak_fence_gate",
+        "target": "furnace",
         "x": 8,
         "y": -60,
         "z": 8,
-        "facing": "north",
+        "facing": "",
         "item_position": "inventory",
         "tool": "",
-        "action": "",
+        "action": "cook",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "coal",
+            "cod"
+        ]
     },
     "document_file": "",
     "host": "10.192.24.163",

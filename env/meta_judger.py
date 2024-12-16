@@ -10,6 +10,9 @@ import argparse
 from minecraft_define import *
 from env_api import *
 import random
+import platform
+
+system_type = platform.system().lower()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--idx', type=int, default=0, help='the index of the escape test to be judged')
@@ -32,7 +35,10 @@ mineflayer = require('mineflayer')
 pathfinder = require('mineflayer-pathfinder')
 collectBlock = require('mineflayer-collectblock')
 pvp = require("mineflayer-pvp").plugin
-minecraftHawkEye = require("minecrafthawkeye").default
+if system_type == 'linux':
+    minecraftHawkEye = require("minecrafthawkeye").default
+else:
+    minecraftHawkEye = require("minecrafthawkeye")
 Vec3 = require("vec3")
 Socks = require("socks5-client")
 minecraftData = require('minecraft-data')
@@ -278,9 +284,9 @@ def handleViewer(*args):
     # time.sleep(.2)
     # 清空原来的环境
 
-    peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
-    hill_height = 3
-    generate_hill(peakx, peakz, hill_height)
+    # peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
+    # hill_height = 3
+    # generate_hill(peakx, peakz, hill_height)
     # 生成土丘
 
     feature = random.choice(feature_list)
@@ -385,18 +391,23 @@ def handleViewer(*args):
                         generate_recipe_hint([goal_item])
             else:
                 generate_recipe_hint([goal_item])
-        craft_x, craft_y, craft_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
-        while craft_y > ory + 4:    # 避免生成在太高的地方
+        craft_num = 3
+        craft_pos = []
+        for _ in range(craft_num):
             craft_x, craft_y, craft_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
+            while craft_y > ory + 4 or (craft_x, craft_y, craft_z) in craft_pos:    # 避免生成在太高的地方
+                craft_x, craft_y, craft_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
+            craft_pos.append((craft_x, craft_y, craft_z))
+            bot.chat(f"/setblock {craft_x} {craft_y} {craft_z} crafting_table")
+            time.sleep(.2)
+
         if arg_dict["item_position"] == "chest": # 材料在随机位置的箱子里
-            set_chest([(craft_x, craft_y, craft_z)], ingredients_list)
+            set_chest(craft_pos, ingredients_list)
         elif arg_dict["item_position"] == "inventory": # 材料在Agent身上
             for ingredients in ingredients_list:
                 bot.chat(f"/give {agent_name} {ingredients['name']} {ingredients['count']}")
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
-
-        bot.chat(f"/setblock {craft_x} {craft_y} {craft_z} crafting_table")
 
     elif config["task_scenario"] == "place":
         goal_item = aligned_item_name(arg_dict["target"])
@@ -450,17 +461,27 @@ def handleViewer(*args):
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
         elif interact_type == "block":
             if arg_dict["action"] == "cook":
-                furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)        
+                furnace_num = 3
+                furnace_pos = []
+                for _ in range(furnace_num):
+                    furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
+                    while furnace_y > ory + 4 or (furnace_x, furnace_y, furnace_z) in furnace_pos:    # 避免生成在太高的地方
+                        furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
+                    furnace_pos.append((furnace_x, furnace_y, furnace_z))
+                    bot.chat(f"/setblock {furnace_x} {furnace_y} {furnace_z} furnace")
+                    time.sleep(.2)
+
+
+                # furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)        
                 item_list = [{"name": item, "count": 1} for item in arg_dict['other_arg']]
                 if arg_dict["item_position"] == "inventory":
                     for item in item_list:                    
                         bot.chat(f"/give {agent_name} {item['name']} {item['count']}")
                         time.sleep(.1)
                 elif arg_dict["item_position"] == "chest":
-                    set_chest([(furnace_x, furnace_y, furnace_z)], item_list)
+                    set_chest(furnace_pos, item_list)
                 else:
                     bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
-                bot.chat(f"/setblock {furnace_x} {furnace_y} {furnace_z} furnace")
             if arg_dict["action"] == "store":
                 bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} chest")
                 bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]} 1")
@@ -705,7 +726,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                 if aligned_item_name(arg_dict["other_org"][-1]) != "potato":
                     goal_item = "cooked_" + aligned_item_name(arg_dict["other_arg"][-1])  # 设置最后一个位置是放置需要烤的东西
                 else:
-                    goal_item = "baked_potato" + aligned_item_name(arg_dict["other_arg"][-1])   
+                    goal_item = "baked_" + aligned_item_name(arg_dict["other_arg"][-1])   
             elif arg_dict["action"] == "handover":
                 goal_item = arg_dict["other_arg"][0]
             elif arg_dict["action"] == "milk":

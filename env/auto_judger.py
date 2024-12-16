@@ -9,7 +9,9 @@ import os
 import argparse
 from minecraft_define import *
 from env_api import *
+import platform
 
+system_type = platform.system().lower()
 parser = argparse.ArgumentParser()
 parser.add_argument('--idx', type=int, default=0, help='the index of the escape test to be judged')
 parser.add_argument('--max_task_num', type=int, default=1, help='how many tasks in the test')
@@ -33,7 +35,10 @@ mineflayer = require('mineflayer')
 pathfinder = require('mineflayer-pathfinder')
 collectBlock = require('mineflayer-collectblock')
 pvp = require("mineflayer-pvp").plugin
-minecraftHawkEye = require("minecrafthawkeye").default
+if system_type == 'linux':
+    minecraftHawkEye = require("minecrafthawkeye").default
+else:
+    minecraftHawkEye = require("minecrafthawkeye")
 Vec3 = require("vec3")
 Socks = require("socks5-client")
 minecraftData = require('minecraft-data')

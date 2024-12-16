@@ -155,7 +155,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
 if __name__ == "__main__":
 
-    with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/_mount_NAS1_public_Qwen2_5_0_5B_Instruct_GPTQ_Int8_launch_config_meta.json", "r") as f:
+    with open("meta_test_config.json", "r") as f:
         launch_config = json.load(f)
     for i, config in enumerate(launch_config):
 
@@ -182,12 +182,19 @@ if __name__ == "__main__":
         #     "api_base": "http://10.130.130.13:8002/v1",
         #     "api_model": "/mount/NAS1/public/Qwen2.5-0.5B-Instruct-GPTQ-Int8"
         # }
+        # llm_config = {
+        #     "api_key": "sk-qwen7b",
+        #     "api_base": "http://10.130.130.13:8003/v1",
+        #     "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4"
+        # }
+        api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
         llm_config = {
-            "api_key": "sk-qwen7b",
-            "api_base": "http://10.130.130.13:8003/v1",
-            "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4"
+            # "api_model": "gpt-4o",
+            "api_model": "gpt-4-1106-preview",
+            # "api_base": "https://api.openai.com/v1/",
+            "api_base": "https://api.chatanywhere.tech/v1",
+            "api_key_list": api_key_list
         }
-
 
         process = multiprocessing.Process(target=run,
                                             args=(llm_config["api_model"],
@@ -203,7 +210,7 @@ if __name__ == "__main__":
                                                 config["port"],
                                                 config["task_name"],
                                                 config.get("role", "same"),
-                                                [llm_config["api_key"]]
+                                                [llm_config["api_key_list"]]
                                             )
                                           )
         process.start()
