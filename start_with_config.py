@@ -209,19 +209,15 @@ if __name__ == "__main__":
         #     "api_base": "http://10.130.130.13:8002/v1",
         #     "api_model": "/mount/NAS1/public/Qwen2.5-0.5B-Instruct-GPTQ-Int8"
         # }
-        # llm_config = {
-        #     "api_key": "sk-qwen7b",
-        #     "api_base": "http://10.130.130.13:8003/v1",
-        #     "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
-        #     "api_key_list": ["sk-qwen7b"]
-        # }
-        llm_config = {
-            "api_key": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"][0],
-            "api_base": "https://api.chatanywhere.tech/v1",
-            "api_model": "gpt-4o-mini",
-            "api_key_list": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
-        }
 
+        api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+        llm_config = {
+            # "api_model": "gpt-4o",
+            "api_model": "gpt-4-1106-preview",
+            # "api_base": "https://api.openai.com/v1/",
+            "api_base": "https://api.chatanywhere.tech/v1",
+            "api_key_list": api_key_list
+        }
 
         process = multiprocessing.Process(target=run,
                                             args=(llm_config["api_model"],
@@ -237,7 +233,7 @@ if __name__ == "__main__":
                                                 config["port"],
                                                 config["task_name"],
                                                 config.get("role", "same"),
-                                                llm_config["api_key_list"]
+                                                [llm_config["api_key_list"]]
                                             )
                                           )
         process.start()
