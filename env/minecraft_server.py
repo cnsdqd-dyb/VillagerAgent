@@ -7,7 +7,9 @@ from random import randint, choice
 from env_api import *
 from functools import wraps
 import re
+import platform
 
+system_type = platform.system().lower()
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf8')
 os.environ["REQ_TIMEOUT"] = "1800000"
 app = Flask(__name__)
@@ -28,8 +30,13 @@ mineflayer = require('mineflayer')
 pathfinder = require('mineflayer-pathfinder')
 collectBlock = require('mineflayer-collectblock')
 pvp = require("mineflayer-pvp").plugin
-minecraftHawkEye = require("minecrafthawkeye")
 Vec3 = require("vec3")
+
+if system_type == 'linux':
+    minecraftHawkEye = require("minecrafthawkeye").default
+else:
+    minecraftHawkEye = require("minecrafthawkeye")
+
 mineflayerViewer = require('prismarine-viewer').mineflayer
 Socks = require("socks5-client")
 minecraftData = require('minecraft-data')
@@ -471,6 +478,12 @@ def place():
     """place item_name x y z facing: place item at x y z, facing is one of [W, E, S, N, x, y, z, A]."""
     data = request.get_json()
     item_name, x, y, z, facing = data.get('item_name'), data.get('x'), data.get('y'), data.get('z'), data.get('facing')
+    if "minecart" in item_name.lower().replace(" ", "_") \
+        or "seeds" in item_name.lower().replace(" ", "_") \
+        or "boat" in item_name.lower().replace(" ", "_") \
+        or "saddle" in item_name.lower().replace(" ", "_"):
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': f"can not place {item_name} --> try useItemOnEntity", 'status': False, "new_events": events})
     if facing.lower() == 'default':
         facing = 'A'
     if facing.lower() == 'up' or facing.lower() == 'down':
@@ -1066,9 +1079,13 @@ def look_at():
 @log_activity(bot)
 def start_fishing():
     """start_fishing: start fishing."""
+    
     envs_info = get_envs_info(bot, 128)
     data = request.get_json()
     fish_name = data.get('fish_name')
+    if fish_name == "":
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "fish_name is empty.", 'status': False, "new_events": events})
     msg, tag = startFishing(bot, fish_name, Vec3, envs_info, mcData)
     done = tag
     events = info_bot.get_action_description_new()
@@ -1173,6 +1190,7 @@ def handleViewer(*args):
     time.sleep(.1)
     bot.chat('/clear @s')
     bot.chat('/give @s dirt 20')
+
     time.sleep(.1)
 
     @On(bot, 'move')

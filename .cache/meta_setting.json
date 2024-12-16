@@ -6,27 +6,26 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use bone meal to grow the large_fern at (23, -60, 24). The bone meal is in the inventory. If the large_fern is not in the inventory, you can find seeds or crop in the inventory.",
+    "task_goal": "Build 3-jungle_stairs upward from (19, -60, 7). The stair is in the inventory, you may use some dirts internally to place the stair.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "bone_meal",
-        "x": 23,
+        "target": "jungle_stairs",
+        "x": 19,
         "y": -60,
-        "z": 24,
-        "facing": "",
+        "z": 7,
+        "facing": "west",
         "item_position": "inventory",
-        "tool": "bone_meal",
-        "action": "bone_meal",
+        "tool": "",
+        "action": "stair",
         "step": 1,
         "other_arg": [
             {
-                "base_block": "grass_block",
-                "crops": "large_fern"
+                "size": "3"
             }
         ]
     },
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "interact_bone_meal_id0"
+    "task_name": "interact_stair_id0"
 }

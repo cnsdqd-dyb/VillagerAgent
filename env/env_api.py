@@ -618,6 +618,7 @@ def get_entity_by(qtype, env_info, name, username=""):
 
 
 def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
+    global last_jump_time
     if pos is None:
         return False, "move failed, no target position"
     mv_ = pathfinder.Movements(bot)
@@ -671,7 +672,7 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
         # bot.chat(f'moving {max_steps}')
         if mean_v < 0.2:
             max_steps -= 1
-        if mean_v < 0.05 and last_jump_time < time.time() - 5:
+        if mean_v < 0.05 and last_jump_time < time.time() - 10:
             x, y, z = bot.entity.position.x, bot.entity.position.y, bot.entity.position.z
             # tp to the y+2
             if bot.blockAt(Vec3(x, y + 1.2, z))['name'] == 'air':
@@ -2202,25 +2203,39 @@ def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, item_name, name):
     if not tag and (not bot.heldItem or bot.heldItem.name != item_name):
         return msg, tag
     try:
+        blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=5, max_same_block=3,visible_only=True)
+        for block in blocks:
+            if block['name'] == name:
+                bot.chat(f'#used {item_name} on {name}')
+                pos = Vec3(block["position"][0], block["position"][1], block["position"][2])
+                distance = distanceTo(bot.entity.position, pos)
+                if distance > 3:
+                    move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=pos)
+                bot.lookAt(pos)
+                bot.activateBlock(bot.blockAt(pos))
+                bot.useOn(bot.blockAt(pos))
+                bot.activateEntity(bot.blockAt(pos))
+                return f" use {item_name} on {name}", True
+
         entities = get_entity_by('name', envs_info, name, bot.entity.username)
         if len(entities) == 0:
-            entity = bot.nearestEntity()
+            return f"entity cannot be found nearby", False
         else:
             entity = entities[0]
-        bot.chat(f'#used {item_name} on {entity.name}')
-        move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=entity["position"])
-        bot.useOn(entity)
-        bot.activateEntity(entity)
-        
-        pos = bot.entity.position
-        bot.activateEntityAt(entity, pos)
-        # bot.chat(f'activated entity {name}')
-        bot.activateBlock(bot.blockAt(pos))
-        # bot.chat(f'#used {item_name} on {name}')
+            bot.chat(f'#used {item_name} on {entity.name}')
+            distance = distanceTo(bot.entity.position, entity["position"])
+            if distance > 3:
+                move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=entity["position"])
+            bot.useOn(entity)
+            bot.activateEntity(entity)
+            
+            pos = bot.entity.position
+            bot.activateEntityAt(entity, pos)
         return f" use {item_name} on {name}", True
     except Exception as e:
-        # bot.chat(f'unable to use: {e}')
-        return f"unable to use {item_name}", tag
+        print(e)
+        bot.chat(f'unable to use: {e}')
+        return f"unable to use {item_name} {e}", False
     
 def interactItem(bot, item_name):
     try:

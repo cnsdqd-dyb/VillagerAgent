@@ -18,13 +18,13 @@ print(f"pipeline Time taken: {time.time() - start_time}")
 start_time = time.time()
 
 
-def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num: int, dig_needed: bool, max_task_num: int, task_goal: str, document_file: str, host: str, port: int, task_name: str, role: str = "same", api_key_list: list = []):
+def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num: int, dig_needed: bool, max_task_num: int, task_goal: str, document_file: str, host: str, port: int, task_name: str, role: str = "same", api_key_list: list = [], document: dict = {}):
     start_time = time.time()
 
     # # 设置agent，都使用gpt-4-0125-preview
     # # Agent.model = "gpt-3.5-turbo-1106"
     # Agent.base_url = "https://api.openai.com/v1/"
-    Agent.model = "gpt-4-0125-preview"
+    Agent.model = "gpt-4-1106-preview"
     Agent.base_url = "https://api.chatanywhere.tech/v1"
     Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 
@@ -70,7 +70,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.useItemOnEntity, 
                       Agent.MineBlock, Agent.placeBlock, Agent.equipItem, Agent.handoverBlock, Agent.SmeltingCooking, Agent.withdrawItem, 
                       Agent.storeItem, Agent.craftBlock, Agent.eat, Agent.fetchContainerContents, 
-                      Agent.openContainer, Agent.closeContainer, Agent.performMovement, 
+                      Agent.openContainer, Agent.performMovement, 
                       Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback, Agent.startFishing, Agent.ToggleAction, 
                       Agent.read, Agent.write, Agent.mountEntity, Agent.dismountEntity, Agent.rideEntity, Agent.disrideEntity]
     else:
@@ -151,7 +151,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         tm_llm_config = {
             "api_key": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"][0],
             "api_base": "https://api.chatanywhere.tech/v1",
-            "api_model": "gpt-4o-mini",
+            "api_model": "gpt-4-1106-preview",
             "api_key_list": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
         }
 
@@ -170,8 +170,8 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         # }
 
         ctrl.task_manager.llm = init_language_model(tm_llm_config)
-
-        document = json.load((open(document_file))) if os.path.exists(document_file) else {}
+        if document == {}:
+            document = json.load((open(document_file))) if os.path.exists(document_file) else {}
         tm.init_task(description=task_goal, document=document)
 
         ctrl.run()
@@ -233,7 +233,8 @@ if __name__ == "__main__":
                                                 config["port"],
                                                 config["task_name"],
                                                 config.get("role", "same"),
-                                                [llm_config["api_key_list"]]
+                                                [llm_config["api_key_list"]],
+                                                config.get("evaluation_arg", {})
                                             )
                                           )
         process.start()

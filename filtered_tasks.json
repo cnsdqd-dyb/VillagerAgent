@@ -7,7 +7,7 @@
         "agent_num": 1,
         "dig_needed": false,
         "max_task_num": 0,
-        "task_goal": "Use bone meal to grow the large_fern at (23, -60, 24). The bone meal is in the inventory. If the large_fern is not in the inventory, you can find seeds or crop in the inventory.",
+        "task_goal": "First place sunflower at (23, -60, 24), then Use bone meal to grow it. The bone meal is in your inventory. If the sunflower is not in the inventory, you can find seeds or crop in the inventory.",
         "task_scenario": "interact",
         "evaluation_arg": {
             "target": "bone_meal",
@@ -22,7 +22,7 @@
             "other_arg": [
                 {
                     "base_block": "grass_block",
-                    "crops": "large_fern"
+                    "crops": "sunflower"
                 }
             ]
         },
@@ -39,7 +39,7 @@
         "agent_num": 1,
         "dig_needed": false,
         "max_task_num": 0,
-        "task_goal": "Build a 3 ladder upward start from (13, -60, 9). The ladder is in the chest, you may use some dirts internally on the other side to place the ladder.",
+        "task_goal": "Build a 3 ladder upward start from (13, -60, 9). The ladder is in the chest, you may use some dirts at near places internally to place the ladder.",
         "task_scenario": "interact",
         "evaluation_arg": {
             "target": "ladder",
@@ -97,12 +97,12 @@
         "agent_num": 1,
         "dig_needed": false,
         "max_task_num": 0,
-        "task_goal": "The inventory contains the fishing rod; use it to fish at coordinates (1, -63, 22).",
+        "task_goal": "The inventory contains the fishing rod; use it to fish at coordinates (1, -61, 22).",
         "task_scenario": "interact",
         "evaluation_arg": {
             "target": "salmon",
             "x": 1,
-            "y": -63,
+            "y": -61,
             "z": 22,
             "facing": "",
             "item_position": "inventory",
@@ -186,10 +186,10 @@
         "agent_num": 1,
         "dig_needed": false,
         "max_task_num": 0,
-        "task_goal": "Ride the boat and dismount it. The boat is in the inventory.",
+        "task_goal": "Ride the acacia_boat and dismount it. The boat is in the inventory.",
         "task_scenario": "interact",
         "evaluation_arg": {
-            "target": "boat",
+            "target": "acacia_boat",
             "x": 24,
             "y": -60,
             "z": 16,
@@ -337,10 +337,10 @@
         "agent_num": 1,
         "dig_needed": false,
         "max_task_num": 0,
-        "task_goal": "Awaken after having slept in the bed that resides within the inventory.",
+        "task_goal": "Awaken after having slept in the red_bed that resides within the inventory.",
         "task_scenario": "interact",
         "evaluation_arg": {
-            "target": "bed",
+            "target": "red_bed",
             "x": 25,
             "y": -60,
             "z": 9,

@@ -381,7 +381,7 @@ class Agent():
     @tool
     @timeit
     def useItemOnEntity(player_name: str, item_name: str, entity_name: str):
-        """Use a Specific Item on a Specific Entity, return string result"""
+        """Use a Specific Item on a Specific Entity, return string result (minecaft on rail, bone on dog, seeds on dirt, bucket on water, saddle on horse, etc)"""
         url = Agent.get_url_prefix()[player_name] + "/post_use_on"
         data = {
             "item_name": item_name.lower().replace(" ", "_"),
@@ -430,7 +430,7 @@ class Agent():
             "y": y,
             "z": z,
             "facing": facing,
-        }
+        }            
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
 
@@ -1044,13 +1044,19 @@ class Agent():
 
 
 if __name__ == "__main__":
-    Agent.api_key_list = [
-        ""
-    ]
-    Agent.model = "llama_gptq4/"
+
+    api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+    # llm_config = {
+    #     # "api_model": "gpt-4o",
+    #     "api_model": "gpt-4-1106-preview",
+    #     # "api_base": "https://api.openai.com/v1/",
+    #     "api_base": "https://api.chatanywhere.tech/v1",
+    #     "api_key_list": api_key_list
+    # }
+    Agent.model = "gpt-4-1106-preview"
     agent1 = Agent(name="Alice", local_port=5001, tools=[Agent.equipItem, Agent.startFishing])
-    Agent.base_url = "http://10.130.130.13:8000/v1"
-    Agent.api_key_list = ["sk-villageragent"]
+    Agent.base_url = "https://api.chatanywhere.tech/v1"
+    Agent.api_key_list = api_key_list
     Agent.launch(host="10.214.180.148", port=25565)
     # print(Agent.ping("Alice"))
     # url = Agent.get_url_prefix()["Alice"] + "/post_start_fishing"
@@ -1060,11 +1066,11 @@ if __name__ == "__main__":
     # response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
     # print(response.json())
     from langchain.chat_models import ChatOpenAI
-    llm = ChatOpenAI(model=Agent.model, temperature=0, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
-    response = llm.invoke("你好，请介绍一下自己")
-    print(response)
-    # Prompt = "You are Alice, you have a fishing rod in your hand, cating some salmon."
-    # agent1.run(Prompt)
+    llm = ChatOpenAI(model=Agent.model, temperature=0.1, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
+    # response = llm.invoke("use bone_meal on the large_fern")
+    # print(response)
+    Prompt = "You are act as Alice, use bone_meal on the oak_sapling at 23 -60 24"
+    agent1.run(Prompt, tools=[Agent.useItemOnEntity])
     # actions = []
     # observations = []
     # while True:
