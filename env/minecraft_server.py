@@ -75,8 +75,11 @@ def log_activity(bot):
 @app.route('/post_ping', methods=['GET'])
 @log_activity(bot)
 def ping():
-    return jsonify({'message': 'pong', 'status': True})
-
+    try:
+        bot_name = bot.entity.username
+        return jsonify({'message': 'pong', 'status': True})
+    except Exception as e:
+        return jsonify({'message': 'timeout', 'status': False})
 
 @app.route('/post_render', methods=['POST'])
 @log_activity(bot)
@@ -1037,7 +1040,7 @@ def action():
         return jsonify({'message': "I jump in a few seconds", 'status': True, "new_events": events})
     else:
         events = info_bot.get_action_description_new()
-        return jsonify({'message': "I cannot do this action", 'status': False, "new_events": events})
+        return jsonify({'message': f"I cannot do the action {action_name}, it is not in the list of [swing_arm, forward, back, left, right, jump, sprint].", 'status': False, "new_events": events})
 
 
 @app.route('/post_look_at', methods=['POST'])
@@ -1165,12 +1168,11 @@ def handleViewer(*args):
 
     path = [bot.entity.position]
 
-    bot.chat('/gamemode creative')
-    # bot.chat('/gamemode survival')
+    # bot.chat('/gamemode creative')
+    bot.chat('/gamemode survival')
     time.sleep(.1)
     bot.chat('/clear @s')
-    bot.chat('/give @s fishing_rod')
-    bot.chat('/give @s dirt 10')
+    bot.chat('/give @s dirt 20')
     time.sleep(.1)
 
     @On(bot, 'move')
@@ -1272,14 +1274,14 @@ def handleViewer(*args):
     def entitySpawn(this, entity):
         if entity.type == "mob":
             p = entity.position
-            info_bot.add_event("entitySpawn", info_bot.existing_time, f"A {entity.displayName} spawned at {position_to_string(p)}", True, acition=False)
+            info_bot.add_event("entitySpawn", info_bot.existing_time, f"A {entity.displayName} spawned", True, acition=False)
             # console.log(f"Look out! A {entity.displayName} spawned at {p.toString()}")
         elif entity.type == "player":
             pass
             # bot.chat(f"Look who decided to show up: {entity.username}")
         elif entity.type == "object":
             p = entity.position
-            info_bot.add_event("entitySpawn", info_bot.existing_time, f"There's a {entity.displayName} at {position_to_string(p)}", True)
+            info_bot.add_event("entitySpawn", info_bot.existing_time, f"There's a {entity.displayName}", True)
             # console.log(f"There's a {entity.displayName} at {p.toString()}")
         elif entity.type == "global":
             pass

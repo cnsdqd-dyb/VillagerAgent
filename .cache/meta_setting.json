@@ -8,16 +8,25 @@
     "max_task_num": 0,
     "task_goal": "Cook the cod in furnace by coal. The coal and the cod are in the inventory.",
     "task_scenario": "interact",
+    "task_goal": "Cook the cod in furnace by coal. The coal and the cod are in the inventory.",
+    "task_scenario": "interact",
     "evaluation_arg": {
+        "target": "furnace",
         "target": "furnace",
         "x": 8,
         "y": -60,
         "z": 8,
         "facing": "",
+        "facing": "",
         "item_position": "inventory",
         "tool": "",
         "action": "cook",
+        "action": "cook",
         "step": 1,
+        "other_arg": [
+            "coal",
+            "cod"
+        ]
         "other_arg": [
             "coal",
             "cod"

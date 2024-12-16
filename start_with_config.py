@@ -6,6 +6,7 @@ import psutil
 
 import time
 from env.env import VillagerBench, env_type, Agent
+from model.init_model import init_language_model
 
 start_time = time.time()
 from pipeline.controller_tiny import GlobalController
@@ -21,15 +22,15 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
     start_time = time.time()
 
     # # 设置agent，都使用gpt-4-0125-preview
-    # Agent.model = "gpt-4-1106-preview"
     # # Agent.model = "gpt-3.5-turbo-1106"
-    # # Agent.base_url = "https://api.openai.com/v1/"
-    # Agent.base_url = "https://api.chatanywhere.tech/v1"
-    # Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+    # Agent.base_url = "https://api.openai.com/v1/"
+    Agent.model = "gpt-4-0125-preview"
+    Agent.base_url = "https://api.chatanywhere.tech/v1"
+    Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 
     # # Agent use llama_gptq4
     # Agent.model = "llama_gptq4/"
-    # Agent.base_url = "http://10.130.130.13:8000/v1"
+    # Agent.base_url = "http://10.130.130.13:8001/v1"
     # Agent.api_key_list = ["sk-villageragent"]
 
     # # Agent use Qwen2.5-0.5B-Instruct-GPTQ-Int8
@@ -37,10 +38,10 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
     # Agent.base_url = "http://10.130.130.13:8002/v1"
     # Agent.api_key_list = ["sk-qwen05b"]
 
-    # Agent use Qwen2.5-7B-Instruct-GPTQ-Int4
-    Agent.model = "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4"
-    Agent.base_url = "http://10.130.130.13:8003/v1"
-    Agent.api_key_list = ["sk-qwen7b"]
+    # # Agent use Qwen2.5-7B-Instruct-GPTQ-Int4
+    # Agent.model = "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4"
+    # Agent.base_url = "http://10.130.130.13:8003/v1"
+    # Agent.api_key_list = ["sk-qwen7b"]
 
     # 设置env
     if task_type == "construction":
@@ -60,16 +61,16 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
                       Agent.navigateTo, Agent.withdrawItem, Agent.dismantleDirtLadder, Agent.erectDirtLadder, Agent.handoverBlock]
     elif task_type == "farming":
         agent_tool = [Agent.fetchContainerContents, Agent.MineBlock, Agent.scanNearbyEntities, Agent.equipItem, Agent.SmeltingCooking,
-                      Agent.navigateTo, Agent.withdrawItem, Agent.craftBlock, Agent.attackTarget, Agent.UseItemOnEntity,
+                      Agent.navigateTo, Agent.withdrawItem, Agent.craftBlock, Agent.attackTarget, Agent.useItemOnEntity,
                       Agent.handoverBlock]
     elif task_type == "puzzle":
         agent_tool = [Agent.placeBlock, Agent.fetchContainerContents, Agent.MineBlock, Agent.scanNearbyEntities, Agent.equipItem,
                       Agent.navigateTo, Agent.withdrawItem, Agent.ToggleAction, Agent.handoverBlock]
     elif task_type == "meta":
-        agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.UseItemOnEntity, Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback,
+        agent_tool = [Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.useItemOnEntity, Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback,
                       Agent.MineBlock, Agent.placeBlock, Agent.equipItem, Agent.handoverBlock, Agent.SmeltingCooking, Agent.withdrawItem, 
                       Agent.storeItem, Agent.craftBlock, Agent.eat, Agent.fetchContainerContents, Agent.ToggleAction, 
-                      Agent.openContainer, Agent.closeContainer,Agent.get_entity_info, Agent.get_environment_info, Agent.performMovement, Agent.startFishing,
+                      Agent.openContainer, Agent.closeContainer, Agent.performMovement, Agent.startFishing,
                       Agent.read, Agent.write, Agent.mountEntity, Agent.dismountEntity, Agent.rideEntity, Agent.disrideEntity]
     else:
         raise NotImplementedError
@@ -145,6 +146,30 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
             }
         ctrl = GlobalController(llm_config, tm, dm, env)
 
+
+        tm_llm_config = {
+            "api_key": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"][0],
+            "api_base": "https://api.chatanywhere.tech/v1",
+            "api_model": "gpt-4o-mini",
+            "api_key_list": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+        }
+
+        # tm_llm_config = {
+        #     "api_key": "sk-villageragent",
+        #     "api_base": "http://10.130.130.13:8001/v1",
+        #     "api_model": "llama_gptq4/",
+        #     "api_key_list": ["sk-villageragent"]
+        # }
+
+        # tm_llm_config = {
+        #     "api_key": "sk-qwen7b",
+        #     "api_base": "http://10.130.130.13:8003/v1",
+        #     "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
+        #     "api_key_list": ["sk-qwen7b"]
+        # }
+
+        ctrl.task_manager.llm = init_language_model(tm_llm_config)
+
         document = json.load((open(document_file))) if os.path.exists(document_file) else {}
         tm.init_task(description=task_goal, document=document)
 
@@ -174,20 +199,15 @@ if __name__ == "__main__":
 
         # llm_config = {
         #     "api_key": "sk-villageragent",
-        #     "api_base": "http://10.130.130.13:8000/v1",
-        #     "api_model": "llama_gptq4/"
+        #     "api_base": "http://10.130.130.13:8001/v1",
+        #     "api_model": "llama_gptq4/",
+        #     "api_key_list": ["sk-villageragent"]
         # }
         # llm_config = {
         #     "api_key": "sk-qwen05b",
         #     "api_base": "http://10.130.130.13:8002/v1",
         #     "api_model": "/mount/NAS1/public/Qwen2.5-0.5B-Instruct-GPTQ-Int8"
         # }
-        # llm_config = {
-        #     "api_key": "sk-qwen7b",
-        #     "api_base": "http://10.130.130.13:8003/v1",
-        #     "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4"
-        # }
-        api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
         llm_config = {
             # "api_model": "gpt-4o",
             "api_model": "gpt-4-1106-preview",

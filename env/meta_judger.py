@@ -599,6 +599,7 @@ def handle(this):
                 bot.chat(f'score: {score}')
 
             if config["task_scenario"] in ["craft", "move"] or (config["task_scenario"] == "useitem" and "sign" not in arg_dict["target"]):
+                bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                 bot.chat(f'/data get entity {agent_name}')
 
             elif config["task_scenario"] == "useitem":
@@ -624,16 +625,20 @@ def handle(this):
                 target = aligned_item_name(arg_dict["target"]) 
                 if interact_type == "block":
                     if arg_dict["action"] == "cook":
+                        bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {agent_name}')
                     if arg_dict["action"] == "store":
                         bot.chat(f"/data get block {arg_dict['x']} {arg_dict['y']} {arg_dict['z']}")
                 if interact_type == "animal":
                     if arg_dict["action"] in ["feed", "shear"]:
+                        bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f"/data get entity @e[type={target},limit=1,sort=nearest]")
                     if arg_dict["action"] == "milk":
+                        bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {agent_name}')
                 if interact_type == "player":
                     if arg_dict["action"] == "handover":
+                        bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {arg_dict["target"]}')
 
 
@@ -788,8 +793,12 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                         data_str = data_str[:pos] + replace_dict[1] + data_str[pos + len(replace_dict[0]):]
                         start = pos + len(replace_dict[1])
                         break
-                        
-            data = json.loads(data_str)
+
+            try:    
+                data = json.loads(data_str)
+            except: # Lazy fix
+                bot.chat(f"Error: JUDGER -- JSONDecodeError")
+                data = {}
 
             # cache_dir = 'tmp'
             # file_path = os.path.join(cache_dir, 'message.json')

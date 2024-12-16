@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     # more agent tools can be added here you can refer to the agent_tool in doc/api_library.md
     agent_tool = [Agent.fetchContainerContents, Agent.MineBlock, Agent.scanNearbyEntities, Agent.equipItem, Agent.SmeltingCooking,
-                      Agent.navigateTo, Agent.withdrawItem, Agent.craftBlock, Agent.attackTarget, Agent.UseItemOnEntity,
+                      Agent.navigateTo, Agent.withdrawItem, Agent.craftBlock, Agent.attackTarget, Agent.useItemOnEntity,
                       Agent.handoverBlock]
 
     # Register Agent
