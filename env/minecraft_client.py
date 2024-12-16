@@ -928,10 +928,10 @@ class Agent():
         # print(f"Your name is {self.name}. \n{instruction}")
         assert len(self.api_key_list) > 0, "Please set the api_key_list in Agent class."
         # dynamic api key
-        if "instruct" in self.model and "gpt" in self.model:
+        if ("instruct" in self.model and "gpt" in self.model):
             from langchain.llms import OpenAI
             self.llm = OpenAI(model=self.model, temperature=0, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
-        elif "gpt" in self.model:
+        elif "gpt" in self.model or "NAS" in self.model or "llama" in self.model:
             from langchain.chat_models import ChatOpenAI
             self.llm = ChatOpenAI(model=self.model, temperature=0,  max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
         elif "gemini" in self.model:
@@ -940,7 +940,8 @@ class Agent():
         elif "glm" in self.model:
             from zhipu import ChatZhipuAI
             self.llm = ChatZhipuAI(model_name=self.model, temperature=0.01, api_key=random.choice(Agent.api_key_list))
-        
+        else:
+            raise NotImplementedError(f"Model {self.model} not implemented.")
         # 这个地方是定义的agent的类型，初始化位置的agent没有被使用
         while max_try_turn > 0:
             random.shuffle(self.tools)

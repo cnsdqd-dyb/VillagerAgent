@@ -426,9 +426,13 @@ def use_on():
 @app.route('/post_sleep', methods=['POST'])
 @log_activity(bot)
 def sleep_():
+    if info_bot.is_sleeping():
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I am already sleeping", 'status': False, "new_events": events})
     """sleep: to sleep."""
     msg = sleep(bot, Vec3, mcData)
     done = True
+    info_bot.sleeping = True
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': done, "new_events": events})
 
@@ -437,11 +441,15 @@ def sleep_():
 @log_activity(bot)
 def wake_():
     """wake: to wake."""
-    msg = wake(bot)
-    done = True
-    events = info_bot.get_action_description_new()
-    return jsonify({'message': msg, 'status': done, "new_events": events})
-
+    if info_bot.is_sleeping():
+        msg = wake(bot)
+        done = True
+        info_bot.sleeping = False
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': done, "new_events": events})
+    else:
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': "I am not sleeping", 'status': False, "new_events": events})
 
 @app.route('/post_dig', methods=['POST'])
 @log_activity(bot)
@@ -1162,6 +1170,7 @@ def handleViewer(*args):
     time.sleep(.1)
     bot.chat('/clear @s')
     bot.chat('/give @s fishing_rod')
+    bot.chat('/give @s dirt 10')
     time.sleep(.1)
 
     @On(bot, 'move')
@@ -1432,6 +1441,10 @@ class Bot():
         self.existing_time = 0
         self.events_log = []
         self.action_log = []
+        self.sleeping = False
+
+    def is_sleeping(self):
+        return self.sleeping
 
     def add_event(self, event, time, description, status, acition=True):
         self.events_log.append({"event": event, "time": time, "description": description, "status": status, "new": True})

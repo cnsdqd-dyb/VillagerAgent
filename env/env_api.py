@@ -673,12 +673,12 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
             max_steps -= 1
             # bot.chat(f'bot seems like in an idle state.')
 
-    if max_steps <= 0 and distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL + 1.4:
+    if max_steps <= 0 and distanceTo(bot.entity.position, Vec3(pos.x, pos.y, pos.z)) >= RANGE_GOAL + 1.5:
         # # bot.chat('can not reach the position')
         if bot.blockAt(pos)['name'] == 'air':
-            return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z}, the position is in the air, check the environment"
+            return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z}, your pos: {bot.entity.position.x} {bot.entity.position.y} {bot.entity.position.z}, you need to jump or use dirt block to reach the position"
         else:
-            return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z}, the position is blocked, check the environment"
+            return False, f"move failed, can not reach position {pos.x} {pos.y} {pos.z}, your pos: {bot.entity.position.x} {bot.entity.position.y} {bot.entity.position.z}, the position is blocked, check the environment"
 
     # bot.lookAt(pos.offset(0, 0, 0))
 
@@ -860,19 +860,19 @@ async def place_block_op(bot, mcData, pathfinder, Vec3, item_name, pos, axis=Non
     if axis == 'N':
         offset = [0, 0, -1]
         if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
-            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
     elif axis == 'S':
         offset = [0, 0, 1]
         if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
-            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
     elif axis == 'W':
         offset = [-1, 0, 0]
         if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
-            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
     elif axis == 'E':
         offset = [1, 0, 0]
         if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
-            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
 
     elif axis == 'y':
         offset = [0, 1, 0]
@@ -886,7 +886,7 @@ async def place_block_op(bot, mcData, pathfinder, Vec3, item_name, pos, axis=Non
             has_reference_block = True
         
         if not has_reference_block:
-            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] - offset[1]} {pos[2] + offset[2]}. The ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks are needed to be placed first?"   
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] - offset[1]} {pos[2] + offset[2]}. The ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks (dirt) are needed to be placed first?"   
     elif axis == 'x':
         offset = [1, 0, 0]
         has_reference_block = False
@@ -896,7 +896,7 @@ async def place_block_op(bot, mcData, pathfinder, Vec3, item_name, pos, axis=Non
             has_reference_block = True
         
         if not has_reference_block:
-            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] - offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] - offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
     elif axis == 'z':
         offset = [0, 0, 1]
         has_reference_block = False
@@ -906,14 +906,14 @@ async def place_block_op(bot, mcData, pathfinder, Vec3, item_name, pos, axis=Non
             has_reference_block = True
         
         if not has_reference_block:
-            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] - offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no reference block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] - offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
         
     if not has_reference_block:
         # 找到正下方地面位置
         ground_y = pos[1]
         while bot.blockAt(Vec3(pos[0], ground_y - 1, pos[2]))['name'] == 'air':
             ground_y -= 1
-        return False, f"cannot place the block at this position, no reference block can be found, the ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks are needed to be placed first?"
+        return False, f"cannot place the block at this position, no reference block can be found, the ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks (dirt) are needed to be placed first?"
     
     bot.unequip("hand")
     bot.chat(f"/clear {bot.entity.username} {item_name} {1}")
@@ -990,19 +990,19 @@ async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
     if axis == 'N':
         offset = [0, 0, -1]
         if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
-            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
     elif axis == 'S':
         offset = [0, 0, 1]
         if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
-            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
     elif axis == 'W':
         offset = [-1, 0, 0]
         if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
-            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
     elif axis == 'E':
         offset = [1, 0, 0]
         if bot.blockAt(Vec3(pos[0] + offset[0], pos[1] + offset[1], pos[2] + offset[2]))['name'] == 'air':
-            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
 
     elif axis == 'y':
         offset = [0, 1, 0]
@@ -1016,7 +1016,7 @@ async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
             has_reference_block = True
         
         if not has_reference_block:
-            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] - offset[1]} {pos[2] + offset[2]}. The ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks are needed to be placed first?"   
+            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] - offset[1]} {pos[2] + offset[2]}. The ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks (dirt) are needed to be placed first?"   
     elif axis == 'x':
         offset = [1, 0, 0]
         has_reference_block = False
@@ -1026,7 +1026,7 @@ async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
             has_reference_block = True
         
         if not has_reference_block:
-            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] - offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] - offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
     elif axis == 'z':
         offset = [0, 0, 1]
         has_reference_block = False
@@ -1036,14 +1036,14 @@ async def place_axis(bot, mcData, pathfinder, Vec3, item_name, pos, axis=None):
             has_reference_block = True
         
         if not has_reference_block:
-            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] - offset[2]}, maybe some other blocks are needed to be placed first?"
+            return False, f"cannot place the block at this position facing {axis}, no valid other block at {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] + offset[2]} or {pos[0] + offset[0]} {pos[1] + offset[1]} {pos[2] - offset[2]}, maybe some other blocks (dirt) are needed to be placed first?"
         
     if not has_reference_block:
         # 找到正下方地面位置
         ground_y = pos[1]
         while bot.blockAt(Vec3(pos[0], ground_y - 1, pos[2]))['name'] == 'air':
             ground_y -= 1
-        return False, f"cannot place the block at this position, no valid other block can be found, the ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks are needed to be placed first?"
+        return False, f"cannot place the block at this position, no valid other block can be found, the ground block is at {pos[0]} {ground_y-1} {pos[2]}, maybe some other blocks (dirt) are needed to be placed first?"
 
     flag = False
     offsets = {"y": [[0, -1, 0], [0, 1, 0]], "x": [[-1, 0, 0], [1, 0, 0]], "z": [[0, 0, -1], [0, 0, 1]]}  # 参考方块的位置偏移
