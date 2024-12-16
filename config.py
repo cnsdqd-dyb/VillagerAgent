@@ -25,6 +25,8 @@ api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 llm_config = {
     # "api_model": "gpt-4o",
     "api_model": "gpt-4-1106-preview",
+    # "api_model": "Qwen2.5",
+    
     # "api_base": "https://api.openai.com/v1/",
     "api_base": "https://api.chatanywhere.tech/v1",
     "api_key_list": api_key_list
