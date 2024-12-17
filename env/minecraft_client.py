@@ -130,7 +130,7 @@ class Agent():
             Agent.useItemOnEntity, Agent.fetchContainerContents,
             Agent.MineBlock, Agent.placeBlock, Agent.equipItem,
             Agent.handoverBlock, Agent.SmeltingCooking, Agent.talkTo, Agent.waitForFeedback,
-            Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,Agent.ToggleAction, 
+            Agent.withdrawItem, Agent.storeItem, Agent.craftBlock, Agent.ToggleAction, 
         ]
         self.all_tools = [
             Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
@@ -517,7 +517,7 @@ class Agent():
     @tool
     @timeit
     def SmeltingCooking(player_name: str, item_name: str, item_count: int, fuel_item_name: str):
-        """Smelt or Cook Item in the Furnace"""
+        """Smelt or Cook Item in the Furnace, item_name is the item to be smelted, item_count is the number of items to be smelted, fuel_item_name is the fuel item."""
         url = Agent.get_url_prefix()[player_name] + "/post_smelt"
         data = {
             "item_name": item_name.lower().replace(" ", "_"),

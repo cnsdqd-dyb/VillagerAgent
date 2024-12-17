@@ -6,26 +6,27 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Build 3-jungle_stairs upward from (19, -60, 7). The stair is in the inventory, you may use some dirts internally to place the stair.",
+    "task_goal": "First place sunflower at (23, -60, 24), then Use bone meal to grow it. The bone meal is in your inventory. If the sunflower is not in the inventory, you can find seeds or crop in the inventory.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "jungle_stairs",
-        "x": 19,
+        "target": "bone_meal",
+        "x": 23,
         "y": -60,
-        "z": 7,
-        "facing": "west",
+        "z": 24,
+        "facing": "",
         "item_position": "inventory",
-        "tool": "",
-        "action": "stair",
+        "tool": "bone_meal",
+        "action": "bone_meal",
         "step": 1,
         "other_arg": [
             {
-                "size": "3"
+                "base_block": "grass_block",
+                "crops": "sunflower"
             }
         ]
     },
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "interact_stair_id0"
+    "task_name": "interact_bone_meal_id0"
 }
