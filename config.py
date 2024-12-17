@@ -656,7 +656,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             else:
                                 arg_dict["tool"] = "carrot_on_a_stick"
                             arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-
+    
                         elif action == "boat":
                             boat_color = ["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]
                             arg_dict["target"] = random.choice(boat_color) + "_boat"

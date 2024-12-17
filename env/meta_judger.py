@@ -430,7 +430,9 @@ def handleViewer(*args):
     elif config["task_scenario"] == "move":
         if arg_dict["item_position"] == "inventory":
             bot.chat(f"/give {agent_name} dirt 10")
+            time.sleep(.2)
             bot.chat(f"/give {agent_name} ladder 10")
+            time.sleep(.2)
             bot.chat(f"/give {agent_name} diamond_pickaxe 1")
         elif arg_dict["item_position"] == "chest":
             set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "dirt", "count": 10}, {"name": "ladder", "count": 10}, {"name": "diamond_pickaxe", "count": 1}])
@@ -441,6 +443,7 @@ def handleViewer(*args):
         goal_item = aligned_item_name(arg_dict["target"])
         if arg_dict["item_position"] == "inventory":
             bot.chat(f"/give {agent_name} {goal_item} 1")
+            time.sleep(.2)
             bot.chat(f"/give {agent_name} dirt 5")
         elif arg_dict["item_position"] == "chest":
             set_chest([], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 5}])
@@ -453,6 +456,7 @@ def handleViewer(*args):
             interact_type = "player"
         else:
             with open("data/animals.json", "r") as f:
+                
                 animal_list = json.load(f)
                 for animal in animal_list:
                     if animal["name"] == target:   
@@ -466,10 +470,10 @@ def handleViewer(*args):
             bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']} {base_block}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                time.sleep(.2)
                 bot.chat(f"/give {agent_name} {crop} {random.randint(1, 2)}")
             elif arg_dict["item_position"] == "chest":
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}])
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": crop, "count": random.randint(1, 2)}])
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}, {"name": crop, "count": random.randint(1, 2)}])
         
         elif arg_dict["action"] == "ladder":
             
@@ -478,10 +482,11 @@ def handleViewer(*args):
             elif arg_dict["item_position"] == "chest":
                 set_chest([], [{"name": "ladder", "count": 5}])
             
-            bot.chat(f"/give {agent_name} ladder 15")
+            bot.chat(f"/give {agent_name} dirt 15")
 
         elif arg_dict["action"] == "minecart":
             bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']} rail")
+            time.sleep(.2)
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} minecart 1")
             elif arg_dict["item_position"] == "chest":
@@ -490,10 +495,10 @@ def handleViewer(*args):
         elif arg_dict["action"] == "saddle":
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} saddle 1")
+                time.sleep(.2)
                 bot.chat(f"/give {agent_name} wheat 5")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "saddle", "count": 1}])
-                set_chest([], [{"name": "wheat", "count": 5}])
+                set_chest([], [{"name": "saddle", "count": 1}, {"name": "wheat", "count": 5}])
 
         elif arg_dict["action"] == "boat":
             if arg_dict["item_position"] == "inventory":
@@ -507,15 +512,8 @@ def handleViewer(*args):
             elif arg_dict["item_position"] == "chest":
                 set_chest([], [{"name": "fishing_rod", "count": 1}])
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-            bot.chat(f"/setblock {x} {y} {z} water")
-            bot.chat(f"/setblock {x} {y} {z+1} water")
-            bot.chat(f"/setblock {x} {y} {z-1} water")
-            bot.chat(f"/setblock {x+1} {y} {z} water")
-            bot.chat(f"/setblock {x-1} {y} {z} water")
-            bot.chat(f"/setblock {x-1} {y} {z-1} water")
-            bot.chat(f"/setblock {x-1} {y} {z+1} water")
-            bot.chat(f"/setblock {x+1} {y} {z-1} water")
-            bot.chat(f"/setblock {x+1} {y} {z+1} water")
+            bot.chat(f"/fill {x-1} {y} {z-1} {x+1} {y} {z+1} water")
+            time.sleep(.2)
             bot.chat(f"/summon {target} {x} {y} {z}")
 
         elif arg_dict["action"] == "stair":
@@ -530,7 +528,7 @@ def handleViewer(*args):
 
 
         elif arg_dict["action"] == "wall":
-            size = int(arg_dict["other_arg"][0]["size"])
+            size = arg_dict["other_arg"][0]["size"]
             size = int(size[0]) * int(size[2])
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} {size}")
@@ -608,7 +606,7 @@ def handleViewer(*args):
             name = arg_dict["target"]
             npcbot = mineflayer.createBot({
                 "host": arg_host,
-                "port": arg_port+1,
+                "port": arg_port,
                 'username': name,
                 'checkTimeoutInterval': 600000,
                 'auth': 'offline',
@@ -878,7 +876,7 @@ def handle(this):
                         bot.blockAt(Vec3(x, y+1, z))["name"] != "grass":
                         score = 100
                 
-               if arg_dict["action"] == "redstone":
+                if arg_dict["action"] == "redstone":
                     x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
                     target = aligned_item_name(arg_dict["target"])
                     num = 0
@@ -1161,7 +1159,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             # with open(file_path, 'w', encoding='utf-8') as f:
             #     json.dump(messages, f, ensure_ascii=False, indent=4)
             
-            if config["task_scenario"] == "interact" and arg_dict["action"] == "chat":
+            if config["task_scenario"] == "interact" and arg_dict["action"] == "chat" and arg_dict["other_arg"][0] is str:
                 if msg == arg_dict["other_arg"][0]:
                     score = 100
 
