@@ -190,7 +190,7 @@ def generate_task_goal(task_scenario, arg_dict):
             positive_attribute = arg_dict["other_arg"][0]["positive_attribute"]
             negative_attribute = arg_dict["other_arg"][0]["negative_attribute"]
             topic = arg_dict["other_arg"][0]["topic"]
-            template_prompt = f"You are a {positive_attribute} but {negative_attribute} person. You are talking with Bob about {topic}."
+            template_prompt = f"You are acting as a {positive_attribute} but {negative_attribute} person professionally. You are talking with Bob about {topic}."
         elif arg_dict["action"] == "ladder":
             size = arg_dict["other_arg"][0]["size"]
             template_prompt = f"Build a {size} ladder upward start from ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The ladder is in the {arg_dict['item_position']}, you may use some dirts at near places internally to place the ladder."
