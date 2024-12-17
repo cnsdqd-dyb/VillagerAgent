@@ -153,7 +153,7 @@ def generate_task_goal(task_scenario, arg_dict):
             # "till", "fishing", "bone_meal", "garden", "fence", "wall", "stair", "chat", "sign", "redstone", "saddle", "boat", "minecart", "bed"
         elif arg_dict["action"] == "till":
             size = arg_dict["other_arg"][0]["size"]
-            template_prompt = f"Till the {size} land (omit water which is useful) at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The hoe is in the {arg_dict['item_position']}, plant the {arg_dict['other_arg'][0]['crops']} in the land."
+            template_prompt = f"Till the land at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}) to farmland. The hoe is in the {arg_dict['item_position']}, plant the {arg_dict['other_arg'][0]['crops']} in the farmland."
         elif arg_dict["action"] == "fishing":
             template_prompt = f"Go fishing at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The fishing rod is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "bone_meal":
@@ -179,18 +179,18 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "redstone":
             template_prompt = f"Build a circuit with redstone use {arg_dict['other_arg'][0]['trigger']} control {arg_dict["target"]}.{arg_dict['other_arg'][0]['trigger']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}), toggle the trigger. The redstone, the {arg_dict['other_arg'][0]} and the switch are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "saddle":
-            template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']}, feed it and ride it, then dismount it. The {arg_dict['tool']} and the food are in the {arg_dict['item_position']}."
+            template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']} and ride it, then dismount it. The {arg_dict['tool']} and the food are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "boat":
             template_prompt = f"Ride the {arg_dict['target']} and dismount it. The boat is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "minecart":
             template_prompt = f"Ride the {arg_dict['target']} and dismount it. The minecart is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "bed":
             template_prompt = f"Sleep in the {arg_dict['target']}. The bed is in the {arg_dict['item_position']}, then wake up."
-        elif arg_dict["action"] == "chat" and arg_dict["other_arg"][0] is dict:
+        elif arg_dict["action"] == "chat":
             positive_attribute = arg_dict["other_arg"][0]["positive_attribute"]
             negative_attribute = arg_dict["other_arg"][0]["negative_attribute"]
             topic = arg_dict["other_arg"][0]["topic"]
-            template_prompt = f"You are acting as a {positive_attribute} but {negative_attribute} person professionally. You are talking with Bob about {topic}."
+            template_prompt = f"Alice is acting as a {positive_attribute} person, but Bob is acting as a {negative_attribute} person. Start a conversation about {topic} for at least 5 turns. (This task should be assigned to two agents for each time)"
         elif arg_dict["action"] == "ladder":
             size = arg_dict["other_arg"][0]["size"]
             template_prompt = f"Build a {size} ladder upward start from ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The ladder is in the {arg_dict['item_position']}, you may use some dirts at near places internally to place the ladder."
@@ -387,7 +387,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     config = template.copy()
                     arg_dict = arg_template.copy()
                     if target == "sign":
-                        arg_dict["target"] = random.choice(["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]) + "_sign"
+                        arg_dict["target"] = random.choice(["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]) + "wall_sign"
                         arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                         arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                         arg_dict["y"] = random.randint(ory + 1, ory + 3)
@@ -525,9 +525,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
 
                             arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
 
-                            size = random.choice(["1x2", "2x1", "2x2"])
 
-                            arg_dict["other_arg"] = [{"origin_block": origin_block, "crops": random.choice(crops), "size": size}]
+                            arg_dict["other_arg"] = [{"origin_block": origin_block, "crops": random.choice(crops)}]
 
                         elif action == "fishing":
                             fish = ["cod", "salmon", "tropical_fish", "pufferfish"]
@@ -615,7 +614,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             # 话题设定
                             topic = ["chest", "inventory", "furnace", "recipe", "animals", "crops", "life", "weather", "zombies"]
 
-                            arg_dict["target"] = random.choice(["Alex", "Steve", "Bob", "Cindy", "David", "Emily", "Frank", "Grace", "Henry", "Ivy"])
+                            arg_dict["target"] = "Bob"
                             arg_dict["other_arg"] = [{
                                 "positive_attribute": random.choice(positivae_attribute),
                                 "negative_attribute": random.choice(negative_attribute),
@@ -658,8 +657,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
 
                         elif action == "boat":
-                            boat_color = ["oak", "spruce", "birch", "acacia", "jungle", "dark_oak", "mangrove"]
-                            arg_dict["target"] = random.choice(boat_color) + "_boat"
+                            boats = ["boat", "chest_boat"]
+                            arg_dict["target"] = random.choice(boats)
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                             arg_dict["y"] = ory + 1

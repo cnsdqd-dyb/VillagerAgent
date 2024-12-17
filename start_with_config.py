@@ -97,7 +97,11 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
                       Agent.handoverBlock]
         env.agent_register(agent_tool=agent_tool, agent_number=1, name_list=[name_list[2]])
     else:
-        env.agent_register(agent_tool=agent_tool, agent_number=agent_num, name_list=name_list[:agent_num])
+        action = document["action"]
+        if action == "chat":
+            env.agent_register(agent_tool=agent_tool, agent_number=agent_num+1, name_list=name_list[:agent_num+1])
+        else:
+            env.agent_register(agent_tool=agent_tool, agent_number=agent_num, name_list=name_list[:agent_num])
 
     with env.run(fast_api=False):  # 新增加了一个参数，用于控制是否使用fastapi server
         # 启动DM
@@ -108,7 +112,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         start_time = time.time()
 
         # 启动TM
-        tm = TaskManager(silent=False)
+        tm = TaskManager(silent=False, cache_enabled=False)
 
         print(f"TaskManager Time taken: {time.time() - start_time}")
         start_time = time.time()
