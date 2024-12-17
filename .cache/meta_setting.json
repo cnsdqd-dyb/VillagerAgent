@@ -6,28 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "In your inventory, you will find the mud_bricks; position it at coordinates (19, -60, 12).",
-    "task_scenario": "place",
+    "task_goal": "Open the dark_oak_door at (16, -60, 2). You can open it directly and do not need any tool.",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "mud_bricks",
-        "x": 19,
+        "target": "dark_oak_door",
+        "x": 16,
         "y": -60,
-        "z": 12,
+        "z": 2,
         "facing": "",
         "item_position": "inventory",
         "tool": "",
-        "action": "",
+        "action": "toggle",
         "step": 1,
-        "other_arg": [
-            [
-                19,
-                -60,
-                12
-            ]
-        ]
+        "other_arg": []
     },
     "document_file": "",
     "host": "10.192.24.163",
     "port": 25565,
-    "task_name": "place_single_inventory_id0"
+    "task_name": "interact_toggle_id0"
 }

@@ -18,7 +18,7 @@ orx = 0     #origin_point
 ory = -61
 orz = 0
 
-task_number = 10
+task_number = 1
 
 logger = init_logger("TASK_GOAL", dump=False, level=logging.DEBUG, silent=False)
 
@@ -157,7 +157,7 @@ def generate_task_goal(task_scenario, arg_dict):
             template_prompt = f"Hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "store":
             template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
-            # "till", "fishing", "bone_meal", "chat", "sign", "redstone", "saddle", "boat", "minecart", "bed"
+            # "till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"
         elif arg_dict["action"] == "till":
             size = arg_dict["other_arg"][0]["size"]
             template_prompt = f"Till the {size} land (omit water which is useful) at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The hoe is in the {arg_dict['item_position']}, plant the {arg_dict['other_arg'][0]['crops']} in the land."
@@ -168,9 +168,11 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "sign":
             sign = arg_dict["target"]
             template_prompt = f"Read the content on the {sign} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
-        elif arg_dict["action"] == "redstone":
-            pass
-            # template_prompt = f"Build a circuit with redstone use {arg_dict['other_arg'][0]['trigger']} control {arg_dict["target"]}.{arg_dict['other_arg'][0]['trigger']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}), toggle the trigger. The redstone, the {arg_dict['other_arg'][0]} and the switch are in the {arg_dict['item_position']}."
+        elif arg_dict["action"] == "toggle":
+            if "iron" in arg_dict["target"]:
+                template_prompt = f"Use {arg_dict['tool']} to open the {arg_dict['target']}. The {arg_dict['target']} is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
+            else:
+                template_prompt = f"Open the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can open it directly and do not need any tool."
         elif arg_dict["action"] == "saddle":
             template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']}, feed it and ride it, then dismount it. The {arg_dict['tool']} and the food are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "boat":
@@ -355,27 +357,22 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         block_number = "single"
                     else:
                         block_number = random.choices(["single", "template", "multi"], [40, 50, 10])[0]
-                    
                     arg_dict["other_arg"] =[([arg_dict['x'], arg_dict['y'], arg_dict['z']])]
                     if block_number == "multi":
                         another_block = random.choice([1, 2])
                         direction = random.choice([-1, 1])
+                        invalid_pos = []
                         while another_block > 0:
-                            dx1 = random.randint(0, 2)
-                            dy1 = random.randint(0, 1)
-                            dz1 = random.randint(0, 2)
-                            while dx1 + dy1 + dz1 == 0:
-                                dx1 = random.randint(0, 2)
-                                dy1 = random.randint(0, 1)
-                                dz1 = random.randint(0, 2)
-                            dx2 = random.randint(0, 2)
-                            dy2 = random.randint(0, 1)
-                            dz2 = random.randint(0, 2)
-                            while (dx1 == dx2 and dy1 == dy2 and dz1 == dz2) or (dx2 + dy2 + dz2 == 0):
-                                dx2 = random.randint(0, 2)
-                                dy2 = random.randint(0, 1)
-                                dz2 = random.randint(0, 2)
-                            arg_dict["other_arg"].append([arg_dict['x'] + dx1 * direction, arg_dict['y'] + dy1, arg_dict['z'] + dz1 * direction])
+                            dx = random.randint(0, 2)
+                            dy = random.randint(0, 1)
+                            dz = random.randint(0, 2)
+                            while dx + dy + dz == 0 or [dx, dy, dz] in invalid_pos:
+                                dx = random.randint(0, 2)
+                                dy = random.randint(0, 1)
+                                dz = random.randint(0, 2)
+                            arg_dict["other_arg"].append([arg_dict['x'] + dx * direction, arg_dict['y'] + dy, arg_dict['z'] + dz * direction])
+                            invalid_pos.append([dx, dy, dz])
+                            another_block -= 1
                     if block_number == "template":
                         direction = random.choice([-1, 1])
                         template_pos = random.choice(block_template)
@@ -462,7 +459,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 # 11. 建造一面墙
                 # 12. 放置床睡觉，然后起床 
                 # 13. 搭梯子
-                additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "redstone", "saddle", "boat", "minecart", "bed"]
+                additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"]
 
 
                 for i in range(task_number):
@@ -611,19 +608,24 @@ def generate_config(task, api_model, host, port, agent_num=2):
                                 arg_dict["other_arg"] = [random.choice(sign_instruction_easy)]
                             arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
 
-                        elif action == "redstone":
+                        elif action == "toggle":
                             trigger = ["button", "lever"]
                             material = ["acacia", "birch", "dark_oak", "jungle", "mangrove", "oak", "spruce"]
-                            device = ["red_stone_lamp", "piston", "oak_door", "iron_door", "mangrove_trapdoor", "oak_trapdoor", "oak_fence_gate", "iron_trapdoor", "iron_fence_gate"]
-                            arg_dict["target"] = random.choice(device)
+                            device = ["door", "trapdoor", "fence"]
+
+                            trigger_flag = random.choices(["default", "trigger"], [70, 30])[0]
+                            if trigger_flag == "trigger":
+                                arg_dict["target"] = "iron_"+ random.choice(["door", "trapdoor"])
+                                arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                                trig = random.choice(trigger)
+                                if trig == "button":
+                                    trig = random.choice(material) + "_button"
+                                arg_dict["tool"] = trig
+                            else:
+                                arg_dict["target"] = random.choice(material) + "_" + random.choice(device)
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                             arg_dict["y"] = ory + 1
-                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-                            trig = random.choice(trigger)
-                            if trig == "button":
-                                trig = material + "_button"
-                            arg_dict["other_arg"] = [{"trigger": trig}]
 
                         elif action == "saddle":
                             arg_dict["target"] = random.choice(["horse", "pig"])
@@ -774,22 +776,18 @@ def generate_config(task, api_model, host, port, agent_num=2):
             if block_number == "multi":
                 another_block = random.choice([1, 2])
                 direction = random.choice([-1, 1])
+                invalid_pos = []
                 while another_block > 0:
-                    dx1 = random.randint(0, 2)
-                    dy1 = random.randint(0, 1)
-                    dz1 = random.randint(0, 2)
-                    while dx1 + dy1 + dz1 == 0:
-                        dx1 = random.randint(0, 2)
-                        dy1 = random.randint(0, 1)
-                        dz1 = random.randint(0, 2)
-                    dx2 = random.randint(0, 2)
-                    dy2 = random.randint(0, 1)
-                    dz2 = random.randint(0, 2)
-                    while (dx1 == dx2 and dy1 == dy2 and dz1 == dz2) or (dx2 + dy2 + dz2 == 0):
-                        dx2 = random.randint(0, 2)
-                        dy2 = random.randint(0, 1)
-                        dz2 = random.randint(0, 2)
-                    arg_dict["other_arg"].append([arg_dict['x'] + dx1 * direction, arg_dict['y'] + dy1, arg_dict['z'] + dz1 * direction])
+                    dx = random.randint(0, 2)
+                    dy = random.randint(0, 1)
+                    dz = random.randint(0, 2)
+                    while dx + dy + dz == 0 or [dx, dy, dz] in invalid_pos:
+                        dx = random.randint(0, 2)
+                        dy = random.randint(0, 1)
+                        dz = random.randint(0, 2)
+                    arg_dict["other_arg"].append([arg_dict['x'] + dx * direction, arg_dict['y'] + dy, arg_dict['z'] + dz * direction])
+                    invalid_pos.append([dx, dy, dz])
+                    another_block -= 1
             if block_number == "template":
                 direction = random.choice([-1, 1])
                 template_pos = random.choice(block_template)
@@ -865,7 +863,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
         animal_list = [{"name": "sheep", "food": ["wheat"]}, {"name": "cow", "food": ["wheat"]}, {"name": "rabbit", "food": ["carrot"]}, 
                        {"name": "pig", "food": ["potato", "beetroot", "carrot"]}, {"name": "chicken", "food": ["wheat_seeds", "melon_seeds", "pumpkin_seeds", "beetroot_seeds"]}, ]
         cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
-        action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "chat"]
+        action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk"]
         for i in range(task_number):
             # action = "feed"
             action = random.choices(action_list, [10, 10, 9, 28, 28, 2, 2, 10])[0]
@@ -880,7 +878,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                 arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                 arg_dict["y"] = random.randint(ory + 1, ory + 3)
-            elif action in ["handover", "chat"]:
+            elif action in ["handover"]:
                 target = "Bob"
                 arg_dict["target"] = "Bob"
             elif action == "shear":
@@ -924,7 +922,38 @@ def generate_config(task, api_model, host, port, agent_num=2):
             config["port"] = port
             config["task_name"] = f"interact_{action}_id{i}"
             config_list.append(config)
+    elif task == "toggle":
+        action = "toggle"
+        config = template.copy()
+        arg_dict = arg_template.copy()
+        arg_dict["action"] = action
+        trigger = ["button", "lever"]
+        material = ["acacia", "birch", "dark_oak", "jungle", "mangrove", "oak", "spruce"]
+        device = ["door", "trapdoor", "fence"]
 
+        trigger_flag = random.choices(["default", "trigger"], [70, 30])[0]
+        if trigger_flag == "trigger":
+            arg_dict["target"] = "iron_"+ random.choice(["door", "trapdoor"])
+            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+            trig = random.choice(trigger)
+            if trig == "button":
+                trig = random.choice(material) + "_button"
+            arg_dict["tool"] = trig
+        else:
+            arg_dict["target"] = random.choice(material) + "_" + random.choice(device)
+        arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+        arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+        arg_dict["y"] = ory + 1
+        config["task_type"] = "meta"
+        config["task_idx"] = 0
+        config["agent_num"] = 1
+        config["task_scenario"] = "interact"
+        config["evaluation_arg"] = arg_dict
+        config["task_goal"] = generate_task_goal("interact", arg_dict)
+        config["host"] = host
+        config["port"] = port
+        config["task_name"] = f"interact_{action}_id{0}"
+        config_list.append(config)
     with open(f"{api_model}_launch_config_{task}.json", "w") as f:
         json.dump(config_list, f, indent=4)
 
