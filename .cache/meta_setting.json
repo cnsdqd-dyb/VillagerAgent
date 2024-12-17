@@ -1,32 +1,33 @@
 {
-    "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
-    "api_base": "http://10.130.130.13:8003/v1",
+    "api_model": "gpt-4-1106-preview",
+    "api_base": "https://api.chatanywhere.tech/v1",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "First place sunflower at (23, -60, 24), then Use bone meal to grow it. The bone meal is in your inventory. If the sunflower is not in the inventory, you can find seeds or crop in the inventory.",
-    "task_scenario": "interact",
+    "task_goal": "In your inventory, you will find the mud_bricks; position it at coordinates (19, -60, 12).",
+    "task_scenario": "place",
     "evaluation_arg": {
-        "target": "bone_meal",
-        "x": 23,
+        "target": "mud_bricks",
+        "x": 19,
         "y": -60,
-        "z": 24,
+        "z": 12,
         "facing": "",
         "item_position": "inventory",
-        "tool": "bone_meal",
-        "action": "bone_meal",
+        "tool": "",
+        "action": "",
         "step": 1,
         "other_arg": [
-            {
-                "base_block": "grass_block",
-                "crops": "sunflower"
-            }
+            [
+                19,
+                -60,
+                12
+            ]
         ]
     },
     "document_file": "",
-    "host": "10.214.180.148",
+    "host": "10.192.24.163",
     "port": 25565,
-    "task_name": "interact_bone_meal_id0"
+    "task_name": "place_single_inventory_id0"
 }

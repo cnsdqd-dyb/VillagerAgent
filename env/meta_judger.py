@@ -11,6 +11,7 @@ from minecraft_define import *
 from env_api import *
 import random
 import platform
+import math
 
 system_type = platform.system().lower()
 
@@ -44,7 +45,6 @@ Socks = require("socks5-client")
 minecraftData = require('minecraft-data')
 mcData = minecraftData(args.mc_version)
 
-y_b = -60  # -60
 bot = mineflayer.createBot({
     "host": args.host,
     "port": args.port,
@@ -60,7 +60,7 @@ bot.loadPlugin(minecraftHawkEye)
 
 ### reset the environments
 with open("data/score.json", "w") as f:
-    json.dump({}, f, indent=4)
+    json.dump({}, f, indent=4) 
 
 with open(".cache/env.cache", "w") as f:
     json.dump([], f, indent=4)
@@ -117,7 +117,6 @@ def aligned_item_name(item): #去掉可能的物品名前缀
 
 @On(bot, 'spawn')
 def handleViewer(*args):   
-
     for name in agent_names:
         bot.chat(f'/op {name}')
         time.sleep(.2) 
@@ -421,10 +420,11 @@ def handleViewer(*args):
         goal_item = aligned_item_name(arg_dict["target"])
 
         if arg_dict["item_position"] == "inventory":
-            bot.chat(f"/give {agent_name} {goal_item} 1")
+            bot.chat(f"/give {agent_name} {goal_item} {len(arg_dict['other_arg'])}")
             bot.chat(f"/give {agent_name} dirt 15")
         elif arg_dict["item_position"] == "chest":
-            set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 15}])
+            invalid_pos = [(p[0], p[1], p[2]) for p in arg_dict["other_arg"]]
+            set_chest(invalid_pos, [{"name": goal_item, "count": len(arg_dict['other_arg'])}, {"name": "dirt", "count": 15}])
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
@@ -475,17 +475,6 @@ def handleViewer(*args):
                 bot.chat(f"/give {agent_name} {crop} {random.randint(1, 2)}")
             elif arg_dict["item_position"] == "chest":
                 set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}, {"name": crop, "count": random.randint(1, 2)}])
-        
-        elif arg_dict["action"] == "ladder":
-            
-            if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} ladder 5")
-            elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "ladder", "count": 5}])
-            
-            bot.chat(f"/give {agent_name} dirt 15")
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}])
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": crop, "count": random.randint(1, 2)}])
 
         elif arg_dict["action"] == "minecart":
             bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']} rail")
@@ -527,8 +516,7 @@ def handleViewer(*args):
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
                 bot.chat(f"/give {agent_name} {crops} {size}")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['tool'], "count": 1}])
-                set_chest([], [{"name": crops, "count": size}])
+                set_chest([], [{"name": arg_dict['tool'], "count": 1}, {"name": crops, "count": size}])
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
             bot.chat(f"/give {agent_name} dirt 5")
@@ -553,7 +541,7 @@ def handleViewer(*args):
             # /setblock x y z jungle_wall_sign[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{Text you want to write 1.}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{Text you want to write 2.}\\\"}}\"}}
             bot.chat(f"/setblock {x} {y} {z} {target}[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
 
-        elif arg_dict["action"] == "chat" and arg_dict["other_arg"][0] is dict:
+        elif arg_dict["action"] == "chat":
             name = arg_dict["target"]
             npcbot = mineflayer.createBot({
                 "host": arg_host,
@@ -738,11 +726,16 @@ def handle(this):
 
             elif config["task_scenario"]  == "place":
                 goal_item = aligned_item_name(arg_dict["target"])
-                pos_list = [arg_dict['x'], arg_dict['y'], arg_dict['z']]
-                if arg_dict["facing"]:
-                    pos_list.append(arg_dict["facing"])
-                if check_block(pos_list, goal_item):
-                    score = 100 
+                score = 0
+                for i, pos in enumerate(arg_dict["other_arg"]):
+                    pos_list = [pos[0], pos[1], pos[2]]
+                    if arg_dict["facing"]:
+                        pos_list.append(arg_dict["facing"])
+                    if check_block(pos_list, goal_item):
+                        if i == len(arg_dict["other_arg"]) - 1:
+                            score = 100
+                        else:
+                            score += 100 / len(arg_dict["other_arg"])
 
             elif config["task_scenario"]  == "interact":
                 target = aligned_item_name(arg_dict["target"]) 
@@ -1064,7 +1057,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             #     if msg == arg_dict["other_arg"][0]:
             #         score = 100
 
-            if config["task_scenario"] == "interact" and arg_dict["action"] == "chat" and arg_dict["other_arg"][0] is dict:
+            if config["task_scenario"] == "interact" and arg_dict["action"] == "chat":
                 response = llm.invoke(msg)
                 if response:
                     bot.chat(f"[{target_name}] --MSG-- [{host_name}] {response}")
