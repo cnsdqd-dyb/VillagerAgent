@@ -76,7 +76,7 @@ last_time = time.time()
 start_time = None
 
 max_action_time = 60
-max_time = 300
+max_time = 250
 
 environment_set_time = 10
 info_count = 0
@@ -411,6 +411,8 @@ def handleViewer(*args):
 
         if arg_dict["item_position"] == "chest": # 材料在随机位置的箱子里
             set_chest(craft_pos, ingredients_list)
+            set_chest(craft_pos, ingredients_list)
+            set_chest(craft_pos, ingredients_list)
         elif arg_dict["item_position"] == "inventory": # 材料在Agent身上
             for ingredients in ingredients_list:
                 bot.chat(f"/give {agent_name} {ingredients['name']} {ingredients['count']}")
@@ -465,6 +467,18 @@ def handleViewer(*args):
                         interact_type = "animal"
                         break
         
+        if arg_dict["action"] == "handover":
+            if arg_dict["item_position"] == "inventory":
+                bot.chat(f"/give {agent_name} dirt 5")
+                time.sleep(.2)
+                bot.chat(f"/give {agent_name} {target} 1")
+            elif arg_dict["item_position"] == "chest":
+                set_chest([], [{"name": "dirt", "count": 5}, {"name": target, "count": 1}])
+                set_chest([], [{"name": "dirt", "count": 5}, {"name": target, "count": 1}])
+                set_chest([], [{"name": "dirt", "count": 5}, {"name": target, "count": 1}])
+            else:
+                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+
         if arg_dict["action"] == "till":
             base_block = aligned_item_name(arg_dict["other_arg"][0]['origin_block'])
             crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
@@ -606,6 +620,7 @@ def handleViewer(*args):
                 set_chest([], [{"name": arg_dict['tool'], "count": 1}])
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+
         elif interact_type == "block":
             if arg_dict["action"] == "cook":
                 furnace_num = 3
@@ -629,10 +644,11 @@ def handleViewer(*args):
                     set_chest(furnace_pos, item_list)
                 else:
                     bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+
             if arg_dict["action"] == "store":
                 bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} chest")
                 bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]} 1")
-
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [])
 
 
     else:
@@ -826,7 +842,23 @@ def handle(this):
                     json.dump(config, f, indent=4)
                 with open(".cache/load_status.cache", "w") as f:
                     json.dump({"status": "end"}, f, indent=4)
-            if calculate_action_time() > max_action_time:
+
+            # check failed action number
+            failed_action = 0
+            success_action = 0
+            if os.path.exists("data/failed_action.json"):
+                with open("data/Alice_history.json", "r") as f:
+                    data = json.load(f)
+                try:
+                    for actions in data:
+                        for action in actions["action_list"]:
+                            if action["feedback"]["status"] == False:
+                                failed_action += 1
+                            else:
+                                success_action += 1
+                except:
+                    pass
+            if calculate_action_time() > max_action_time or failed_action > 5:
                 efficiency = 1
                 # 给出结束信号和写入文件
                 if not os.path.exists("result/" + task_name):

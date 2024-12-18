@@ -9,10 +9,11 @@ from pipeline.data_manager import DataManager
 from pipeline.utils import *
 from model.openai_models import OpenAILanguageModel
 from model.vllm_model import VLLMLanguageModel
-from random import random, randint, choice
+from random import random, randint, choice, sample
 from pipeline.agent_prompt import *
 from pipeline.agent_rl_prompt import *
 from rl_env import *
+from speaking_style import speaking_styles, speaking_styles_zh
 import numpy as np
 import torch
 from model.utils import extract_info
@@ -231,12 +232,25 @@ class BaseAgent:
         return summary, detail
     
     def normal_step(self, task:Task) -> (str, dict):
+        if random() < 0.5:
+            speech_style = sample(list(speaking_styles.keys()), 1)[0]
+            personality = speaking_styles[speech_style]['personality']
+            traits = speaking_styles[speech_style]['traits']
+            example = speaking_styles[speech_style]['example']
+        else:
+            speech_style = sample(list(speaking_styles_zh.keys()), 1)[0]
+            personality = speaking_styles_zh[speech_style]['性格']
+            traits = speaking_styles_zh[speech_style]['特征']
+            example = speaking_styles_zh[speech_style]['示例']
         if len(task._agent) == 1:
             task_str = format_string(agent_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
                                     "env": self.data_manager.query_env_with_task(task.description),
                                     "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
                                     "agent_name": self.name,
                                     "agent_state": self.data_manager.query_history(self.name),
+                                    "personality": personality,
+                                    "example": example,
+                                    "traits": traits,
                                     "other_agents": self.other_agents(),
                                     "agent_action_list": self.history_action_list,
                                     "minecraft_knowledge_card": minecraft_knowledge_card})
@@ -287,6 +301,8 @@ class BaseAgent:
                 self.logger.error(f"Error: {e}")
                 max_retry -= 1
                 time.sleep(3)
+        
+        # 耗时操作
         status = self.env.agent_status(self.name)
         self.data_manager.update_database(AgentFeedback(task, detail, status).to_json())
 
@@ -294,12 +310,25 @@ class BaseAgent:
         return feedback, detail
     
     def local_step(self, task:Task) -> (str, dict):
+        if random() < 0.5:
+            speech_style = sample(list(speaking_styles.keys()), 1)[0]
+            personality = speaking_styles[speech_style]['personality']
+            traits = speaking_styles[speech_style]['traits']
+            example = speaking_styles[speech_style]['example']
+        else:
+            speech_style = sample(list(speaking_styles_zh.keys()), 1)[0]
+            personality = speaking_styles_zh[speech_style]['性格']
+            traits = speaking_styles_zh[speech_style]['特征']
+            example = speaking_styles_zh[speech_style]['示例']
         if len(task._agent) == 1:
             task_str = format_string(agent_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
                                     "env": self.data_manager.query_env_with_task(task.description),
                                     "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
                                     "agent_name": self.name,
                                     "agent_state": self.data_manager.query_history(self.name),
+                                    "personality": personality,
+                                    "example": example,
+                                    "traits": traits,
                                     "other_agents": self.other_agents(),
                                     "agent_action_list": self.history_action_list,
                                     "minecraft_knowledge_card": minecraft_knowledge_card})

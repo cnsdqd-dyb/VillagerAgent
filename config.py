@@ -9,7 +9,7 @@ import logging
 from pipeline.utils import *
 from model.init_model import init_language_model
 from model.openai_models import OpenAILanguageModel
-
+from speaking_style import generate_conversation_prompt, generate_conversation_prompt_zh
 room_width = 25
 room_height = 15
 wall_width = 1
@@ -23,14 +23,22 @@ task_number = 1
 logger = init_logger("TASK_GOAL", dump=False, level=logging.DEBUG, silent=False)
 
 api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+# llm_config = {
+#     # "api_model": "gpt-4o",
+#     "api_model": "gpt-4-1106-preview",
+#     # "api_base": "https://api.openai.com/v1/",
+#     "api_base": "https://api.chatanywhere.tech/v1",
+#     "api_key_list": api_key_list,
+#     "api_key": random.choice(api_key_list)
+# }
+
 llm_config = {
-    # "api_model": "gpt-4o",
-    "api_model": "gpt-4-1106-preview",
-    # "api_base": "https://api.openai.com/v1/",
-    "api_base": "https://api.chatanywhere.tech/v1",
-    "api_key_list": api_key_list,
-    "api_key": random.choice(api_key_list)
+    "api_key": "sk-837276a766734ef8a1f36f7f3853e413",
+    "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "api_model": "qwen-max",
+    "api_key_list": ["sk-837276a766734ef8a1f36f7f3853e413"]
 }
+
 # llm_config = {
 #     "api_key": "sk-villageragent",
 #     "api_base": "http://10.130.130.13:8000/v1",
@@ -60,8 +68,8 @@ You should randomly select only one sentence from your rewritten version and ret
 """
 
 template = {
-    "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
-    "api_base": "http://10.130.130.13:8003/v1",
+    "api_model": "qwen-max",
+    "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
@@ -112,160 +120,7 @@ def select_task_goal(task):
     else:
         raise NotImplementedError
 
-speaking_styles = {
-    "kind": {
-        "traits": "speaks gently, shows empathy, uses caring words",
-        "example": "I understand how you feel. Let me help you.",
-        "personality": "warm and compassionate"
-    },
-    "funny": {
-        "traits": "makes jokes, uses wordplay, lighthearted tone",
-        "example": "Hey, did you hear about...? *laughs*",
-        "personality": "humorous and entertaining"
-    },
-    "smart": {
-        "traits": "uses logic, references facts, analytical thinking",
-        "example": "Based on my analysis...",
-        "personality": "intelligent and insightful"
-    },
-    "cute": {
-        "traits": "uses diminutives, speaks cheerfully, adds emojis",
-        "example": "Aww, that's adorable!",
-        "personality": "sweet and endearing"
-    },
-    "cool": {
-        "traits": "uses trendy language, confident tone, relaxed attitude",
-        "example": "No worries, we got this!",
-        "personality": "confident and composed"
-    },
-    "brave": {
-        "traits": "speaks confidently, takes initiative, encouraging",
-        "example": "Let's face this challenge!",
-        "personality": "courageous and determined"
-    },
-    "strong": {
-        "traits": "decisive language, firm tone, direct approach",
-        "example": "Here's what we need to do.",
-        "personality": "resilient and powerful"
-    },
-    "friendly": {
-        "traits": "warm greetings, inclusive language, positive tone",
-        "example": "Great to see you! How are you doing?",
-        "personality": "welcoming and sociable"
-    },
-    "honest": {
-        "traits": "straightforward, truthful, direct communication",
-        "example": "To be completely honest with you...",
-        "personality": "truthful and sincere"
-    },
-    "helpful": {
-        "traits": "offers assistance, provides solutions, supportive",
-        "example": "Let me show you how to do that.",
-        "personality": "supportive and resourceful"
-    }
-    "stupid": {
-        "traits": "misunderstands simple concepts, confused easily",
-        "example": "Uhh... what does that mean?",
-        "personality": "dim-witted and confused"
-    },
-    "boring": {
-        "traits": "monotone voice, repetitive speech, lacks enthusiasm",
-        "example": "Whatever. Same as always.",
-        "personality": "dull and uninteresting"
-    },
-    "ugly": {
-        "traits": "bitter tone, self-deprecating, negative outlook",
-        "example": "Everything is just horrible anyway.",
-        "personality": "pessimistic and bitter"
-    },
-    "weak": {
-        "traits": "hesitant speech, lacks confidence, indecisive",
-        "example": "I'm not sure... maybe...",
-        "personality": "timid and uncertain"
-    },
-    "mean": {
-        "traits": "harsh tone, critical comments, hostile attitude",
-        "example": "That's the dumbest thing I've heard.",
-        "personality": "hostile and aggressive"
-    },
-    "scary": {
-        "traits": "threatening tone, intimidating language, dark humor",
-        "example": "You better watch out...",
-        "personality": "intimidating and menacing"
-    },
-    "selfish": {
-        "traits": "self-centered speech, dismissive of others",
-        "example": "I don't care about that. What about ME?",
-        "personality": "self-centered and inconsiderate"
-    },
-    "lazy": {
-        "traits": "minimal effort in responses, shows disinterest",
-        "example": "Meh, too much work...",
-        "personality": "unmotivated and apathetic"
-    },
-    "rude": {
-        "traits": "interrupts others, uses harsh language, impolite",
-        "example": "Shut up! I'm talking!",
-        "personality": "disrespectful and offensive"
-    },
-    "useless": {
-        "traits": "gives unhelpful responses, shows incompetence",
-        "example": "I can't do anything right...",
-        "personality": "ineffective and incompetent"
-    },
-    "elderly": {
-        "traits": "speaks slowly, often coughs, uses old-fashioned phrases, shows wisdom",
-        "example": "*cough cough* Back in my day...",
-        "personality": "patient and experienced"
-    },
-    "child": {
-        "traits": "energetic, curious, uses simple words, often excited",
-        "example": "Wow! Really? That's so cool!",
-        "personality": "playful and innocent"
-    },
-    "cold": {
-        "traits": "brief responses, formal tone, emotionless",
-        "example": "Whatever. Fine.",
-        "personality": "distant and detached"
-    },
-    "enthusiastic": {
-        "traits": "uses exclamation marks, positive words, shows excitement",
-        "example": "That's amazing! I love it!",
-        "personality": "cheerful and optimistic"
-    },
-    "nervous": {
-        "traits": "stutters, hesitates, uses filler words",
-        "example": "Um... well... you see...",
-        "personality": "anxious and uncertain"
-    },
-    "intellectual": {
-        "traits": "uses complex words, analytical, references facts",
-        "example": "Theoretically speaking...",
-        "personality": "logical and knowledgeable"
-    },
-    "sarcastic": {
-        "traits": "uses irony, witty remarks, cynical tone",
-        "example": "Oh, brilliant plan. What could go wrong?",
-        "personality": "witty and cynical"
-    },
-    "dramatic": {
-        "traits": "exaggerates, emotional expressions, theatrical",
-        "example": "This is absolutely DEVASTATING!",
-        "personality": "expressive and emotional"
-    }
-}
 
-def generate_conversation_prompt(topic):
-    # 随机选择两个不同的说话风格
-    style1, style2 = random.sample(list(speaking_styles.keys()), 2)
-    
-    template_prompt = f"""Alice and Bob should start a chat together. They should have different speaking style. 
-    Alice is acting as a {speaking_styles[style1]['personality']} person ({speaking_styles[style1]['traits']}), 
-    but Bob is acting as a {speaking_styles[style2]['personality']} person ({speaking_styles[style2]['traits']}). 
-    Start a conversation about {topic} for at least 5 turns, you can also add some other topics in the conversation and try to add some actions (use agent tools) in the conversation to make it more vivid.
-    (This task should be assigned to two agents for each time)"""
-    
-    return template_prompt
 
 def generate_task_goal(task_scenario, arg_dict):
     template_prompt = ""
@@ -309,7 +164,7 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "cook":
             template_prompt = f"Cook the {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "handover":
-            template_prompt = f"Hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
+            template_prompt = f"Alice hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "store":
             template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
             # "till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"
@@ -336,18 +191,23 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "bed":
             template_prompt = f"Sleep in the {arg_dict['target']}. The bed is in the {arg_dict['item_position']}, then wake up."
         elif arg_dict["action"] == "chat":
-            topic = arg_dict["other_arg"][0]["topic"]
-            template_prompt = generate_conversation_prompt(topic)
+            if random.randint(1, 2) == 1:
+                template_prompt = generate_conversation_prompt_zh()
+            else:
+                template_prompt = generate_conversation_prompt()
+            arg_dict["other_arg"] = [template_prompt]
         elif arg_dict["action"] == "ladder":
             size = arg_dict["other_arg"][0]["size"]
             template_prompt = f"Build a {size} ladder upward start from ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The ladder is in the {arg_dict['item_position']}, you may use some dirts at near places internally to place the ladder."
     
     template_prompt = template_prompt.replace("the inventory", "your inventory")
-    if random.randint(1, 2) == 1: # 有小概率直接用原始的prompt
-        task_goal = template_prompt
-    else:
-        template_prompt = "Original Sentence: " + template_prompt
-        task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.2)
+
+    task_goal = template_prompt
+    # if random.randint(1, 2) == 1: # 有小概率直接用原始的prompt
+    #     task_goal = template_prompt
+    # else:
+    #     template_prompt = "Original Sentence: " + template_prompt
+    #     task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.2)
     logger.warning(task_goal)
     logger.debug("-" * 50)
     return task_goal
@@ -408,8 +268,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 config["document_file"] = ""
                 config_list.append(config)
     elif task == "meta":
-        for i in tqdm.tqdm(range(0, 500)):
-            random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [0.1, 0.2, 0.1, 0.05, 0.05, 0.4])[0]
+        for i in tqdm.tqdm(range(0, args.meta_task_num)):
+            random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [0.05, 0.05, 0.02, 0.02, 0.02, 0.8])[0]
             if random_task == "dig":
                 with open("data/blocks.json", "r") as f:
                     blocks = json.load(f)
@@ -614,12 +474,11 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 # 11. 建造一面墙
                 # 12. 放置床睡觉，然后起床 
                 # 13. 搭梯子
-                additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"]
 
 
                 for i in range(task_number):
                     # action = "feed"
-                    task_level = random.choice(["basic", "advanced"])
+                    task_level = random.choices(["basic", "advanced"], [0.4, 0.6])[0]
                     if task_level == "basic":
                         action = random.choices(action_list, [10, 10, 9, 8, 8, 3, 3])[0]
                         config = template.copy()
@@ -674,7 +533,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         config["task_name"] = f"interact_{action}_id{i}"
                         config_list.append(config)
                     else:
-                        action = random.choice(additional_task_list)
+                        additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"]
+                        action = random.choices(additional_task_list, [5, 3, 6, 15, 4, 7, 8, 6, 6, 4])[0]
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         arg_dict["action"] = action
@@ -736,18 +596,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["y"] = random.randint(ory + 1, ory + 1)
 
                         elif action == "chat":
-                            # 性格设定
-                            positivae_attribute = ["kind", "funny", "smart", "cute", "cool", "brave", "strong", "friendly", "honest", "helpful"]
-                            negative_attribute = ["stupid", "boring", "ugly", "weak", "mean", "scary", "selfish", "lazy", "rude", "useless"]
-                            # 话题设定
-                            topic = ["chest", "inventory", "furnace", "recipe", "animals", "crops", "life", "weather", "zombies"]
-
-                            arg_dict["target"] = "Bob"
-                            arg_dict["other_arg"] = [{
-                                "positive_attribute": random.choice(positivae_attribute),
-                                "negative_attribute": random.choice(negative_attribute),
-                                "topic": random.choice(topic)
-                            }]
+                            arg_dict["other_arg"] = ['']
 
                         elif action == "sign":
                             sign_instruction_easy = ["Welcome to the room", "Please close the door", "Don't touch my stuff", "I'm watching you", "Be careful of the trap", "Don't break the block", "Don't feed the animals", "Don't steal my items", "Don't kill the animals", "Don't destroy the crops"]
@@ -822,6 +671,9 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         config["port"] = port
                         config["task_name"] = f"interact_{action}_id{i}"
                         config_list.append(config)
+                        
+            with open(f"{api_model}_launch_config_{task}.json", "w") as f:
+                json.dump(config_list, f, indent=4)
 
     elif task == "dig":
         with open("data/blocks.json", "r") as f:
@@ -1062,7 +914,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             elif action == "chat":
                 charset = string.ascii_letters + string.digits
                 text_len = random.randint(5, 8)
-                arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
+                arg_dict["other_arg"] = ['']
             # # #
             arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
             # # #
@@ -1108,6 +960,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
         config["port"] = port
         config["task_name"] = f"interact_{action}_id{0}"
         config_list.append(config)
+
     with open(f"{api_model}_launch_config_{task}.json", "w") as f:
         json.dump(config_list, f, indent=4)
 
@@ -1115,13 +968,14 @@ def generate_config(task, api_model, host, port, agent_num=2):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, default="construction", help="task type")
-    parser.add_argument("--api_model", type=str, default="gpt-4-1106-preview", help="api model")
+    parser.add_argument("--api_model", type=str, default="qwen", help="api model")
     parser.add_argument("--host", type=str, default="10.214.180.148", help="host")
     parser.add_argument("--port", type=int, default=25565, help="port")
     parser.add_argument("--agent_num", type=int, default=1, help="agent number")
+    parser.add_argument("--meta_task_num", type=int, default=500, help="meta task number")
     args = parser.parse_args()
 
     api_model = args.api_model.replace("-", "_").replace(".", "_").replace(" ", "_").replace("/", "_")
     generate_config(args.task, api_model, args.host, args.port, args.agent_num)
 
-    # python config.py --task meta --api_model /mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4 
+    # python config.py --task meta --meta_task_num 500 --api_model qwen

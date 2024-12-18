@@ -627,6 +627,7 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
     # #[DEBUG] print("Movements1",mv_)
     mv_.allow1by1towers = False
     mv_.canDig = False
+    mv_.canOpenDoors = True
     # #[DEBUG] print("Movements2",mv_)
     try_num = 3
     while try_num > 0:
@@ -1712,6 +1713,8 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
     mv_config = pathfinder.Movements(bot)
     mv_config.canDig = False # 决定是否可以挖掘
     mv_config.allow1by1towers = False 
+    mv_config.canOpenDoors = True
+
     max_tries = 3
     while max_tries > 0:
         try:
@@ -2033,6 +2036,8 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
             return f'unable to open villager {name}', False, villager_data
 
     try:
+        bot.lookAt(pos)
+        # bot.chat(f'look at {pos}')
         bot.activateEntityAt(bot.entity, pos)
         # bot.chat(f'activated entity {name}')
         bot.useOn(bot.blockAt(pos))
@@ -2423,7 +2428,7 @@ def startFishing(bot, fish_name, Vec3, envs_info, mcData):
             return f"Here is no {fish_name}. Try another position", False
         # bot.lookAt(pos)
         bot.equip(bot.registry.itemsByName.fishing_rod.id, 'hand')
-        # bot.lookAt(pos)
+        bot.lookAt(pos)
         # bot.fish()
     except Exception as e:
         # [DEBUG] print(e)

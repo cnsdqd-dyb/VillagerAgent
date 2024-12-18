@@ -20,3 +20,4 @@ gymnasium
 Levenshtein
 optimum
 auto-gptq
+dashscope

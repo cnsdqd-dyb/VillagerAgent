@@ -1,27 +1,27 @@
 {
-    "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
-    "api_base": "http://10.130.130.13:8003/v1",
+    "api_model": "qwen-max",
+    "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
     "task_type": "meta",
-    "task_idx": 10,
+    "task_idx": 0,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Put the saddle on the horse and ride it, then dismount it. The saddle and the food are in your inventory.",
-    "task_scenario": "interact",
+    "task_goal": "Use diamond_pickaxe to dig the blackstone_stairs at (24, -60, 21). The diamond_pickaxe is in your inventory.",
+    "task_scenario": "dig",
     "evaluation_arg": {
-        "target": "horse",
-        "x": 8,
+        "target": "blackstone_stairs",
+        "x": 24,
         "y": -60,
-        "z": 8,
+        "z": 21,
         "facing": "",
         "item_position": "inventory",
-        "tool": "saddle",
-        "action": "saddle",
+        "tool": "diamond_pickaxe",
+        "action": "",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "interact_saddle_id10"
+    "task_name": "dig_blackstone_stairs_pickaxe_inventory_id0"
 }

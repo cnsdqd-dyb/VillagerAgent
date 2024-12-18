@@ -27,7 +27,7 @@ class OpenAILanguageModel(AbstractLanguageModel):
     
     # def __init__(self, api_key="", api_model="gpt-3.5-turbo-1106", evaluation_strategy="value", api_base="https://api.openai.com/v1/",
     #              enable_ReAct_prompting=True, strategy="cot", role_name="", api_key_list=[]):
-    def __init__(self, api_key="", api_model="gpt-3.5-turbo-1106", evaluation_strategy="value", api_base="https://api.chatanywhere.tech/v1",
+    def __init__(self, api_key="", api_model="qwen-max", evaluation_strategy="value", api_base="https://api.chatanywhere.tech/v1",
                  enable_ReAct_prompting=True, strategy="cot", role_name="", api_key_list=[]):
         if api_key == "" or api_key is None:
             api_key = os.environ.get("OPENAI_API_KEY", "")
@@ -54,17 +54,17 @@ class OpenAILanguageModel(AbstractLanguageModel):
         if api_model == "" or api_model is None:
             api_model = os.environ.get("OPENAI_API_MODEL", "")
         if api_model != "":
-            if api_model not in OpenAILanguageModel._supported_models:
-                raise Exception(
-                    f"only support {OpenAILanguageModel._supported_models}, but got {api_model}"
-                )
+            # if api_model not in OpenAILanguageModel._supported_models:
+            #     raise Exception(
+            #         f"only support {OpenAILanguageModel._supported_models}, but got {api_model}"
+            #     )
 
             self.api_model = api_model
         else:
-            self.api_model = "gpt-3.5-turbo-1106"
+            self.api_model = "qwen-max"
         # logger.info(f"Using api_model {self.api_model}")
 
-        self.use_chat_api = "gpt" in self.api_model
+        self.use_chat_api = True
         self.role_name = role_name
 
         # reference : https://www.promptingguide.ai/techniques/react
@@ -260,9 +260,9 @@ class OpenAILanguageModel(AbstractLanguageModel):
         # print(self.api_model)
         if api_model == "":
             api_model = self.api_model
-        else:
-            if api_model not in OpenAILanguageModel._supported_models:
-                raise Exception(f"only support {OpenAILanguageModel._supported_models}, but got {api_model}")
+        # else:
+        #     if api_model not in OpenAILanguageModel._supported_models:
+        #         raise Exception(f"only support {OpenAILanguageModel._supported_models}, but got {api_model}")
         if type(example_prompt) == str:
             example_prompt = [example_prompt]
         assert self.use_chat_api == True, "few shot generation only support chat api"
@@ -379,9 +379,9 @@ class OpenAILanguageModel(AbstractLanguageModel):
         
         if api_model == "":
             api_model = self.api_model
-        else:
-            if api_model not in OpenAILanguageModel._supported_models:
-                raise Exception(f"only support {OpenAILanguageModel._supported_models}, but got {api_model}")
+        # else:
+        #     if api_model not in OpenAILanguageModel._supported_models:
+        #         raise Exception(f"only support {OpenAILanguageModel._supported_models}, but got {api_model}")
         
         if type(prompt_before_image) == str:
             prompt_before_image = [prompt_before_image]
