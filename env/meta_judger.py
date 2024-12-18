@@ -12,6 +12,7 @@ from minecraft_define import *
 from env_api import *
 import random
 import platform
+import math
 
 system_type = platform.system().lower()
 
@@ -45,7 +46,6 @@ Socks = require("socks5-client")
 minecraftData = require('minecraft-data')
 mcData = minecraftData(args.mc_version)
 
-y_b = -60  # -60
 bot = mineflayer.createBot({
     "host": args.host,
     "port": args.port,
@@ -61,7 +61,7 @@ bot.loadPlugin(minecraftHawkEye)
 
 ### reset the environments
 with open("data/score.json", "w") as f:
-    json.dump({}, f, indent=4)
+    json.dump({}, f, indent=4) 
 
 with open(".cache/env.cache", "w") as f:
     json.dump([], f, indent=4)
@@ -112,7 +112,6 @@ def aligned_item_name(item): #去掉可能的物品名前缀
 
 @On(bot, 'spawn')
 def handleViewer(*args):   
-
     for name in agent_names:
         bot.chat(f'/op {name}')
         time.sleep(.2) 
@@ -262,7 +261,7 @@ def handleViewer(*args):
     tree_list = ["acacia", "birch", "spruce", "oak", "jungle_tree", "dark_oak", "mangrove"]
     tree_weight = [5, 30, 5, 50, 4, 3, 3]
     invalid_pos = []
-    if config["task_scenario"] in ["dig", "place", "move"] or (config["task_scenario"] == "useitem" and "sign" in arg_dict["target"]) or (config["task_scenario"] == "interact" and arg_dict["action"] == "store"):
+    if config["task_scenario"] in ["dig", "place", "move"] or (config["task_scenario"] == "useitem" and "sign" in arg_dict["target"]) or (config["task_scenario"] == "interact" and arg_dict["action"] in ["store", "till", "fishing", "bone_meal", "sign", "boat", "minecart", "bed"]):
         invalid_pos.append((arg_dict['x'], arg_dict['y'], arg_dict['z']))
     
     crx, cry, crz = random_position(orx + wall_width + 3, orz + wall_width + 3, orx + room_width + wall_width - 3, orz + room_width + wall_width - 3, 1, invalid_pos)
@@ -422,17 +421,20 @@ def handleViewer(*args):
         goal_item = aligned_item_name(arg_dict["target"])
 
         if arg_dict["item_position"] == "inventory":
-            bot.chat(f"/give {agent_name} {goal_item} 1")
+            bot.chat(f"/give {agent_name} {goal_item} {len(arg_dict['other_arg'])}")
             bot.chat(f"/give {agent_name} dirt 15")
         elif arg_dict["item_position"] == "chest":
-            set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 15}])
+            invalid_pos = [(p[0], p[1], p[2]) for p in arg_dict["other_arg"]]
+            set_chest(invalid_pos, [{"name": goal_item, "count": len(arg_dict['other_arg'])}, {"name": "dirt", "count": 15}])
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
     elif config["task_scenario"] == "move":
         if arg_dict["item_position"] == "inventory":
             bot.chat(f"/give {agent_name} dirt 10")
+            time.sleep(.2)
             bot.chat(f"/give {agent_name} ladder 10")
+            time.sleep(.2)
             bot.chat(f"/give {agent_name} diamond_pickaxe 1")
         elif arg_dict["item_position"] == "chest":
             set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "dirt", "count": 10}, {"name": "ladder", "count": 10}, {"name": "diamond_pickaxe", "count": 1}])
@@ -443,6 +445,7 @@ def handleViewer(*args):
         goal_item = aligned_item_name(arg_dict["target"])
         if arg_dict["item_position"] == "inventory":
             bot.chat(f"/give {agent_name} {goal_item} 1")
+            time.sleep(.2)
             bot.chat(f"/give {agent_name} dirt 5")
         elif arg_dict["item_position"] == "chest":
             set_chest([], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 5}])
@@ -455,6 +458,7 @@ def handleViewer(*args):
             interact_type = "player"
         else:
             with open("data/animals.json", "r") as f:
+                
                 animal_list = json.load(f)
                 for animal in animal_list:
                     if animal["name"] == target:   
@@ -483,6 +487,7 @@ def handleViewer(*args):
             bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']} {base_block}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                time.sleep(.2)
                 bot.chat(f"/give {agent_name} {crop} {random.randint(1, 2)}")
             elif arg_dict["item_position"] == "chest":
                 set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}, {"name": crop, "count": random.randint(1, 2)}])
@@ -507,6 +512,8 @@ def handleViewer(*args):
                 bot.chat(f"/summon {target} {x} {y} {z} {{InLove:600,Age:0,Tame:1}}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} saddle 1")
+                time.sleep(.2)
+                bot.chat(f"/give {agent_name} wheat 5")
             elif arg_dict["item_position"] == "chest":
                 set_chest([], [{"name": "saddle", "count": 1}])
 
@@ -529,6 +536,39 @@ def handleViewer(*args):
             bot.chat(f'/fill {x-1} {y} {z-1} {x+1} {y} {z+1} water')
             bot.chat(f"/summon {target} {x} {y} {z}")
             bot.chat(f"/summon {target} {x} {y} {z}")
+        elif arg_dict["action"] == "toggle":
+            if arg_dict["tool"]:
+                if arg_dict["item_position"] == "inventory":
+                    bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                else:
+                    set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}])
+            time.sleep(.2)
+            facing = random.choice(["west", "east", "north", "south"])
+            if "trapdoor" not in arg_dict['target'] and "fence" not in arg_dict['target']:
+                bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} {arg_dict['target']}[facing={facing},half=lower]")
+                bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y'] + 1} {arg_dict['z']} {arg_dict['target']}[facing={facing},half=upper]")
+            elif "trapdoor" in arg_dict["target"]:
+                bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} {arg_dict['target']}[facing={facing}]")
+            else:
+                bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} {arg_dict['target']}")
+
+
+        elif arg_dict["action"] == "till":
+            size = int(arg_dict["other_arg"][0]["size"])
+            size = int(size[0]) * int(size[2])
+            crops = aligned_item_name(arg_dict["other_arg"][0]["crops"])
+            if arg_dict["item_position"] == "inventory":
+                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                bot.chat(f"/give {agent_name} {crops} {size}")
+            elif arg_dict["item_position"] == "chest":
+                set_chest([], [{"name": arg_dict['tool'], "count": 1}, {"name": crops, "count": size}])
+            else:
+                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+            bot.chat(f"/give {agent_name} dirt 5")
+            origin_block = aligned_item_name(arg_dict["other_arg"][0]["origin_block"])
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            bot.chat(f"/setblock {x} {y} {z} {origin_block}")
+
         
         elif arg_dict["action"] == "bed":
             bot.chat(f"/time set night")
@@ -546,16 +586,18 @@ def handleViewer(*args):
             text = arg_dict["other_arg"]
             # /setblock x y z jungle_wall_sign[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{Text you want to write 1.}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{Text you want to write 2.}\\\"}}\"}}
             bot.chat(f"/setblock {x} {y} {z} {target}[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
-        elif arg_dict["action"] == "redstone":
-            trigger = arg_dict["other_arg"][0]["button"]
-            target = aligned_item_name(arg_dict["target"])
-            if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
-                bot.chat(f"/give {agent_name} {trigger} 1")
-                bot.chat(f"/give {agent_name} redstone 10")
-            elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['tool'], "count": 1}, {"name": trigger, "count": 1}, {"name": "redstone", "count": 10}])
-            
+
+        elif arg_dict["action"] == "chat":
+            name = arg_dict["target"]
+            npcbot = mineflayer.createBot({
+                "host": arg_host,
+                "port": arg_port,
+                'username': name,
+                'checkTimeoutInterval': 600000,
+                'auth': 'offline',
+                'version': "1.19.2",
+            })
+
         elif interact_type == "animal":
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
             if arg_dict["item_position"] == "inventory":
@@ -706,11 +748,16 @@ def handle(this):
 
             elif config["task_scenario"]  == "place":
                 goal_item = aligned_item_name(arg_dict["target"])
-                pos_list = [arg_dict['x'], arg_dict['y'], arg_dict['z']]
-                if arg_dict["facing"]:
-                    pos_list.append(arg_dict["facing"])
-                if check_block(pos_list, goal_item):
-                    score = 100 
+                score = 0
+                for i, pos in enumerate(arg_dict["other_arg"]):
+                    pos_list = [pos[0], pos[1], pos[2]]
+                    if arg_dict["facing"]:
+                        pos_list.append(arg_dict["facing"])
+                    if check_block(pos_list, goal_item):
+                        if i == len(arg_dict["other_arg"]) - 1:
+                            score = 100
+                        else:
+                            score += 100 / len(arg_dict["other_arg"])
 
             elif config["task_scenario"]  == "interact":
                 target = aligned_item_name(arg_dict["target"]) 
@@ -739,12 +786,11 @@ def handle(this):
                     bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                     bot.chat(f'/data get entity {agent_name}')
                 
-                if arg_dict["action"] == "redstone":
+                if arg_dict["action"] == "toggle":
                     x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
                     target = aligned_item_name(arg_dict["target"])
-                    num = 0
                     block = bot.blockAt(Vec3(x, y, z))
-                    if block["name"] == target and block._properties["powered"]:
+                    if block["name"] == target and block._properties["open"]:
                         score = 100         
 
                 if interact_type == "block":
