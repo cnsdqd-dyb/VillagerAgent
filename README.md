@@ -2,63 +2,98 @@
 
 <img src="img/VillagerBench.png" width="100%" /> 
 
-<table>
+<!-- <style>
+.showcase-table {
+    width: 100%;
+    border-spacing: 10px;
+    border-collapse: separate;
+}
+
+.showcase-cell {
+    width: 25%;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.showcase-cell:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.showcase-image {
+    width: 256px;
+    height: 256px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.showcase-title {
+    font-size: 14px;
+    color: #333;
+    margin-top: 8px;
+    font-weight: 500;
+}
+</style> -->
+
+<table class="showcase-table">
     <tr>
-        <td align="center" width="25%">
-            <img src="img/fishing.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Fishing</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/fishing.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Fishing</sub>
         </td>
-        <td align="center" width="25%">
-            <img src="img/build.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Building</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/build.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Building</sub>
         </td>
-        <td align="center" width="25%">
-            <img src="img/cart.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Driving</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/cart.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Driving</sub>
         </td>
-        <td align="center" width="25%">
-            <img src="img/conversition.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Talking</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/conversition.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Talking</sub>
         </td>
     </tr>
     <tr>
-        <td align="center" width="25%">
-            <img src="img/farm.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Farming</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/farm.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Farming</sub>
         </td>
-        <td align="center" width="25%">
-            <img src="img/feed.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Feeding</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/feed.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Feeding</sub>
         </td>
-        <td align="center" width="25%">
-            <img src="img/grow.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Cultivate</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/grow.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Cultivate</sub>
         </td>
-        <td align="center" width="25%">
-            <img src="img/saddle.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Holding</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/saddle.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Holding</sub>
         </td>
     </tr>
     <tr>
-        <td align="center" width="25%">
-            <img src="img/ride.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Riding</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/ride.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Riding</sub>
         </td>
-        <td align="center" width="25%">
-            <img src="img/seed.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Seeding</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/seed.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Seeding</sub>
         </td>
-        <td align="center" width="25%">
-            <img src="img/store.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Storing</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/store.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Storing</sub>
         </td>
-        <td align="center" width="25%">
-            <img src="img/sleep.png" width="200" height="200" style="object-fit: cover"/><br>
-            <sub>Sleeping</sub>
+        <td class="showcase-cell" align="center">
+            <img src="img/sleep.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Sleeping</sub>
         </td>
     </tr>
 </table>
-
 
 
 We aim to investigate the interactions between agents within the Minecraft environment and their collaboration with human players. Concurrently, we will explore the capabilities of Large Language Models (LLMs) in task decomposition and cooperation.
