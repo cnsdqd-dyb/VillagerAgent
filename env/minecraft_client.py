@@ -1058,19 +1058,20 @@ if __name__ == "__main__":
     Agent.api_key_list = api_key_list
     Agent.launch(host="10.214.180.148", port=25565)
     # print(Agent.ping("Alice"))
-    # url = Agent.get_url_prefix()["Alice"] + "/post_attack"
+    url = Agent.get_url_prefix()["Alice"] + "/post_sleep"
+    response = requests.post(url, headers=Agent.headers)
+    print(response.json())
     # data = {
-    #         "target_name": "pandagv",
     #     }
     # response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
-    response = Agent.attackTarget({"player_name":"Alice", "target_name":"panda"})
+    # response = Agent.attackTarget({"player_name":"Alice", "target_name":"panda"})
     # print(response)
     # from langchain.chat_models import ChatOpenAI
     # llm = ChatOpenAI(model=Agent.model, temperature=0.1, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
     # response = llm.invoke("use bone_meal on the large_fern")
     # print(response)
-    # Prompt = "You are act as Alice, place saddle on horse."
-    # agent1.run(Prompt, tools=[Agent.useItemOnEntity])
+    # Prompt = "You are act as Alice, sleep on the blue bed"
+    # agent1.run(Prompt, tools=[Agent.sleep])
     # actions = []
     # observations = []
     # while True:

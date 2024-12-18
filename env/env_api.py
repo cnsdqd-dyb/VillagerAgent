@@ -2063,7 +2063,9 @@ def getInventoryItemByName(bot, item_name, count=1):
 def sleep(bot, Vec3, mcData):
     # bot.chat('/time set night')
     try:
+        bot.chat('searching for bed')
         bedBlock = BlocksSearch(bot, Vec3, mcData, 16, 'bed', count=1)
+        bot.chat(f'found bed {bedBlock[0].name}')
         if bedBlock is None:
             return "failed to sleep because no bed found"
         bedBlock = bedBlock[0]

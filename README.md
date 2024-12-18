@@ -2,12 +2,107 @@
 
 <img src="img/VillagerBench.png" width="100%" /> 
 
+<style>
+.showcase-table {
+    width: 100%;
+    border-spacing: 10px;
+    border-collapse: separate;
+}
+
+.showcase-cell {
+    width: 25%;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.showcase-cell:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.showcase-image {
+    width: 256px;
+    height: 256px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.showcase-title {
+    font-size: 14px;
+    color: #333;
+    margin-top: 8px;
+    font-weight: 500;
+}
+</style>
+
+<table class="showcase-table">
+    <tr>
+        <td class="showcase-cell" align="center">
+            <img src="img/fishing.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Fishing</sub>
+        </td>
+        <td class="showcase-cell" align="center">
+            <img src="img/build.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Building</sub>
+        </td>
+        <td class="showcase-cell" align="center">
+            <img src="img/cart.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Driving</sub>
+        </td>
+        <td class="showcase-cell" align="center">
+            <img src="img/conversition.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Talking</sub>
+        </td>
+    </tr>
+    <tr>
+        <td class="showcase-cell" align="center">
+            <img src="img/farm.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Farming</sub>
+        </td>
+        <td class="showcase-cell" align="center">
+            <img src="img/feed.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Feeding</sub>
+        </td>
+        <td class="showcase-cell" align="center">
+            <img src="img/grow.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Cultivate</sub>
+        </td>
+        <td class="showcase-cell" align="center">
+            <img src="img/saddle.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Holding</sub>
+        </td>
+    </tr>
+    <tr>
+        <td class="showcase-cell" align="center">
+            <img src="img/ride.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Riding</sub>
+        </td>
+        <td class="showcase-cell" align="center">
+            <img src="img/seed.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Seeding</sub>
+        </td>
+        <td class="showcase-cell" align="center">
+            <img src="img/store.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Storing</sub>
+        </td>
+        <td class="showcase-cell" align="center">
+            <img src="img/sleep.png" class="showcase-image" /><br>
+            <sub class="showcase-title">Sleeping</sub>
+        </td>
+    </tr>
+</table>
+
+
 We aim to investigate the interactions between agents within the Minecraft environment and their collaboration with human players. Concurrently, we will explore the capabilities of Large Language Models (LLMs) in task decomposition and cooperation.
 
 Welcome to VillagerBench, where the blocky world of Minecraft isn't just for fun and games—it's a testing ground for the cutting-edge of multi-agent collaboration! 🤖 Our benchmark suite is designed to push the boundaries of what virtual agents can achieve together, tackling everything from construction projects 🏗️ to culinary quests 🍳 and escape room puzzles 🔐.
 
 Customize your private tasks in your Minecraft server with our VillagerAgent multi-agent framework, designed for personalized gameplay experiences! 🌟 
 点击此处查看 [中文版 README](READMEzh.md)。
+クリックして [README](README.md) をご覧ください。
 <p align="center">
     <a href='https://arxiv.org/abs/2406.05720'>
       <img src='https://img.shields.io/badge/Paper-PDF-green?style=for-the-badge&logo=arXiv&logoColor=green' alt='Paper PDF'>
@@ -20,6 +115,8 @@ Customize your private tasks in your Minecraft server with our VillagerAgent mul
 ---
 
 ## News
+\[2024.12.18\] We've added new attributes. VillagerBaseAgent LLM 8b v1 will be released soon.
+
 \[2024.12.11\] Support LLM api ranking with PPO method.
 
 \[2024.12.08\] LLM driven AutoGen task to get data for Agent-tuning.
