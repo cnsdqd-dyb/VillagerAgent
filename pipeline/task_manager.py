@@ -8,6 +8,7 @@ from pipeline.retriever import Retriever
 from model.openai_models import OpenAILanguageModel
 from pipeline.utils import *
 from typing import Union
+import random
 import json
 import time
 import logging
@@ -30,7 +31,7 @@ class TaskManager:
     update_task: str = "update"
     merge_task: str = "merge"
 
-    def __init__(self, silent:bool = False, method:str = "update"):
+    def __init__(self, silent:bool = False, method:str = "update", cache_enabled:bool = False):
         self.llm = None
         self.dm:DataManager = None
         self.graph:Graph = None
@@ -41,7 +42,7 @@ class TaskManager:
         self.agent_list = []
         self.task_document = None
         self.method = method
-        
+        self.cache_enabled = cache_enabled
         self.task_description = None
 
         self.task_trace = []
@@ -196,7 +197,7 @@ class TaskManager:
                                                                      "meta-data": content},
                                                             "agent_ability": self.agent_describe,
                                                             "env": env_description,
-                                                            "num": max(len(self.agent_list), 3)})
+                                                            "num": random.randint(1, 3)})
         elif self.manage_method == "merge":
             system_prompt = DECOMPOSE_SYSTEM_PROMPT
             user_prompt = format_string(DECOMPOSE_USER_PROMPT, {"task": {"description": description, 
@@ -209,7 +210,7 @@ class TaskManager:
         # self.logger.warning("TM DEBUG:")
         # self.logger.warning(system_prompt)
         self.logger.warning(user_prompt)
-        response = self.llm.few_shot_generate_thoughts(system_prompt, user_prompt, cache_enabled=True, json_check=True,
+        response = self.llm.few_shot_generate_thoughts(system_prompt, user_prompt, cache_enabled=self.cache_enabled, json_check=True,
                                                        check_tags=["description", "milestones", "assigned agents"])
         self.update_history(system_prompt, user_prompt, response)
         result = extract_info(response, guard_keys=["description", "milestones"])
@@ -287,7 +288,7 @@ class TaskManager:
         # self.logger.warning("TM STRATEGY DEBUG:")
         # self.logger.warning(strategy_system_prompt)
         # self.logger.warning(strategy_user_prompt)
-        response = self.llm.few_shot_generate_thoughts(strategy_system_prompt, strategy_user_prompt, cache_enabled=False, json_check=True
+        response = self.llm.few_shot_generate_thoughts(strategy_system_prompt, strategy_user_prompt, cache_enabled=self.cache_enabled, json_check=True
                                                     #    api_model="gpt-4-1106-preview",
                                                     #    check_tags=["reasoning", "strategy", "info"]
                                                        
@@ -490,7 +491,7 @@ class TaskManager:
                                                             "agent_state": [self.dm.query_history(agent.name) for agent in self.agent_list], 
                                                             "failure_previous_subtask": self.fail_trace_description,
                                                             "success_previous_subtask": self.task_trace_description,
-                                                            "num": max(len(self.agent_list), 3)})
+                                                            "num": random.randint(1, 3)})
     
 
 

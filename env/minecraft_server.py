@@ -294,6 +294,7 @@ def find():
     """find name distance count: find tag in the distance, and count is the number of items you want to find."""
     data = request.get_json()
     name, distance, count = data.get('name'), data.get('distance'), data.get('count')
+    origin_name = name
     center_pos = bot.entity.position
     # 随机移动一下 防止卡住
     random_x = randint(-4, 4)
@@ -357,10 +358,11 @@ def find():
         events = info_bot.get_action_description_new()
         return jsonify({'message': observation, 'status': done, 'data':pos_data, "new_events": events})
     else:
-        observation += f"can not find item with name '{name}'"
-        done = False
+        observation += "I can't find anything named " + name
+        if bot.heldItem and bot.heldItem.name == origin_name:
+            observation += f" But I have {origin_name} in inventory."
         events = info_bot.get_action_description_new()
-        return jsonify({'message': observation, 'status': done, 'data':[], "new_events": events})
+        return jsonify({'message': observation, 'status': False, 'data':[], "new_events": events})
  
 @app.route('/post_hand', methods=['POST'])
 @log_activity(bot)
@@ -440,9 +442,13 @@ def sleep_():
         events = info_bot.get_action_description_new()
         return jsonify({'message': "I am already sleeping", 'status': False, "new_events": events})
     """sleep: to sleep."""
+    # bot.chat("/gamemode creative")
     msg = sleep(bot, Vec3, mcData)
-    done = True
-    info_bot.sleeping = True
+    if "failed" not in msg:
+        done = True
+        info_bot.sleeping = True
+    else:
+        done = False
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': done, "new_events": events})
 
@@ -453,6 +459,7 @@ def wake_():
     """wake: to wake."""
     if info_bot.is_sleeping():
         msg = wake(bot)
+        # bot.chat("/gamemode survival")
         done = True
         info_bot.sleeping = False
         events = info_bot.get_action_description_new()
@@ -480,7 +487,6 @@ def place():
     item_name, x, y, z, facing = data.get('item_name'), data.get('x'), data.get('y'), data.get('z'), data.get('facing')
     if "minecart" in item_name.lower().replace(" ", "_") \
         or "seeds" in item_name.lower().replace(" ", "_") \
-        or "boat" in item_name.lower().replace(" ", "_") \
         or "saddle" in item_name.lower().replace(" ", "_"):
         events = info_bot.get_action_description_new()
         return jsonify({'message': f"can not place {item_name} --> try useItemOnEntity", 'status': False, "new_events": events})
@@ -499,13 +505,24 @@ def place():
     
     # setblock
     if flag:
-        if facing in ["W", "E", "S", "N"]:
-            cvt = {"W": "west", "E": "east", "S": "south", "N": "north"}
-            bot.chat(f"/setblock {x} {y} {z} {item_name}[facing={cvt[facing]}]")
-        elif facing in ["x", "y", "z"]:
-            bot.chat(f"/setblock {x} {y} {z} {item_name}[axis={facing.lower()}]")
-        elif facing == "A":
-            bot.chat(f"/setblock {x} {y} {z} {item_name}")
+        if "chest_boat" in item_name.lower().replace(" ", "_"):
+            bot.chat(f"/summon minecraft:chest_boat {x} {y+1} {z}")
+            time.sleep(1)
+            bot.chat(f"/tp @s {x} {y+1} {z}")
+        elif "boat" in item_name.lower().replace(" ", "_"):
+            bot.chat(f"/summon minecraft:boat {x} {y+1} {z}")
+        elif "bed" in item_name.lower().replace(" ", "_"):
+            bot.chat(f"/setblock {x} {y} {z} {item_name}[part=head]")
+        else:
+            if facing in ["W", "E", "S", "N"]:
+                cvt = {"W": "west", "E": "east", "S": "south", "N": "north"}
+                bot.chat(f"/setblock {x} {y} {z} {item_name}[facing={cvt[facing]}]")
+            elif facing in ["x", "y", "z"]:
+                bot.chat(f"/setblock {x} {y} {z} {item_name}[axis={facing.lower()}]")
+            elif facing == "A":
+                bot.chat(f"/setblock {x} {y} {z} {item_name}")
+    if flag:
+        bot.chat(f"/clear @s {item_name} 1")
 
     distance = distanceTo(bot.entity.position, Vec3(x, y, z))
     if distance < 1.4:
@@ -1508,7 +1525,35 @@ class Bot():
         item_str = "My inventory: "
         for key, value in item_dict.items():
             item_str += f"{key}: {value} "
+
+        local_map = self.get_3x3_map()
+        item_str += "Player center local map with height (y): \n"
+        for item in local_map:
+            for block in item:
+                item_str += f"{block[0]}:{block[1]} "
+            item_str += "\n"
+
         return item_str
+
+    def get_3x3_map(self):
+        # 获取3x3的地图, 第一个是方块的名字, 第二个是方块的相对高度
+        map_3x3 = []
+        for i in range(-1, 2):
+            map_3x3.append([])
+            for j in range(-1, 2):
+                block_name = "low"
+                block_height = f"< {bot.entity.position.y - 2}"
+                for k in range(5):
+                    block = bot.blockAt(bot.entity.position.offset(i, 2-k, j))
+                    if block.name == "air":
+                        continue
+                    else:
+                        block_name = block.name
+                        block_height = f"{block.position.y}"
+                        break
+                map_3x3[-1].append((block_name, block_height))
+
+        return map_3x3
 
     def get_action_description_new(self):
         new_actions = []

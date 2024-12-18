@@ -381,7 +381,7 @@ class Agent():
     @tool
     @timeit
     def useItemOnEntity(player_name: str, item_name: str, entity_name: str):
-        """Use a Specific Item on a Specific Entity, return string result (minecaft on rail, bone on dog, seeds on dirt, bucket on water, saddle on horse, etc)"""
+        """Use a Specific Item on a Specific Entity, return string result (minecaft on rail, bone on dog, hoe on dirt, seeds on farmland, bucket on water, saddle on horse, etc)"""
         url = Agent.get_url_prefix()[player_name] + "/post_use_on"
         data = {
             "item_name": item_name.lower().replace(" ", "_"),
@@ -1059,18 +1059,19 @@ if __name__ == "__main__":
     Agent.api_key_list = api_key_list
     Agent.launch(host="10.214.180.148", port=25565)
     # print(Agent.ping("Alice"))
-    # url = Agent.get_url_prefix()["Alice"] + "/post_start_fishing"
-    # data = {
-    #         "fish_name": "cod",
-    #     }
-    # response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
-    # print(response.json())
-    from langchain.chat_models import ChatOpenAI
-    llm = ChatOpenAI(model=Agent.model, temperature=0.1, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
+    url = Agent.get_url_prefix()["Alice"] + "/post_sleep"
+    data = {
+            # "item_name": "wheat",
+            # "entity_name": "horse",
+        }
+    response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
+    print(response.json())
+    # from langchain.chat_models import ChatOpenAI
+    # llm = ChatOpenAI(model=Agent.model, temperature=0.1, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
     # response = llm.invoke("use bone_meal on the large_fern")
     # print(response)
-    Prompt = "You are act as Alice, use bone_meal on the oak_sapling at 23 -60 24"
-    agent1.run(Prompt, tools=[Agent.useItemOnEntity])
+    # Prompt = "You are act as Alice, place saddle on horse."
+    # agent1.run(Prompt, tools=[Agent.useItemOnEntity])
     # actions = []
     # observations = []
     # while True:

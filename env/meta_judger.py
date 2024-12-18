@@ -6,6 +6,7 @@ import threading
 from utils import *
 import json
 import os
+import math
 import argparse
 from minecraft_define import *
 from env_api import *
@@ -101,12 +102,6 @@ complexity_score = 0
 efficiency = 0
 balance = 0
 
-# api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
-# base_url = "https://api.chatanywhere.tech/v1" 
-# model = "gpt-4-1106-preview"
-# from langchain.chat_models import ChatOpenAI
-# llm = ChatOpenAI(model=model, temperature=0.1, max_tokens=256, openai_api_key=random.choice(api_key_list), base_url=base_url)
-# # response = llm.invoke("use bone_meal on the large_fern")
 
 def aligned_item_name(item): #去掉可能的物品名前缀
     if item.startswith("minecraft:"):
@@ -331,7 +326,11 @@ def handleViewer(*args):
     time.sleep(.2)
     bot.chat("/kill @e[type=!minecraft:player]")
     time.sleep(.2)
-
+    bot.chat("/kill @e[type=!minecraft:player]")
+    time.sleep(.2)
+    bot.chat("/kill @e[type=!minecraft:player]")
+    time.sleep(.2)
+    
     bot.chat(f"/setblock {orx + wall_width} {ory + room_height // 2 - 1} {orz + wall_width} glass")
     time.sleep(.2)
     bot.chat(f"/tp @s {orx + wall_width} {ory + room_height // 2} {orz + wall_width} -45 45")
@@ -463,11 +462,26 @@ def handleViewer(*args):
                     if animal["name"] == target:   
                         interact_type = "animal"
                         break
+        
+        if arg_dict["action"] == "till":
+            base_block = aligned_item_name(arg_dict["other_arg"][0]['origin_block'])
+            crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            tool = aligned_item_name(arg_dict["tool"])
+            if arg_dict["item_position"] == "inventory":
+                bot.chat(f"/give {agent_name} {tool} 1")
+                bot.chat(f"/give {agent_name} {crop} 1")
+            elif arg_dict["item_position"] == "chest":
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": tool, "count": 1}, {"name": crop, "count": 1}])
+            bot.chat(f"/fill {x} {y} {z} {x+2} {y} {z+2} dirt")
+            bot.chat(f"/setblock {x} {y} {z} {base_block}")
+            bot.chat(f"/setblock {x+1} {y} {z+1} water")
 
         if arg_dict["action"] == "bone_meal":
             base_block = aligned_item_name(arg_dict["other_arg"][0]['base_block'])
             crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
-            
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            bot.chat(f"/setblock {x} {y} {z} air")
             bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']} {base_block}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
@@ -477,26 +491,38 @@ def handleViewer(*args):
                 set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}, {"name": crop, "count": random.randint(1, 2)}])
 
         elif arg_dict["action"] == "minecart":
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            bot.chat(f"/setblock {x} {y} {z} air")
+            bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']-1} rail")
             bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']} rail")
-            time.sleep(.2)
+            bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']+1} rail")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} minecart 1")
             elif arg_dict["item_position"] == "chest":
                 set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "minecart", "count": 1}])
 
         elif arg_dict["action"] == "saddle":
+            target = aligned_item_name(arg_dict["target"])
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            if 'horse' in target:
+                bot.chat(f"/summon {target} {x} {y} {z} {{InLove:600,Age:0,Tame:1}}")
+            else:
+                bot.chat(f"/summon {target} {x} {y} {z} {{InLove:600,Age:0,Tame:1}}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} saddle 1")
                 time.sleep(.2)
                 bot.chat(f"/give {agent_name} wheat 5")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "saddle", "count": 1}, {"name": "wheat", "count": 5}])
+                set_chest([], [{"name": "saddle", "count": 1}])
 
         elif arg_dict["action"] == "boat":
             if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} boat 1")
+                bot.chat(f"/give {agent_name} {arg_dict['target']} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "boat", "count": 1}])
+                set_chest([], [{"name": arg_dict['target'], "count": 1}])
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            bot.chat(f"/fill {x-4} {y} {z-4} {x+4} {y} {z+4} grass_block")
+            bot.chat(f"/fill {x-3} {y} {z-3} {x+3} {y} {z+3} water")
 
         elif arg_dict["action"] == "fishing":
             if arg_dict["item_position"] == "inventory":
@@ -504,8 +530,9 @@ def handleViewer(*args):
             elif arg_dict["item_position"] == "chest":
                 set_chest([], [{"name": "fishing_rod", "count": 1}])
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-            bot.chat(f"/fill {x-1} {y} {z-1} {x+1} {y} {z+1} water")
-            time.sleep(.2)
+            bot.chat(f'/fill {x-2} {y} {z-2} {x+2} {y} {z+2} grass_block')
+            bot.chat(f'/fill {x-1} {y} {z-1} {x+1} {y} {z+1} water')
+            bot.chat(f"/summon {target} {x} {y} {z}")
             bot.chat(f"/summon {target} {x} {y} {z}")
         elif arg_dict["action"] == "toggle":
             if arg_dict["tool"]:
@@ -540,12 +567,13 @@ def handleViewer(*args):
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             bot.chat(f"/setblock {x} {y} {z} {origin_block}")
 
+        
         elif arg_dict["action"] == "bed":
             bot.chat(f"/time set night")
             if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                bot.chat(f"/give {agent_name} {arg_dict['target']} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['tool'], "count": 1}])
+                set_chest([], [{"name": arg_dict['target'], "count": 1}])
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
             bot.chat(f"/give {agent_name} dirt 5")
@@ -603,20 +631,6 @@ def handleViewer(*args):
                 bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} chest")
                 bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]} 1")
 
-        elif interact_type == "player":
-            npcbot = mineflayer.createBot({
-                "host": arg_host,
-                "port": arg_port,
-                'username': "Bob",
-                'checkTimeoutInterval': 600000,
-                'auth': 'offline',
-                'version': "1.19.2",
-            })
-            npc_x, npc_y, npc_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
-            bot.chat(f"/clear Bob")
-            bot.chat(f"/tp Bob {npc_x} {npc_y} {npc_z}")
-            if arg_dict["action"] == "handover":
-                bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]}")
 
 
     else:
@@ -745,14 +759,15 @@ def handle(this):
 
             elif config["task_scenario"]  == "interact":
                 target = aligned_item_name(arg_dict["target"]) 
+
+                if arg_dict["action"] == "bed":
+                    bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
+                    bot.chat(f'/data get entity {agent_name}')                  
+
                 if arg_dict["action"] == "sign":
-                    x_1, y_1, z_1 = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-                    x_2, y_2, z_2 = bot.entity.position.x, bot.entity.position.y, bot.entity.position.z
-                    distance = math.sqrt((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2 + (z_1 - z_2) ** 2)
-                    if distance < 3 and score == 0:
-                        score = 80
-                    if score >= 80:
-                        score += 1
+                    bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
+                    bot.chat(f'/data get entity {agent_name}') 
+
                 if arg_dict["action"] == "bone_meal":
                     bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                     bot.chat(f'/data get entity {agent_name}')
@@ -764,17 +779,10 @@ def handle(this):
                 if arg_dict["action"] == "fishing":
                     bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                     bot.chat(f'/data get entity {agent_name}')
-              
 
                 if arg_dict["action"] == "till":
-                    x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-                    target = aligned_item_name(arg_dict["target"])
-                    num = 0
-                    if bot.blockAt(Vec3(x, y+1, z))["name"] != "air" and \
-                        bot.blockAt(Vec3(x, y+1, z))["name"] != "water" and \
-                        bot.blockAt(Vec3(x, y+1, z))["name"] != "dirt" and \
-                        bot.blockAt(Vec3(x, y+1, z))["name"] != "grass":
-                        score = 100
+                    bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
+                    bot.chat(f'/data get entity {agent_name}')
                 
                 if arg_dict["action"] == "toggle":
                     x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
@@ -987,6 +995,20 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                 inventory = data.get("Inventory", [])
                 pos = data.get("Pos", [])
                 score = calculate_score(inventory, pos)
+            elif config["task_scenario"] == "interact" and arg_dict["action"] == "sign":
+                inventory = data.get("Inventory", [])
+                pos = data.get("Pos", [])
+                x_1, y_1, z_1 = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+                x_2, y_2, z_2 = pos[0].replace('d',''), pos[1].replace('d',''), pos[2].replace('d','')
+                x_2, y_2, z_2 = float(x_2), float(y_2), float(z_2),
+                distance = math.sqrt((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2 + (z_1 - z_2) ** 2)
+                # bot.chat(f'distance: {distance}')
+                if distance < 3 and score == 0:
+                    score = 80
+                if score >= 80:
+                    score += 1
+                if score >= 100:
+                    score = 100
             elif config["task_scenario"] == "interact" and arg_dict["action"] == "feed":
                 inlove = data.get("InLove", 0)
                 if int(inlove) > 0:
@@ -1014,6 +1036,19 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                     if aligned_item_name(item['id']) == "bone_meal":
                         score = 0
 
+            if config["task_scenario"] == "interact" and arg_dict["action"] == "till":
+                # bot.chat("bone meal")
+                inventory = data.get("Inventory", [])
+                hit = False
+                crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
+                for item in inventory:
+                    if aligned_item_name(item['id']) == crop:
+                        hit = True
+                if score == 0 and hit:
+                    score = 50
+                if score == 50 and not hit:
+                    score = 100
+            
             if config["task_scenario"] == "interact" and arg_dict["action"] in ["minecart", "boat", "saddle"]:
                 RootVehicle = data.get("RootVehicle", {})
                 if RootVehicle != {}:
@@ -1028,6 +1063,15 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                     if aligned_item_name(item['id']) == target_fish:
                         score = 100
                         break
+            
+            if config["task_scenario"] == "interact" and arg_dict["action"] == "bed":
+                sleeptime = int(data.get("SleepTimer", 0).split("s")[0])
+                print(sleeptime)
+                if sleeptime > 0 and score == 0:
+                    score = 50
+                if score == 50 and sleeptime == 0:
+                    score = 100
+                
 
             # info_count += 1
             # if info_count % 20 == 0:
@@ -1063,31 +1107,8 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             #         score = 100
 
             if config["task_scenario"] == "interact" and arg_dict["action"] == "chat":
-                # response = llm.invoke(msg)
-                # if response:
-                #     bot.chat(f"[{target_name}] --MSG-- [{host_name}] {response}")
-                #     score += 20
-                pass
-                
+                score += 20
 
-
-@On(bot, "entitySleep")
-def entitySleep(this, entity):
-    global environment_set_time, score
-    with open(".cache/meta_setting.json", "r") as f:
-        config = json.load(f)
-    arg_dict = config["evaluation_arg"]
-    if arg_dict["action"] == "bed":
-        score = 50
-
-@On(bot, "entityWake")
-def entityWake(this, entity):
-    global environment_set_time, score
-    with open(".cache/meta_setting.json", "r") as f:
-        config = json.load(f)
-    arg_dict = config["evaluation_arg"]
-    if arg_dict["action"] == "bed" and score == 50:
-        score = 100
 
 @On(bot, "entityHurt")
 def handleAttack(_, entity):

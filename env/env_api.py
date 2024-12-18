@@ -139,10 +139,10 @@ def BlocksNearby(bot, Vec3, mcData, RenderRange=5, max_time=3, max_same_block=3,
                         if hit:
                             continue
 
-                        if 'bed' in block["name"] and block["_properties"]['part'] == 'head':
+                        if 'bed' in block["name"] and block["_properties"]['part'] != 'head':
                             continue
 
-                        if 'door' in block["name"] and block["_properties"]['part'] == 'upper':
+                        if 'door' in block["name"] and block["_properties"]['part'] != 'upper':
                             continue
 
                         facing = block["_properties"]["axis"]
@@ -229,6 +229,8 @@ def BlocksSearch(bot, Vec3, mcData, RenderRange=5, hint="", count=-1, max_time=1
                         return blocks
                     block = getBlock(bot, Vec3, anchor_pos.x + x, anchor_pos.y + y, anchor_pos.z + z)
                     # filter air
+                    # if "blue_bed" in block["name"]:
+                    #     bot.chat(f"block {block['name']}")
                     hit = False
                     for tag in ['air', ]:
                         if tag in block["name"]:
@@ -236,15 +238,15 @@ def BlocksSearch(bot, Vec3, mcData, RenderRange=5, hint="", count=-1, max_time=1
                             break
                     if hit:
                         continue
-
+                    
                     # #[DEBUG] print(block["name"],hint)
                     if hint not in block["name"]:
                         continue
 
-                    if 'bed' in block["name"] and block["_properties"]['part'] == 'head':
+                    if 'bed' in block["name"] and block["_properties"]['part'] != 'head':
                         continue
 
-                    if 'door' in block["name"] and block["_properties"]['part'] == 'upper':
+                    if 'door' in block["name"] and block["_properties"]['part'] != 'upper':
                         continue
                     # #[DEBUG] print(block)
                     blocks.append(block)
@@ -951,7 +953,7 @@ async def place_block_op(bot, mcData, pathfinder, Vec3, item_name, pos, axis=Non
     elif bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] == 'dirt':
         # dig the dirt
         bot.dig(bot.blockAt(Vec3(pos[0], pos[1], pos[2])))
-    elif bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] != 'air':
+    elif bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] != 'air' and bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name'] != 'water':
         return False, f"can not place it now, the position is occupied by {bot.blockAt(Vec3(pos[0], pos[1], pos[2]))['name']}, do you need to mine it first?"
     
     if axis not in ['x', 'y', 'z', 'A', 'W', 'E', 'S', 'N', None]:
@@ -2021,7 +2023,8 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
     try:
         bot.activateEntityAt(bot.entity, pos)
         # bot.chat(f'activated entity {name}')
-
+        bot.useOn(bot.blockAt(pos))
+        
         bot.activateBlock(bot.blockAt(pos))
         # bot.chat(f'#activated block {name}')
         return f" activate {name}", True, []
@@ -2054,12 +2057,12 @@ def sleep(bot, Vec3, mcData):
         bedBlock = bedBlock[0]
         if bot.isABed(bedBlock):
             bot.sleep(bedBlock)
-            return " sleep"
+            return "Sleep!"
         else:
             # bot.chat("#No nearby bed")
             return "failed to sleep because no bed found"
     except Exception as e:
-        # bot.chat(f'unable to sleep: {e}')
+        bot.chat(f'unable to sleep: {e}')
         return "failed to sleep"
 
 
@@ -2153,6 +2156,10 @@ def unequip(bot, destination='hand'):
 
 def mount(bot, name):
     try:
+        if "chest_boat" in name:
+            name = "chest_boat"
+        elif "boat" in name:
+            name = "boat"
         entities = get_entity_by('name', get_envs_info(bot), name, bot.entity.username)
         entity = entities[0]
         bot.mount(entity)
@@ -2203,10 +2210,11 @@ def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, item_name, name):
     if not tag and (not bot.heldItem or bot.heldItem.name != item_name):
         return msg, tag
     try:
-        blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=5, max_same_block=3,visible_only=True)
+        blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=5, max_same_block=3, visible_only=True)
         for block in blocks:
+            bot.chat(f"{block['name']}")
             if block['name'] == name:
-                bot.chat(f'#used {item_name} on {name}')
+                bot.chat(f'#used {item_name} on item {name}')
                 pos = Vec3(block["position"][0], block["position"][1], block["position"][2])
                 distance = distanceTo(bot.entity.position, pos)
                 if distance > 3:
@@ -2222,10 +2230,11 @@ def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, item_name, name):
             return f"entity cannot be found nearby", False
         else:
             entity = entities[0]
-            bot.chat(f'#used {item_name} on {entity.name}')
+            bot.chat(f'#used {item_name} on entity {entity.name}')
             distance = distanceTo(bot.entity.position, entity["position"])
             if distance > 3:
                 move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=entity["position"])
+            bot.lookAt(entity["position"])
             bot.useOn(entity)
             bot.activateEntity(entity)
             
