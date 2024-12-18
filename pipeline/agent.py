@@ -8,12 +8,14 @@ from type_define.graph import Task
 from pipeline.data_manager import DataManager
 from pipeline.utils import *
 from model.openai_models import OpenAILanguageModel
+from model.vllm_model import VLLMLanguageModel
 from random import random, randint, choice
 from pipeline.agent_prompt import *
 from pipeline.agent_rl_prompt import *
 from rl_env import *
 import numpy as np
 import torch
+from model.utils import extract_info
 
 class AgentFeedback:
     def __init__(self, task:Task, detail, status):
@@ -40,7 +42,7 @@ class BaseAgent:
     '''
     _virtual_debug = False
     def __init__(self, llm:OpenAILanguageModel , env:VillagerBench, data_manager:DataManager, name:str, logger:logging.Logger = None, silent = False, 
-    RL_mode = "", rl_env = None, rl_model = None, **kwargs):
+    RL_mode = "", rl_env = None, rl_model = None, all_tools = [], **kwargs):
         self.env = env
         self.name = name
         self.data_manager = data_manager
@@ -49,6 +51,7 @@ class BaseAgent:
         self.reflect_info = {"prompt": [], "response": []}
         self.RL_mode = RL_mode
         self.logger = logger
+        self.all_tools = all_tools
         if not env.running:
             BaseAgent._virtual_debug = True
 
@@ -108,9 +111,11 @@ class BaseAgent:
 
         if self.RL_mode != "":
             return self.rl_step(task)
-
         else:
-            return self.normal_step(task)    
+            if isinstance(self.llm, VLLMLanguageModel):
+                return self.local_step(task)
+            else:
+                return self.normal_step(task)
         
     def rl_step(self, task:Task) -> (str, dict):
         # 构建基础提示和状态
@@ -287,8 +292,88 @@ class BaseAgent:
 
         # self.data_manager.save()
         return feedback, detail
-   
+    
+    def local_step(self, task:Task) -> (str, dict):
+        if len(task._agent) == 1:
+            task_str = format_string(agent_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
+                                    "env": self.data_manager.query_env_with_task(task.description),
+                                    "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
+                                    "agent_name": self.name,
+                                    "agent_state": self.data_manager.query_history(self.name),
+                                    "other_agents": self.other_agents(),
+                                    "agent_action_list": self.history_action_list,
+                                    "minecraft_knowledge_card": minecraft_knowledge_card})
+        else:
+            task_str = format_string(agent_cooper_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
+                                    "env": self.data_manager.query_env_with_task(task.description),
+                                    "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
+                                    "agent_name": self.name,
+                                    "agent_state": self.data_manager.query_history(self.name),
+                                    "other_agents": self.other_agents(),
+                                    "agent_action_list": self.history_action_list,
+                                    "team_members": ", ".join(task._agent),
+                                    "minecraft_knowledge_card": minecraft_knowledge_card})
+            
+        self.logger.debug("="*20 + " Agent Step " + "="*20)
+        self.logger.info(f"{self.name} try task:\n {task.description}")
+        self.logger.info(f"{self.history_action_list}")
+        self.logger.info(f"other agents: {self.other_agents()}")
+        self.logger.info(f"{self.name} status:\n {self.data_manager.query_history(self.name)}")
+        max_retry = 3
 
+        instruction = f"Your name is {self.name}.\n{task_str}"
+        system_prompt = "You are Minecraft BaseAgent. You need to complete the task by following the environment feedback."
+
+        prompts = [instruction]    
+
+        action_list = []
+
+        max_steps = 5
+        while max_steps > 0:
+            response = self.llm.few_shot_generate_thoughts(system_prompt, prompts, cache_enabled=False, max_tokens=256, json_check=False)
+            
+            prompts.append(response)
+
+            response = response.split("Action: ")[-1].strip()
+            response = response.split(", 'log': '")[0].strip()
+            response = response + '}'
+            print(response)
+            response = json.loads(response.replace("'", '"'))
+
+            func_name = response["tool"]
+            tool_input = response["tool_input"]
+            print(response)
+            print(func_name)
+            print(tool_input)
+            final_answer = None
+            for tool in self.all_tools:
+                if tool.name == func_name:
+                    if tool.name == 'stop':
+                        max_steps = 0
+                        final_answer = tool_input['final_answer']
+                        break
+
+                    feedback = tool(tool_input)
+                    user = f"Feedback: {feedback.get('message')}\nStatus: {feedback.get('status')}\nNew Events: {feedback.get('new_events')}"
+                    
+                    action_list.append({"action": response, "feedback": feedback.get('message')})
+
+                    prompts.append(user)
+                    print(feedback)
+                    final_answer = user
+                    break
+                
+            max_steps -= 1
+
+
+
+        status = self.env.agent_status(self.name)
+
+        detail = {"input": instruction, "action_list": action_list, "final_answer": final_answer}
+        self.data_manager.update_database(AgentFeedback(task, detail, status).to_json())
+
+        # self.data_manager.save()
+        return feedback, detail
     def other_agents(self) -> [str]:
         '''
         return the feedback of other agent's pretask

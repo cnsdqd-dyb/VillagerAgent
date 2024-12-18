@@ -283,7 +283,9 @@ def handleViewer(*args):
     # bot.chat(f"/fill {orx + wall_width + room_width // 2 - clear_w} {ory + clear_h * 3 + 2} {orz + wall_width + room_width // 2 - clear_w} {orx + wall_width + room_width // 2 + clear_w} {ory + clear_h * 4 + 1} {orz + wall_width + room_width // 2 + clear_w} air")
     # time.sleep(.2)
     # bot.chat("/kill @e[type=!minecraft:player]")
-    # time.sleep(.2)
+    # 清空 史莱姆
+    bot.chat(f"/kill @e[type=minecraft:slime]")
+    time.sleep(.2)
     # 清空原来的环境
 
     # peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
@@ -1061,7 +1063,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             #         score = 100
 
             if config["task_scenario"] == "interact" and arg_dict["action"] == "chat":
-                score += 20
+                score += 10
 
 
 @On(bot, "entityHurt")

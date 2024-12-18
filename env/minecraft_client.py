@@ -433,7 +433,6 @@ class Agent():
         }            
         response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
         return response.json()
-
     @tool
     @timeit
     def attackTarget(player_name: str, target_name: str):
@@ -1059,13 +1058,13 @@ if __name__ == "__main__":
     Agent.api_key_list = api_key_list
     Agent.launch(host="10.214.180.148", port=25565)
     # print(Agent.ping("Alice"))
-    url = Agent.get_url_prefix()["Alice"] + "/post_sleep"
-    data = {
-            # "item_name": "wheat",
-            # "entity_name": "horse",
-        }
-    response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
-    print(response.json())
+    # url = Agent.get_url_prefix()["Alice"] + "/post_attack"
+    # data = {
+    #         "target_name": "pandagv",
+    #     }
+    # response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
+    response = Agent.attackTarget({"player_name":"Alice", "target_name":"panda"})
+    # print(response)
     # from langchain.chat_models import ChatOpenAI
     # llm = ChatOpenAI(model=Agent.model, temperature=0.1, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
     # response = llm.invoke("use bone_meal on the large_fern")

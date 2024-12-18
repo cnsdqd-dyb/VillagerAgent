@@ -1564,6 +1564,9 @@ async def attack(bot, envs_info, mcData, mobName=None):
                 entities = get_entity_by('name', envs_info, mobName, bot.entity.username)
                 if len(entities) > 0:
                     entity = entities[0]
+                    bot.chat(f"Fount {mobName} nearby")
+                else:
+                    return f"did not find {mobName} nearby", False
             except Exception as e:
                 bot.chat(f'find_everything_ username error: {e}')
             if entity == None:
@@ -1582,7 +1585,7 @@ async def attack(bot, envs_info, mcData, mobName=None):
                     bot.chat(f'find_everything_ name error: {e}')
                     entity = None
         if entity == None:
-            # bot.chat("No nearby entities")
+            bot.chat("No nearby entities")
             return "entity cannot be found nearby", False
         if entity.name == "player":
             try:
@@ -1593,7 +1596,7 @@ async def attack(bot, envs_info, mcData, mobName=None):
             except Exception as e:
                 bot.chat(f'find_everything_ name error: {e}')
                 return "cannot attack player", False
-        
+        bot.chat(f"Attacking {entity.name if entity.name else entity.username}")
         mainHandItem = bot.inventory.slots[bot.getEquipmentDestSlot("hand")]
         attack_creatures = [
             "rabbit",
@@ -1601,9 +1604,14 @@ async def attack(bot, envs_info, mcData, mobName=None):
             "sheep",
             "cat",
             "chicken",
+            "wolf",
             "cod",
             "cow",
+            "fox",
             "pig",
+            "horse",
+            "parrot",
+            "panda",
             "blaze",
             "cave_spider",
             "creeper",
@@ -1640,10 +1648,13 @@ async def attack(bot, envs_info, mcData, mobName=None):
             "zombie_villager",
             "zombified_piglin",
         ]
+        creature_name = entity.name if entity.name else entity.username
+        if creature_name not in attack_creatures:
+            return f"cannot attack {entity.name if entity.name else entity.username}, it is not in the attack list", False
         if mainHandItem == None or mainHandItem['name'] not in weaponsForShooting and entity.name in attack_creatures:
             # bot.chat(f"Attacking {entity.name if entity.name else entity.username}")
             bot.pvp.attack(entity)
-            time.sleep(1)
+            time.sleep(10)
             bot.pvp.stop()
             if mainHandItem == None:
                 return f" attack {entity.name if entity.name else entity.username}", True
@@ -1651,11 +1662,12 @@ async def attack(bot, envs_info, mcData, mobName=None):
 
         else:
             bot.hawkEye.autoAttack(entity, mainHandItem.name)
-            time.sleep(1)
+            # time.sleep(10)
             bot.hawkEye.stop()
             return f" used {mainHandItem['name']} and tried attack {entity.name if entity.name else entity.username} for 5 sec", True
     except Exception as e:
         # [DEBUG] 
+        bot.chat(f'attack error: {e}')
         bot.pvp.stop()
         bot.hawkEye.stop()
         return "failed to attack.", False

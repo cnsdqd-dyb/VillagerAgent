@@ -538,13 +538,13 @@ def place():
 @log_activity(bot)
 def attack_():
     """attack name:  to attack the nearest entity."""
+    bot.chat("/gamemode creative")
     data = request.get_json()
     name = data.get('name')
     envs_info = get_envs_info(bot, 128)
     msg, tag = asyncio.run(attack(bot, envs_info, mcData, name))
-    done = tag
     events = info_bot.get_action_description_new()
-    return jsonify({'message': msg, 'status': done, "new_events": events})
+    return jsonify({'message': msg, 'status': tag, "new_events": events})
 
 
 @app.route('/post_equip', methods=['POST'])

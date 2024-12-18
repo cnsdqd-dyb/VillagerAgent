@@ -29,7 +29,7 @@ llm_config = {
     # "api_base": "https://api.openai.com/v1/",
     "api_base": "https://api.chatanywhere.tech/v1",
     "api_key_list": api_key_list,
-    "api_key": api_key_list[0]
+    "api_key": random.choice(api_key_list)
 }
 # llm_config = {
 #     "api_key": "sk-villageragent",
@@ -148,11 +148,10 @@ def generate_task_goal(task_scenario, arg_dict):
             template_prompt = f"Hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "store":
             template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
-        elif arg_dict["action"] == "chat" and arg_dict["other_arg"][0] is str:
-            template_prompt = f"Send a message to Bob with content '{arg_dict['other_arg'][0]}'."
+        # elif arg_dict["action"] == "chat" and arg_dict["other_arg"][0] is str:
+        #     template_prompt = f"Send a message to Bob with content '{arg_dict['other_arg'][0]}'."
             # "till", "fishing", "bone_meal", "garden", "fence", "wall", "stair", "chat", "sign", "redstone", "saddle", "boat", "minecart", "bed"
         elif arg_dict["action"] == "till":
-            size = arg_dict["other_arg"][0]["size"]
             template_prompt = f"Till the land at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}) to farmland. The hoe is in the {arg_dict['item_position']}, plant the {arg_dict['other_arg'][0]['crops']} in the farmland."
         elif arg_dict["action"] == "fishing":
             template_prompt = f"Go fishing at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The fishing rod is in the {arg_dict['item_position']}."
@@ -176,8 +175,8 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "sign":
             sign = arg_dict["target"]
             template_prompt = f"Read the content on the {sign} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
-        elif arg_dict["action"] == "redstone":
-            template_prompt = f"Build a circuit with redstone use {arg_dict['other_arg'][0]['trigger']} control {arg_dict["target"]}.{arg_dict['other_arg'][0]['trigger']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}), toggle the trigger. The redstone, the {arg_dict['other_arg'][0]} and the switch are in the {arg_dict['item_position']}."
+        # elif arg_dict["action"] == "redstone":
+        #     template_prompt = f"Build a circuit with redstone use {arg_dict['other_arg'][0]['trigger']} control {arg_dict["target"]}.{arg_dict['other_arg'][0]['trigger']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}), toggle the trigger. The redstone, the {arg_dict['other_arg'][0]} and the switch are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "saddle":
             template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']} and ride it, then dismount it. The {arg_dict['tool']} and the food are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "boat":
@@ -196,7 +195,7 @@ def generate_task_goal(task_scenario, arg_dict):
             template_prompt = f"Build a {size} ladder upward start from ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The ladder is in the {arg_dict['item_position']}, you may use some dirts at near places internally to place the ladder."
     
     template_prompt = template_prompt.replace("the inventory", "your inventory")
-    if random.randint(1, 3) == 1: # 有小概率直接用原始的prompt
+    if random.randint(1, 1) == 1: # 有小概率直接用原始的prompt
         task_goal = template_prompt
     else:
         template_prompt = "Original Sentence: " + template_prompt
@@ -261,7 +260,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 config["document_file"] = ""
                 config_list.append(config)
     elif task == "meta":
-        for i in tqdm.tqdm(range(0, 100)):
+        for i in tqdm.tqdm(range(0, 500)):
             random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [0.1, 0.2, 0.1, 0.05, 0.05, 0.4])[0]
             if random_task == "dig":
                 with open("data/blocks.json", "r") as f:
@@ -433,7 +432,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             {"name": "parrot", "food": ["melon_seeds", "pumpkin_seeds"]}, {"name": "fox", "food": ["sweet_berries"]}, {"name": "turtle", "food": ["seagrass"]}, 
                             {"name": "panda", "food": ["bamboo"]}]
                 cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
-                action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "chat"]
+                action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk"]
                 # 额外的几个任务 1. 耕地-并加种子 2. 钓鱼 3.作物加骨粉催熟 4. 小花园 5. 建造一个矩形的栅栏 6. 聊天对话 7. 读写牌子上面的内容
                 # 8. 由一个红石线，一个（门/灯）和一个开关组成的电路，要求开关能控制门/灯的开关
                 # 9. 给马加上马鞍，并且给马喂食，骑马，下马 / 给猪背上胡萝卜杆，骑猪
@@ -441,14 +440,14 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 # 11. 建造一面墙
                 # 12. 放置床睡觉，然后起床 
                 # 13. 搭梯子
-                additional_task_list = ["till", "fishing", "bone_meal", "garden", "fence", "wall", "stair", "chat", "sign", "redstone", "saddle", "boat", "minecart", "bed", "ladder"]
+                additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "saddle", "boat", "minecart", "bed"]
 
 
                 for i in range(task_number):
                     # action = "feed"
                     task_level = random.choice(["basic", "advanced"])
                     if task_level == "basic":
-                        action = random.choices(action_list, [10, 10, 9, 28, 28, 2, 2, 10])[0]
+                        action = random.choices(action_list, [10, 10, 9, 8, 8, 3, 3])[0]
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         if action == "cook":
@@ -487,10 +486,10 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             with open("data/items.json", "r") as f:
                                 items = json.load(f)
                             arg_dict["other_arg"] = [random.choice(items)["name"]]
-                        elif action == "chat":
-                            charset = string.ascii_letters + string.digits
-                            text_len = random.randint(5, 8)
-                            arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
+                        # elif action == "chat":
+                        #     charset = string.ascii_letters + string.digits
+                        #     text_len = random.randint(5, 8)
+                        #     arg_dict["other_arg"] = [''.join(random.choices(charset, k=text_len))]
                         # # #
                         arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
                         # # #

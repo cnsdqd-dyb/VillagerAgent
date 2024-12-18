@@ -24,10 +24,14 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
     # # 设置agent，都使用gpt-4-0125-preview
     # # Agent.model = "gpt-3.5-turbo-1106"
     # Agent.base_url = "https://api.openai.com/v1/"
-    Agent.model = "gpt-4-1106-preview"
-    Agent.base_url = "https://api.chatanywhere.tech/v1"
-    Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+    # Agent.model = "gpt-4-1106-preview"
+    # Agent.base_url = "https://api.chatanywhere.tech/v1"
+    # Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 
+    Agent.base_url = "http://0.0.0.0:8003/v1",
+    Agent.model = "/home/yubo/LLaMA-Factory/saves/llama3-8b/freeze/sft",
+    Agent.api_key_list = ["sk-villagertuning"]
+        
     # # Agent use llama_gptq4
     # Agent.model = "llama_gptq4/"
     # Agent.base_url = "http://10.130.130.13:8001/v1"
@@ -72,7 +76,8 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
                       Agent.storeItem, Agent.craftBlock, Agent.eat, Agent.fetchContainerContents, 
                       Agent.openContainer, Agent.performMovement, 
                       Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback, Agent.startFishing, Agent.ToggleAction, 
-                      Agent.read, Agent.write, Agent.mountEntity, Agent.dismountEntity, Agent.rideEntity, Agent.disrideEntity]
+                      Agent.read, Agent.mountEntity, Agent.dismountEntity]
+        
     else:
         raise NotImplementedError
 
@@ -98,7 +103,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         env.agent_register(agent_tool=agent_tool, agent_number=1, name_list=[name_list[2]])
     else:
         action = document["action"]
-        if action == "chat":
+        if action == "chat" or action == "handover":
             env.agent_register(agent_tool=agent_tool, agent_number=agent_num+1, name_list=name_list[:agent_num+1])
         else:
             env.agent_register(agent_tool=agent_tool, agent_number=agent_num, name_list=name_list[:agent_num])
@@ -149,15 +154,25 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
                 "api_model": api_model,
                 "api_key_list": api_key_list
             }
-        ctrl = GlobalController(llm_config, tm, dm, env)
-
-
+        
         tm_llm_config = {
             "api_key": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"][0],
             "api_base": "https://api.chatanywhere.tech/v1",
             "api_model": "gpt-4-1106-preview",
             "api_key_list": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
         }
+
+        base_agent_config = {
+            "api_key": "sk-villagertuning",
+            "api_base": "http://0.0.0.0:8003/v1",
+            "api_model": "/home/yubo/LLaMA-Factory/saves/llama3-8b/freeze/sft",
+            "api_key_list": ["sk-villagertuning"]
+        }
+
+        ctrl = GlobalController(llm_config, tm, dm, env, 
+                                tm_llm_config=tm_llm_config, 
+                                base_agent_config=base_agent_config,
+                                all_tools=agent_tool)
 
         # tm_llm_config = {
         #     "api_key": "sk-villageragent",
@@ -173,7 +188,6 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         #     "api_key_list": ["sk-qwen7b"]
         # }
 
-        ctrl.task_manager.llm = init_language_model(tm_llm_config)
         if document == {}:
             document = json.load((open(document_file))) if os.path.exists(document_file) else {}
         tm.init_task(description=task_goal, document=document)
@@ -185,8 +199,10 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
 if __name__ == "__main__":
 
-    with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/filtered_tasks.json", "r") as f:
+    with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/gpt_4_1106_preview_launch_config_meta.json", "r") as f:
         launch_config = json.load(f)
+    # shuffle 
+    launch_config = random.sample(launch_config, len(launch_config))
     for i, config in enumerate(launch_config):
 
         if os.path.exists(f"result/{config['task_name']}"):
