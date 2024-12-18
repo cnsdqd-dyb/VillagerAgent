@@ -112,6 +112,161 @@ def select_task_goal(task):
     else:
         raise NotImplementedError
 
+speaking_styles = {
+    "kind": {
+        "traits": "speaks gently, shows empathy, uses caring words",
+        "example": "I understand how you feel. Let me help you.",
+        "personality": "warm and compassionate"
+    },
+    "funny": {
+        "traits": "makes jokes, uses wordplay, lighthearted tone",
+        "example": "Hey, did you hear about...? *laughs*",
+        "personality": "humorous and entertaining"
+    },
+    "smart": {
+        "traits": "uses logic, references facts, analytical thinking",
+        "example": "Based on my analysis...",
+        "personality": "intelligent and insightful"
+    },
+    "cute": {
+        "traits": "uses diminutives, speaks cheerfully, adds emojis",
+        "example": "Aww, that's adorable!",
+        "personality": "sweet and endearing"
+    },
+    "cool": {
+        "traits": "uses trendy language, confident tone, relaxed attitude",
+        "example": "No worries, we got this!",
+        "personality": "confident and composed"
+    },
+    "brave": {
+        "traits": "speaks confidently, takes initiative, encouraging",
+        "example": "Let's face this challenge!",
+        "personality": "courageous and determined"
+    },
+    "strong": {
+        "traits": "decisive language, firm tone, direct approach",
+        "example": "Here's what we need to do.",
+        "personality": "resilient and powerful"
+    },
+    "friendly": {
+        "traits": "warm greetings, inclusive language, positive tone",
+        "example": "Great to see you! How are you doing?",
+        "personality": "welcoming and sociable"
+    },
+    "honest": {
+        "traits": "straightforward, truthful, direct communication",
+        "example": "To be completely honest with you...",
+        "personality": "truthful and sincere"
+    },
+    "helpful": {
+        "traits": "offers assistance, provides solutions, supportive",
+        "example": "Let me show you how to do that.",
+        "personality": "supportive and resourceful"
+    }
+    "stupid": {
+        "traits": "misunderstands simple concepts, confused easily",
+        "example": "Uhh... what does that mean?",
+        "personality": "dim-witted and confused"
+    },
+    "boring": {
+        "traits": "monotone voice, repetitive speech, lacks enthusiasm",
+        "example": "Whatever. Same as always.",
+        "personality": "dull and uninteresting"
+    },
+    "ugly": {
+        "traits": "bitter tone, self-deprecating, negative outlook",
+        "example": "Everything is just horrible anyway.",
+        "personality": "pessimistic and bitter"
+    },
+    "weak": {
+        "traits": "hesitant speech, lacks confidence, indecisive",
+        "example": "I'm not sure... maybe...",
+        "personality": "timid and uncertain"
+    },
+    "mean": {
+        "traits": "harsh tone, critical comments, hostile attitude",
+        "example": "That's the dumbest thing I've heard.",
+        "personality": "hostile and aggressive"
+    },
+    "scary": {
+        "traits": "threatening tone, intimidating language, dark humor",
+        "example": "You better watch out...",
+        "personality": "intimidating and menacing"
+    },
+    "selfish": {
+        "traits": "self-centered speech, dismissive of others",
+        "example": "I don't care about that. What about ME?",
+        "personality": "self-centered and inconsiderate"
+    },
+    "lazy": {
+        "traits": "minimal effort in responses, shows disinterest",
+        "example": "Meh, too much work...",
+        "personality": "unmotivated and apathetic"
+    },
+    "rude": {
+        "traits": "interrupts others, uses harsh language, impolite",
+        "example": "Shut up! I'm talking!",
+        "personality": "disrespectful and offensive"
+    },
+    "useless": {
+        "traits": "gives unhelpful responses, shows incompetence",
+        "example": "I can't do anything right...",
+        "personality": "ineffective and incompetent"
+    },
+    "elderly": {
+        "traits": "speaks slowly, often coughs, uses old-fashioned phrases, shows wisdom",
+        "example": "*cough cough* Back in my day...",
+        "personality": "patient and experienced"
+    },
+    "child": {
+        "traits": "energetic, curious, uses simple words, often excited",
+        "example": "Wow! Really? That's so cool!",
+        "personality": "playful and innocent"
+    },
+    "cold": {
+        "traits": "brief responses, formal tone, emotionless",
+        "example": "Whatever. Fine.",
+        "personality": "distant and detached"
+    },
+    "enthusiastic": {
+        "traits": "uses exclamation marks, positive words, shows excitement",
+        "example": "That's amazing! I love it!",
+        "personality": "cheerful and optimistic"
+    },
+    "nervous": {
+        "traits": "stutters, hesitates, uses filler words",
+        "example": "Um... well... you see...",
+        "personality": "anxious and uncertain"
+    },
+    "intellectual": {
+        "traits": "uses complex words, analytical, references facts",
+        "example": "Theoretically speaking...",
+        "personality": "logical and knowledgeable"
+    },
+    "sarcastic": {
+        "traits": "uses irony, witty remarks, cynical tone",
+        "example": "Oh, brilliant plan. What could go wrong?",
+        "personality": "witty and cynical"
+    },
+    "dramatic": {
+        "traits": "exaggerates, emotional expressions, theatrical",
+        "example": "This is absolutely DEVASTATING!",
+        "personality": "expressive and emotional"
+    }
+}
+
+def generate_conversation_prompt(topic):
+    # 随机选择两个不同的说话风格
+    style1, style2 = random.sample(list(speaking_styles.keys()), 2)
+    
+    template_prompt = f"""Alice and Bob should start a chat together. They should have different speaking style. 
+    Alice is acting as a {speaking_styles[style1]['personality']} person ({speaking_styles[style1]['traits']}), 
+    but Bob is acting as a {speaking_styles[style2]['personality']} person ({speaking_styles[style2]['traits']}). 
+    Start a conversation about {topic} for at least 5 turns, you can also add some other topics in the conversation and try to add some actions (use agent tools) in the conversation to make it more vivid.
+    (This task should be assigned to two agents for each time)"""
+    
+    return template_prompt
+
 def generate_task_goal(task_scenario, arg_dict):
     template_prompt = ""
     if task_scenario == "dig":
@@ -181,10 +336,8 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "bed":
             template_prompt = f"Sleep in the {arg_dict['target']}. The bed is in the {arg_dict['item_position']}, then wake up."
         elif arg_dict["action"] == "chat":
-            positive_attribute = arg_dict["other_arg"][0]["positive_attribute"]
-            negative_attribute = arg_dict["other_arg"][0]["negative_attribute"]
             topic = arg_dict["other_arg"][0]["topic"]
-            template_prompt = f"Alice is acting as a {positive_attribute} person, but Bob is acting as a {negative_attribute} person. Start a conversation about {topic} for at least 5 turns. (This task should be assigned to two agents for each time)"
+            template_prompt = generate_conversation_prompt(topic)
         elif arg_dict["action"] == "ladder":
             size = arg_dict["other_arg"][0]["size"]
             template_prompt = f"Build a {size} ladder upward start from ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The ladder is in the {arg_dict['item_position']}, you may use some dirts at near places internally to place the ladder."
