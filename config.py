@@ -205,11 +205,11 @@ def generate_task_goal(task_scenario, arg_dict):
     template_prompt = template_prompt.replace("the inventory", "your inventory")
 
     task_goal = template_prompt
-    if random.randint(1, 5) == 1: # 有小概率直接用原始的prompt
-        task_goal = template_prompt
-    else:
-        template_prompt = "Original Sentence: " + template_prompt
-        task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.2)
+    # if random.randint(1, 5) == 1: # 有小概率直接用原始的prompt
+    #     task_goal = template_prompt
+    # else:
+    #     template_prompt = "Original Sentence: " + template_prompt
+    #     task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.2)
     logger.warning(task_goal)
     logger.debug("-" * 50)
     return task_goal
@@ -512,7 +512,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["y"] = ory + 1
                         else:
                             target = random.choice(animal_list)
-                        arg_dict["target"] = target["name"]
+                        arg_dict["target"] = target
                         arg_dict["action"] = action
                         if action == "attack":
                             arg_dict["tool"] = "iron_sword"
