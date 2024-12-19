@@ -278,7 +278,7 @@ class BaseAgent:
             example = speaking_styles_zh[speech_style]['示例']
 
 
-        if not self.EMOJI:
+        if platform.system().lower() != "linux":
             idle_prompt = idle_prompt_wo_emoji
         else:
             idle_prompt = idle_prompt_w_emoji
@@ -363,7 +363,7 @@ class BaseAgent:
             traits = speaking_styles_zh[speech_style]['特征']
             example = speaking_styles_zh[speech_style]['示例']
 
-        if not self.EMOJI:
+        if platform.system().lower() != "linux":
             agent_prompt = agent_prompt_wo_emoji
         else:
             agent_prompt = agent_prompt_w_emoji

@@ -6,16 +6,16 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Dig the blue_stained_glass at (5, -58, 2). You can dig it directly and don't need to use any tool.",
+    "task_goal": "Use diamond_axe to dig the bee_nest at (18, -59, 1). The diamond_axe is in your inventory.",
     "task_scenario": "dig",
     "evaluation_arg": {
-        "target": "blue_stained_glass",
-        "x": 5,
-        "y": -58,
-        "z": 2,
+        "target": "bee_nest",
+        "x": 18,
+        "y": -59,
+        "z": 1,
         "facing": "",
         "item_position": "inventory",
-        "tool": "",
+        "tool": "diamond_axe",
         "action": "",
         "step": 1,
         "other_arg": []
@@ -23,5 +23,5 @@
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "dig_blue_stained_glass_default_id0"
+    "task_name": "dig_bee_nest_axe_inventory_id0"
 }
