@@ -161,6 +161,8 @@ def generate_task_goal(task_scenario, arg_dict):
     elif task_scenario == "interact":
         if arg_dict["action"] in ["attack", "feed", "shear", "milk"]:
             template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} the {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}"
+        elif arg_dict["action"] == "water":
+            template_prompt = f"Use {arg_dict['tool']} to pack a bucket of {arg_dict['target']}."
         elif arg_dict["action"] == "cook":
             template_prompt = f"Cook the {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "handover":
@@ -269,7 +271,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 config_list.append(config)
     elif task == "meta":
         for j in tqdm.tqdm(range(0, args.meta_task_num)):
-            random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [10, 10, 10, 1, 2, 67])[0]
+            random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [7, 16, 7, 1, 2, 67])[0]
             if random_task == "dig":
                 with open("data/blocks.json", "r") as f:
                     blocks = json.load(f)
@@ -322,7 +324,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     arg_dict["target"] = item["name"]
                     # # #
                     arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"]) 
-                    arg_dict["step"] = 1
+                    arg_dict["step"] = random.choice([1, 2])
                     # # #
                     config["task_type"] = "meta"
                     config["task_idx"] = i
@@ -466,7 +468,9 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             {"name": "parrot", "food": ["melon_seeds", "pumpkin_seeds"]}, {"name": "fox", "food": ["sweet_berries"]}, {"name": "turtle", "food": ["seagrass"]}, 
                             {"name": "panda", "food": ["bamboo"]}]
                 cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
-                action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk"]
+                action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "water"]
+                additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"]
+
                 # 额外的几个任务 1. 耕地-并加种子 2. 钓鱼 3.作物加骨粉催熟 4. 小花园 5. 建造一个矩形的栅栏 6. 聊天对话 7. 读写牌子上面的内容
                 # 8. 由一个红石线，一个（门/灯）和一个开关组成的电路，要求开关能控制门/灯的开关
                 # 9. 给马加上马鞍，并且给马喂食，骑马，下马 / 给猪背上胡萝卜杆，骑猪
@@ -478,9 +482,9 @@ def generate_config(task, api_model, host, port, agent_num=2):
 
                 for i in range(task_number):
                     # action = "feed"
-                    task_level = random.choices(["basic", "advanced"], [0.4, 0.6])[0]
+                    task_level = random.choices(["basic", "advanced"], [39, 61])[0]
                     if task_level == "basic":
-                        action = random.choices(action_list, [10, 10, 9, 8, 8, 3, 3])[0]
+                        action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2, 20000])[0]
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         if action == "cook":
@@ -501,9 +505,14 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         elif action == "milk":
                             target = "cow"
                             arg_dict["target"] = "cow"
+                        elif action == "water":
+                            target = "water"
+                            arg_dict["x"] = random.randint(orx + wall_width + 2, orx + room_width + wall_width - 3)
+                            arg_dict["z"] = random.randint(orz + wall_width + 2, orz + room_width + wall_width - 3)
+                            arg_dict["y"] = ory + 1
                         else:
                             target = random.choice(animal_list)
-                            arg_dict["target"] = target["name"]
+                        arg_dict["target"] = target["name"]
                         arg_dict["action"] = action
                         if action == "attack":
                             arg_dict["tool"] = "iron_sword"
@@ -513,7 +522,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["other_arg"] = ["coal", target]
                         elif action == "shear":
                             arg_dict["tool"] = "shears"
-                        elif action == "milk":
+                        elif action == "milk" or action == "water":
                             arg_dict["tool"] = "bucket"
                         elif action in ["handover", "store"]:
                             with open("data/items.json", "r") as f:
@@ -533,8 +542,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         config["task_name"] = f"interact_{action}_id{j}"
                         config_list.append(config)
                     else:
-                        additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"]
-                        action = random.choices(additional_task_list, [5, 3, 6, 15, 4, 7, 8, 6, 6, 4])[0]
+                        action = random.choices(additional_task_list, [7, 5, 8, 13, 5, 10, 4, 3, 3, 3])[0]
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         arg_dict["action"] = action
@@ -869,10 +877,10 @@ def generate_config(task, api_model, host, port, agent_num=2):
         animal_list = [{"name": "sheep", "food": ["wheat"]}, {"name": "cow", "food": ["wheat"]}, {"name": "rabbit", "food": ["carrot"]}, 
                        {"name": "pig", "food": ["potato", "beetroot", "carrot"]}, {"name": "chicken", "food": ["wheat_seeds", "melon_seeds", "pumpkin_seeds", "beetroot_seeds"]}, ]
         cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
-        action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk"]
+        action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "water"]
         for i in range(task_number):
             # action = "feed"
-            action = random.choices(action_list, [10, 10, 9, 28, 28, 2, 2, 10])[0]
+            action = random.choices(action_list, [10, 10, 9, 28, 28, 2, 2, 10, 2])[0]
             config = template.copy()
             arg_dict = arg_template.copy()
             if action == "cook":
@@ -893,9 +901,14 @@ def generate_config(task, api_model, host, port, agent_num=2):
             elif action == "milk":
                 target = "cow"
                 arg_dict["target"] = "cow"
+            elif action == "water":
+                target = "water"
+                arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
+                arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
+                arg_dict["y"] = ory + 1
             else:
                 target = random.choice(animal_list)
-                arg_dict["target"] = target["name"]
+            arg_dict["target"] = target["name"]
             arg_dict["action"] = action
             if action == "attack":
                 arg_dict["tool"] = "iron_sword"
@@ -905,7 +918,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 arg_dict["other_arg"] = ["coal", target]
             elif action == "shear":
                 arg_dict["tool"] = "shears"
-            elif action == "milk":
+            elif action == "milk" or action == "water":
                 arg_dict["tool"] = "bucket"
             elif action in ["handover", "store"]:
                 with open("data/items.json", "r") as f:

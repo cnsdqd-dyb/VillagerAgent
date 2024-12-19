@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "With the carrot_on_a_stick and the food in your inventory, place the carrot_on_a_stick on the pig, ride it, and then dismount.",
+    "task_goal": "Pack a bucket of water in a bucket.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "pig",
+        "target": "water",
         "x": 8,
         "y": -60,
         "z": 8,
         "facing": "",
         "item_position": "inventory",
-        "tool": "carrot_on_a_stick",
-        "action": "saddle",
+        "tool": "bucket",
+        "action": "water",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.192.24.163",
     "port": 25565,
-    "task_name": "interact_saddle_id0"
+    "task_name": "interact_attack_id0"
 }

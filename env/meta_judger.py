@@ -606,14 +606,23 @@ def handleViewer(*args):
 
         elif arg_dict["action"] == "chat":
             name = arg_dict["target"]
-            npcbot = mineflayer.createBot({
-                "host": arg_host,
-                "port": arg_port,
-                'username': name,
-                'checkTimeoutInterval': 600000,
-                'auth': 'offline',
-                'version': "1.19.2",
-            })
+            # npcbot = mineflayer.createBot({
+            #     "host": arg_host,
+            #     "port": arg_port,
+            #     'username': name,
+            #     'checkTimeoutInterval': 600000,
+            #     'auth': 'offline',
+            #     'version': "1.19.2",
+            # })
+        elif arg_dict["action"] == "water":
+            target = arg_dict['target']
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            bot.chat(f'/fill {x-2} {y} {z-2} {x+2} {y} {z+2} grass_block')
+            bot.chat(f'/fill {x-1} {y} {z-1} {x+1} {y} {z+1} water')
+            if arg_dict["item_position"] == "inventory":
+                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+            elif arg_dict["item_position"] == "chest":
+                set_chest([], [{"name": arg_dict['tool'], "count": 1}])
 
         elif interact_type == "animal":
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
@@ -811,6 +820,9 @@ def handle(this):
                     block = bot.blockAt(Vec3(x, y, z))
                     if block["name"] == target and block._properties["open"]:
                         score = 100         
+                if arg_dict["action"] == "water":
+                        bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
+                        bot.chat(f'/data get entity {agent_name}')
 
                 if interact_type == "block":
                     if arg_dict["action"] == "cook":
@@ -898,6 +910,8 @@ def handle(this):
                         "end_reason": "max time out",
                         "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_time))
                     }, f, indent=4)
+                with open(os.path.join(os.path.join("result", task_name), "config.json"), "w") as f:
+                    json.dump(config, f, indent=4)
                 with open(".cache/load_status.cache", "w") as f:
                     json.dump({"status": "end"}, f, indent=4)
 
@@ -940,6 +954,8 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                 goal_item = arg_dict["other_arg"][0]
             elif arg_dict["action"] == "milk":
                 goal_item = "milk_bucket"
+            elif arg_dict["action"] == "water":
+                goal_item = "water_bucket"
             else:
                  goal_item = ""
             for item in inventory:
@@ -1028,7 +1044,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             # with open(file_path, 'w', encoding='utf-8') as f:
             #     json.dump(messages, f, ensure_ascii=False, indent=4)
 
-            if config["task_scenario"] in ["craft", "move"] or (config["task_scenario"] == "interact" and arg_dict["action"] in ["handover","cook", "milk"]) or (config["task_scenario"] == "useitem" and "sign" not in arg_dict["target"]):
+            if config["task_scenario"] in ["craft", "move"] or (config["task_scenario"] == "interact" and arg_dict["action"] in ["handover","cook", "milk", "water"]) or (config["task_scenario"] == "useitem" and "sign" not in arg_dict["target"]):
                 inventory = data.get("Inventory", [])
                 pos = data.get("Pos", [])
                 score = calculate_score(inventory, pos)
