@@ -17,6 +17,7 @@ from speaking_style import speaking_styles, speaking_styles_zh
 import numpy as np
 import threading
 import torch
+import platform
 from model.utils import extract_info
 
 class AgentFeedback:
@@ -70,6 +71,15 @@ class BaseAgent:
         self.IDLE = True  # 控制是否处于 IDLE 状态
         self.stop_event = threading.Event()  # 用于控制线程停止
         self.start_idle_thread()  # 启动 IDLE 线程
+
+        system_type = platform.system().lower()
+        if system_type == "linux":
+            self.logger.info("Linux system detected.")
+            self.logger.info("EMOJI is supported.")
+            self.EMOJI = True
+        else:
+            self.logger.info("EMOJI is not supported.")
+            self.EMOJI = False
 
     def update_reflect(self, system_prompt, user_prompt, response):
         if type(user_prompt) == str:
@@ -267,6 +277,10 @@ class BaseAgent:
             traits = speaking_styles_zh[speech_style]['特征']
             example = speaking_styles_zh[speech_style]['示例']
 
+
+        if not self.EMOJI:
+            idle_prompt = idle_prompt_wo_emoji
+
         task_str = format_string(idle_prompt, 
                                  {
                                 "agent_name": self.name,
@@ -346,6 +360,10 @@ class BaseAgent:
             personality = speaking_styles_zh[speech_style]['性格']
             traits = speaking_styles_zh[speech_style]['特征']
             example = speaking_styles_zh[speech_style]['示例']
+
+        if not self.EMOJI:
+            agent_prompt = agent_prompt_wo_emoji
+
         if len(task._agent) == 1:
             task_str = format_string(agent_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
                                     "env": self.data_manager.query_env_with_task(task.description),

@@ -608,15 +608,7 @@ def handleViewer(*args):
             bot.chat(f"/setblock {x} {y} {z} {target}[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
 
         elif arg_dict["action"] == "chat":
-            name = arg_dict["target"]
-            npcbot = mineflayer.createBot({
-                "host": arg_host,
-                "port": arg_port,
-                'username': name,
-                'checkTimeoutInterval': 600000,
-                'auth': 'offline',
-                'version': "1.19.2",
-            })
+            pass
 
         elif interact_type == "animal":
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")

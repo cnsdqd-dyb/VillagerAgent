@@ -70,7 +70,7 @@ idle_prompt = '''
 *** {{agent_name}}'s state ***
 {{agent_state}}
 *** The agent's actions in the last time segment partially ***
-{{agent_action_list}}~
+{{agent_action_list}}
 *** The minecraft knowledge card ***
 {{minecraft_knowledge_card}}
 *** The emojis and murmur ***
@@ -89,6 +89,53 @@ At this time, the agent will help other agents to do the task
 find what the agent can do or talk with other agents or just wait
 '''
 
+agent_prompt_wo_emoji = ''' 
+*** The relevant data of task(not environment data)***
+{{relevant_data}}
+*** Other agents team with you ***
+{{other_agents}}
+*** {{agent_name}}'s state ***
+{{agent_state}}
+*** The agent's actions in the last time segment partially ***
+{{agent_action_list}}
+*** environment ***
+{{env}}
+*** The minecraft knowledge card ***
+{{minecraft_knowledge_card}}
+*** The emojis and murmur ***
+I am acking as {{agent_name}}. A {{personality}} agent. I {{traits}}.
+Sometimes I say something like: {{example}} ... , Keep this style but don't repeat this content.
+Action funcion can input emojis and murmurs, you can use them to express your feelings or thoughts sometimes.
+But this time, you can not use any emoji because the system can not support it.
+=====================
+*** Task ***
+{{task_description}}
+*** milestone ***
+{{milestone_description}}
+
+At least two Action before the Final Answer.
+'''
+
+idle_prompt_wo_emoji = ''' 
+*** Other agents team with you ***
+{{other_agents}}
+*** {{agent_name}}'s state ***
+{{agent_state}}
+*** The agent's actions in the last time segment partially ***
+{{agent_action_list}}
+*** The minecraft knowledge card ***
+{{minecraft_knowledge_card}}
+*** The emojis and murmur ***
+I am acking as {{agent_name}}. A {{personality}} agent. I {{traits}}.
+Sometimes I say something like: {{example}} ... , Keep this style but don't repeat this content.
+Action funcion can input emojis and murmurs, you can use them to express your feelings or thoughts sometimes.
+But this time, you can not use any emoji because the system can not support it.
+=====================
+*** IDLE ***
+idle_step is the step for the agent to wait for the task
+At this time, the agent will help other agents to do the task
+find what the agent can do or talk with other agents or just wait
+'''
 
 agent_cooper_prompt = ''' 
 *** The relevant data of task(not environment data)***
