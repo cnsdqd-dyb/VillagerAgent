@@ -39,7 +39,6 @@ result/*
 .cache/meta_setting.json
 
 package-lock.json
-package.json
 /.vscode/*
 *config*.json
 
@@ -51,3 +50,5 @@ rl_env/replay_buffer/*
 rl_env/tasks/*
 
 node_modules/*
+100_meta.json
+filtered_tasks.json

@@ -21,27 +21,11 @@ start_time = time.time()
 def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num: int, dig_needed: bool, max_task_num: int, task_goal: str, document_file: str, host: str, port: int, task_name: str, role: str = "same", api_key_list: list = [], document: dict = {}):
     start_time = time.time()
 
-    # # 设置agent，都使用gpt-4-0125-preview
-    # # Agent.model = "gpt-3.5-turbo-1106"
-    # Agent.base_url = "https://api.openai.com/v1/"
-    Agent.model = "gpt-4-1106-preview"
-    Agent.base_url = "https://api.chatanywhere.tech/v1"
-    Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 
-    # # Agent use llama_gptq4
-    # Agent.model = "llama_gptq4/"
-    # Agent.base_url = "http://10.130.130.13:8001/v1"
-    # Agent.api_key_list = ["sk-villageragent"]
+    Agent.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    Agent.model = "qwen-max"
+    Agent.api_key_list = ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
 
-    # # Agent use Qwen2.5-0.5B-Instruct-GPTQ-Int8
-    # Agent.model = "/mount/NAS1/public/Qwen2.5-0.5B-Instruct-GPTQ-Int8"
-    # Agent.base_url = "http://10.130.130.13:8002/v1"
-    # Agent.api_key_list = ["sk-qwen05b"]
-
-    # # Agent use Qwen2.5-7B-Instruct-GPTQ-Int4
-    # Agent.model = "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4"
-    # Agent.base_url = "http://10.130.130.13:8003/v1"
-    # Agent.api_key_list = ["sk-qwen7b"]
 
     # 设置env
     if task_type == "construction":
@@ -72,7 +56,8 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
                       Agent.storeItem, Agent.craftBlock, Agent.eat, Agent.fetchContainerContents, 
                       Agent.openContainer, Agent.performMovement, 
                       Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback, Agent.startFishing, Agent.ToggleAction, 
-                      Agent.read, Agent.write, Agent.mountEntity, Agent.dismountEntity, Agent.rideEntity, Agent.disrideEntity]
+                      Agent.read, Agent.mountEntity, Agent.dismountEntity]
+        
     else:
         raise NotImplementedError
 
@@ -98,7 +83,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         env.agent_register(agent_tool=agent_tool, agent_number=1, name_list=[name_list[2]])
     else:
         action = document["action"]
-        if action == "chat":
+        if action == "chat" or action == "handover":
             env.agent_register(agent_tool=agent_tool, agent_number=agent_num+1, name_list=name_list[:agent_num+1])
         else:
             env.agent_register(agent_tool=agent_tool, agent_number=agent_num, name_list=name_list[:agent_num])
@@ -118,62 +103,41 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
         start_time = time.time()
 
         # 设置llm
-        if "vllm" in api_model or "llama" in api_model or "NAS" in api_model:
-            llm_config = {
-                "api_model": api_model,
-                "api_base": api_base,
-                "api_key": api_key_list[0]
-            }
-        elif "gpt" in api_model:  # https://api.chatanywhere.tech/v1 default_base_url
-            api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
-
-            llm_config = {
-                "api_model": api_model,
-                # "api_base": "https://api.openai.com/v1/",
-                "api_base": "https://api.chatanywhere.tech/v1",
-                "api_key_list": api_key_list
-            }
-        elif "gemini" in api_model:
-            api_key_list = json.load(open("API_KEY_LIST", "r"))["GEMINI"]
-            os.environ["GOOGLE_API_KEY"] = random.choice(api_key_list)
-
-            llm_config = {
-                "api_model": api_model,
-                "api_key_list": api_key_list
-            }
-        elif "glm" in api_model:
-            api_key_list = json.load(open("API_KEY_LIST", "r"))["GLM"]
-            os.environ["ZHIPU_API_KEY"] = random.choice(api_key_list)
-
-            llm_config = {
-                "api_model": api_model,
-                "api_key_list": api_key_list
-            }
-        ctrl = GlobalController(llm_config, tm, dm, env)
-
-
-        tm_llm_config = {
-            "api_key": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"][0],
-            "api_base": "https://api.chatanywhere.tech/v1",
-            "api_model": "gpt-4-1106-preview",
-            "api_key_list": json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+        llm_config = {
+            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "api_model": "qwen-max",
+            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
         }
 
-        # tm_llm_config = {
-        #     "api_key": "sk-villageragent",
-        #     "api_base": "http://10.130.130.13:8001/v1",
-        #     "api_model": "llama_gptq4/",
-        #     "api_key_list": ["sk-villageragent"]
-        # }
+        tm_llm_config = {
+            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "api_model": "qwen-max",
+            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
+        }
 
-        # tm_llm_config = {
-        #     "api_key": "sk-qwen7b",
-        #     "api_base": "http://10.130.130.13:8003/v1",
-        #     "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
-        #     "api_key_list": ["sk-qwen7b"]
-        # }
+        dm_llm_config = {
+            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "api_model": "qwen-plus",
+            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
+        }
 
-        ctrl.task_manager.llm = init_language_model(tm_llm_config)
+        base_llm_config = {
+            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "api_model": "qwen-max",
+            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
+        }
+
+        ctrl = GlobalController(llm_config, tm, dm, env, 
+                                tm_llm_config=tm_llm_config, 
+                                dm_llm_config=dm_llm_config,
+                                base_agent_config=base_llm_config,
+                                all_tools=agent_tool)
+
+
         if document == {}:
             document = json.load((open(document_file))) if os.path.exists(document_file) else {}
         tm.init_task(description=task_goal, document=document)
@@ -185,8 +149,10 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
 if __name__ == "__main__":
 
-    with open("gpt_4_1106_preview_launch_config_toggle.json", "r") as f:
+    with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/qwen_launch_config_meta.json", "r") as f:
         launch_config = json.load(f)
+    # shuffle 
+    launch_config = random.sample(launch_config, len(launch_config))
     for i, config in enumerate(launch_config):
 
         if os.path.exists(f"result/{config['task_name']}"):
@@ -202,25 +168,14 @@ if __name__ == "__main__":
         if os.path.exists(".cache/heart_beat.cache"):
             os.remove(".cache/heart_beat.cache")
 
-        # llm_config = {
-        #     "api_key": "sk-villageragent",
-        #     "api_base": "http://10.130.130.13:8001/v1",
-        #     "api_model": "llama_gptq4/",
-        #     "api_key_list": ["sk-villageragent"]
-        # }
-        # llm_config = {
-        #     "api_key": "sk-qwen05b",
-        #     "api_base": "http://10.130.130.13:8002/v1",
-        #     "api_model": "/mount/NAS1/public/Qwen2.5-0.5B-Instruct-GPTQ-Int8"
-        # }
 
         api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
+
         llm_config = {
-            # "api_model": "gpt-4o",
-            "api_model": "gpt-4-1106-preview",
-            # "api_base": "https://api.openai.com/v1/",
-            "api_base": "https://api.chatanywhere.tech/v1",
-            "api_key_list": api_key_list
+            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "api_model": "qwen-max",
+            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
         }
 
         process = multiprocessing.Process(target=run,

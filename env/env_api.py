@@ -627,6 +627,7 @@ def move_to(pathfinder, bot, Vec3, RANGE_GOAL, pos):  # √
     # #[DEBUG] print("Movements1",mv_)
     mv_.allow1by1towers = False
     mv_.canDig = False
+    mv_.canOpenDoors = True
     # #[DEBUG] print("Movements2",mv_)
     try_num = 3
     while try_num > 0:
@@ -1564,6 +1565,9 @@ async def attack(bot, envs_info, mcData, mobName=None):
                 entities = get_entity_by('name', envs_info, mobName, bot.entity.username)
                 if len(entities) > 0:
                     entity = entities[0]
+                    bot.chat(f"Fount {mobName} nearby")
+                else:
+                    return f"did not find {mobName} nearby", False
             except Exception as e:
                 bot.chat(f'find_everything_ username error: {e}')
             if entity == None:
@@ -1582,7 +1586,7 @@ async def attack(bot, envs_info, mcData, mobName=None):
                     bot.chat(f'find_everything_ name error: {e}')
                     entity = None
         if entity == None:
-            # bot.chat("No nearby entities")
+            bot.chat("No nearby entities")
             return "entity cannot be found nearby", False
         if entity.name == "player":
             try:
@@ -1593,7 +1597,7 @@ async def attack(bot, envs_info, mcData, mobName=None):
             except Exception as e:
                 bot.chat(f'find_everything_ name error: {e}')
                 return "cannot attack player", False
-        
+        bot.chat(f"Attacking {entity.name if entity.name else entity.username}")
         mainHandItem = bot.inventory.slots[bot.getEquipmentDestSlot("hand")]
         attack_creatures = [
             "rabbit",
@@ -1601,9 +1605,14 @@ async def attack(bot, envs_info, mcData, mobName=None):
             "sheep",
             "cat",
             "chicken",
+            "wolf",
             "cod",
             "cow",
+            "fox",
             "pig",
+            "horse",
+            "parrot",
+            "panda",
             "blaze",
             "cave_spider",
             "creeper",
@@ -1640,10 +1649,13 @@ async def attack(bot, envs_info, mcData, mobName=None):
             "zombie_villager",
             "zombified_piglin",
         ]
+        creature_name = entity.name if entity.name else entity.username
+        if creature_name not in attack_creatures:
+            return f"cannot attack {entity.name if entity.name else entity.username}, it is not in the attack list", False
         if mainHandItem == None or mainHandItem['name'] not in weaponsForShooting and entity.name in attack_creatures:
             # bot.chat(f"Attacking {entity.name if entity.name else entity.username}")
             bot.pvp.attack(entity)
-            time.sleep(1)
+            time.sleep(10)
             bot.pvp.stop()
             if mainHandItem == None:
                 return f" attack {entity.name if entity.name else entity.username}", True
@@ -1651,11 +1663,12 @@ async def attack(bot, envs_info, mcData, mobName=None):
 
         else:
             bot.hawkEye.autoAttack(entity, mainHandItem.name)
-            time.sleep(1)
+            # time.sleep(10)
             bot.hawkEye.stop()
             return f" used {mainHandItem['name']} and tried attack {entity.name if entity.name else entity.username} for 5 sec", True
     except Exception as e:
         # [DEBUG] 
+        bot.chat(f'attack error: {e}')
         bot.pvp.stop()
         bot.hawkEye.stop()
         return "failed to attack.", False
@@ -1700,6 +1713,8 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
     mv_config = pathfinder.Movements(bot)
     mv_config.canDig = False # 决定是否可以挖掘
     mv_config.allow1by1towers = False 
+    mv_config.canOpenDoors = True
+
     max_tries = 3
     while max_tries > 0:
         try:
@@ -2021,6 +2036,8 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
             return f'unable to open villager {name}', False, villager_data
 
     try:
+        bot.lookAt(pos)
+        # bot.chat(f'look at {pos}')
         bot.activateEntityAt(bot.entity, pos)
         # bot.chat(f'activated entity {name}')
         bot.useOn(bot.blockAt(pos))
@@ -2051,7 +2068,9 @@ def getInventoryItemByName(bot, item_name, count=1):
 def sleep(bot, Vec3, mcData):
     # bot.chat('/time set night')
     try:
+        bot.chat('searching for bed')
         bedBlock = BlocksSearch(bot, Vec3, mcData, 16, 'bed', count=1)
+        bot.chat(f'found bed {bedBlock[0].name}')
         if bedBlock is None:
             return "failed to sleep because no bed found"
         bedBlock = bedBlock[0]
@@ -2409,7 +2428,7 @@ def startFishing(bot, fish_name, Vec3, envs_info, mcData):
             return f"Here is no {fish_name}. Try another position", False
         # bot.lookAt(pos)
         bot.equip(bot.registry.itemsByName.fishing_rod.id, 'hand')
-        # bot.lookAt(pos)
+        bot.lookAt(pos)
         # bot.fish()
     except Exception as e:
         # [DEBUG] print(e)

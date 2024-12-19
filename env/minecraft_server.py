@@ -538,13 +538,13 @@ def place():
 @log_activity(bot)
 def attack_():
     """attack name:  to attack the nearest entity."""
+    bot.chat("/gamemode creative")
     data = request.get_json()
     name = data.get('name')
     envs_info = get_envs_info(bot, 128)
     msg, tag = asyncio.run(attack(bot, envs_info, mcData, name))
-    done = tag
     events = info_bot.get_action_description_new()
-    return jsonify({'message': msg, 'status': done, "new_events": events})
+    return jsonify({'message': msg, 'status': tag, "new_events": events})
 
 
 @app.route('/post_equip', methods=['POST'])
@@ -626,9 +626,9 @@ def environment():
 @log_activity(bot)  # 获取环境信息
 def environment_info():
     """environment:  to get the environment info."""
-    msg = get_envs_info_dict(bot, RENDER_DISTANCE=16, same_entity_num=3)
-    blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=16, max_same_block=3, visible_only=VISIBLE_ONLY)
-    hint, tag = readNearestSign(bot, Vec3, mcData, max_distance=16)
+    msg = get_envs_info_dict(bot, RENDER_DISTANCE=10, same_entity_num=3)
+    blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=10, max_same_block=3, visible_only=VISIBLE_ONLY)
+    hint, tag = readNearestSign(bot, Vec3, mcData, max_distance=10)
 
     # filter the blocks
     blocks = [block for block in blocks if "slime" not in str(block)]
@@ -962,13 +962,35 @@ def disride():
         events = info_bot.get_action_description_new()
         return jsonify({'message': "disride fail", 'status': done, "new_events": events})
 
+# /title @p title {"text":"❤️","color":"red"}
+# /title @p actionbar {"text":"😊","color":"yellow"}
+# Using Tellraw (more complex):
+
+# /tellraw @a {"text":"😄","color":"yellow"}
+# /tellraw @a ["",{"text":"Player "},{"selector":"@p"},{"text":" is "},{"text":"😊","color":"yellow"}]
+
+@app.route('/post_emojimurmur', methods=['POST'])
+@log_activity(bot)
+def emojimurmur():
+    """emojimurmur:  to murmur with emoji."""
+    data = request.get_json()
+    emoji = data.get('emoji')
+    murmur = data.get('murmur')
+    if not emoji and not murmur:
+        return jsonify({'message': "emoji and murmur are empty", 'status': True})
+    if not emoji:
+        emoji = ""
+    msg = f"{bot.entity.username} {emoji} {murmur}"
+    
+    bot.chat(f'/tellraw @a {json.dumps([{"text": msg, "color": "yellow"}])}')
+    return jsonify({'message': msg, 'status': True})
 
 @app.route('/post_talk_to', methods=['POST'])
 @log_activity(bot)
 def talk_to():
     """talk_to entity_name message:  to talk to the entity."""
     data = request.get_json()
-    entity_name, message = data.get('entity_name'), data.get('message')
+    entity_name, message, emotion = data.get('entity_name'), data.get('message'), data.get('emotion')
     chat_long(bot, entity_name, message, "talk")
     events = info_bot.get_action_description_new()
     return jsonify({'message': f"I talk to {entity_name} {message}", 'status': True, "new_events": events})
@@ -1412,7 +1434,7 @@ def handleViewer(*args):
         # bot.chat("item drop")
         global Pickable
         dis = distanceTo(bot.entity.position, entity['position'])
-        if dis < 5 and info_bot.existing_time > 10:
+        if dis < 5 and info_bot.existing_time > 30:
             info_bot.add_event("itemDrop", info_bot.existing_time, f"An item drop at {position_to_string(entity.position)}", True)
             move_to(pathfinder, bot, Vec3, 1, entity['position'])
 

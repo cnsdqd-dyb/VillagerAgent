@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class VLLMLanguageModel(AbstractLanguageModel):
     _supported_models = ["llama_gptq4"]
     
-    def __init__(self, api_key="sk-villageragent", api_base="http://10.130.130.13:8000/v1", 
+    def __init__(self, api_key="sk-villagertuning", api_base="http://10.130.130.13:8000/v1", 
                  api_model="llama_gptq4", role_name=""):
         self.api_key = api_key
         self.api_base = api_base
@@ -88,9 +88,9 @@ class VLLMLanguageModel(AbstractLanguageModel):
         
         if api_model == "":
             api_model = self.api_model
-        else:
-            if api_model not in VLLMLanguageModel._supported_models:
-                raise Exception(f"only support {VLLMLanguageModel._supported_models}, but got {api_model}")
+        # else:
+        #     if api_model not in VLLMLanguageModel._supported_models:
+        #         raise Exception(f"only support {VLLMLanguageModel._supported_models}, but got {api_model}")
 
         if isinstance(example_prompt, str):
             example_prompt = [example_prompt]

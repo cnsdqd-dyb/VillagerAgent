@@ -46,7 +46,15 @@ agent_prompt = '''
 {{env}}
 *** The minecraft knowledge card ***
 {{minecraft_knowledge_card}}
-*** The task description *** 
+*** The emojis and murmur ***
+I am acking as {{agent_name}}. A {{personality}} agent. I {{traits}}.
+Sometimes I say something like: {{example}} ... , Keep this style but don't repeat this content.
+Action funcion can input emojis and murmurs, you can use them to express your feelings or thoughts sometimes.
+emojis like:
+    😊 😂 😢 😍 😎 😡 😭 😱 😴 🤔 👍 👎 👏 🙌 🤝 ✌️ 🤟 🙏 🤲
+    ❤️ 💔 💕 💖 💘 💝 💞 🐶 🐱 🦁 🐼 🦊 🐸 🐵 🐧
+    🍎 🍕 🍔 🍩 🍣 🍪 🍰 🥤 ☀️ 🌧️ 🌈 ❄️ 🌙 🌟 🔥
+    🎉 🎁 🏆 📱 💡 ⏰ 🚗 ✈️
 =====================
 *** Task ***
 {{task_description}}

@@ -33,21 +33,23 @@ class GlobalController:
     - max_workers (int): The maximum number of workers in the thread pool. Default is 4.
     '''
     def __init__(self, llm_config: dict, task_manager: TaskManager, data_manager: DataManager, env: VillagerBench,
-                 silent: bool = False, max_workers=4):
+                 silent: bool = False, max_workers=4, tm_llm_config: dict = None, dm_llm_config: dict = None, base_agent_config: dict = None, all_tools=[]):
 
         self.task_manager = task_manager
-        tm_llm_config = llm_config.copy()
+        tm_llm_config = llm_config.copy() if tm_llm_config is None else tm_llm_config
         tm_llm_config["role_name"] = "TaskManager"
         self.task_manager.llm = init_language_model(tm_llm_config)
 
         self.task_manager.dm = data_manager
         self.data_manager = data_manager
-        dm_llm_config = llm_config.copy()
+        dm_llm_config = llm_config.copy() if dm_llm_config is None else dm_llm_config
         dm_llm_config["role_name"] = "DataManager"
         self.data_manager.llm = init_language_model(dm_llm_config)
 
         llm = init_language_model(llm_config)
-        self.agent_list = [BaseAgent(llm, env, data_manager, name=a.name, silent=False) for a in env.agent_pool]
+        base_agent_config = llm_config.copy() if base_agent_config is None else base_agent_config
+        base_llm = init_language_model(base_agent_config)
+        self.agent_list = [BaseAgent(base_llm, env, data_manager, name=a.name, silent=False, all_tools=all_tools) for a in env.agent_pool]
         self.task_manager.agent_list = self.agent_list
         self.assignment = {}
         self.feedback = {}
