@@ -520,16 +520,12 @@ def handleViewer(*args):
         elif arg_dict["action"] == "saddle":
             target = aligned_item_name(arg_dict["target"])
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-            if 'horse' in target:
-                bot.chat(f"/summon {target} {x} {y} {z} {{InLove:600,Age:0,Tame:1}}")
-            else:
-                bot.chat(f"/summon {target} {x} {y} {z} {{InLove:600,Age:0,Tame:1}}")
+            bot.chat(f"/summon {target} {x} {y} {z} {{InLove:600,Age:0,Tame:1}}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} saddle 1")
-                time.sleep(.2)
-                bot.chat(f"/give {agent_name} wheat 5")
+                bot.chat(f"/give {agent_name} wheat 20")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "saddle", "count": 1}])
+                set_chest([], [{"name": "saddle", "count": 1}, {"name": "wheat", "count": 20}])
 
         elif arg_dict["action"] == "boat":
             if arg_dict["item_position"] == "inventory":

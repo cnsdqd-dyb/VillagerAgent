@@ -203,11 +203,11 @@ def generate_task_goal(task_scenario, arg_dict):
     template_prompt = template_prompt.replace("the inventory", "your inventory")
 
     task_goal = template_prompt
-    # if random.randint(1, 2) == 1: # 有小概率直接用原始的prompt
-    #     task_goal = template_prompt
-    # else:
-    #     template_prompt = "Original Sentence: " + template_prompt
-    #     task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.2)
+    if random.randint(1, 5) == 1: # 有小概率直接用原始的prompt
+        task_goal = template_prompt
+    else:
+        template_prompt = "Original Sentence: " + template_prompt
+        task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.2)
     logger.warning(task_goal)
     logger.debug("-" * 50)
     return task_goal
@@ -268,8 +268,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 config["document_file"] = ""
                 config_list.append(config)
     elif task == "meta":
-        for i in tqdm.tqdm(range(0, args.meta_task_num)):
-            random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [0.05, 0.05, 0.02, 0.02, 0.02, 0.8])[0]
+        for j in tqdm.tqdm(range(0, args.meta_task_num)):
+            random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [10, 10, 10, 1, 2, 67])[0]
             if random_task == "dig":
                 with open("data/blocks.json", "r") as f:
                     blocks = json.load(f)
@@ -306,9 +306,9 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     config["host"] = host
                     config["port"] = port
                     if tool != "default":
-                        config["task_name"] = f"dig_{arg_dict['target']}_{tool}_{arg_dict['item_position']}_id{i}"
+                        config["task_name"] = f"dig_{arg_dict['target']}_{tool}_{arg_dict['item_position']}_id{j}"
                     else:
-                        config["task_name"] = f"dig_{arg_dict['target']}_{tool}_id{i}"
+                        config["task_name"] = f"dig_{arg_dict['target']}_{tool}_id{j}"
                     config_list.append(config)
 
             elif random_task == "craft":
@@ -333,7 +333,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     config["document_file"] = "data\\recipes_hint.json"
                     config["host"] = host
                     config["port"] = port
-                    config["task_name"] = f"craft_{arg_dict['target']}_{arg_dict['item_position']}_{arg_dict['step']}_id{i}"
+                    config["task_name"] = f"craft_{arg_dict['target']}_{arg_dict['item_position']}_{arg_dict['step']}_id{j}"
                     config_list.append(config)
 
             elif random_task == "place":
@@ -405,9 +405,9 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     config["host"] = host
                     config["port"] = port
                     if facing:
-                        config["task_name"] = f"place_{block_number}_{arg_dict['facing']}_{arg_dict['item_position']}_id{i}"
+                        config["task_name"] = f"place_{block_number}_{arg_dict['facing']}_{arg_dict['item_position']}_id{j}"
                     else:
-                        config["task_name"] = f"place_{block_number}_{arg_dict['item_position']}_id{i}"
+                        config["task_name"] = f"place_{block_number}_{arg_dict['item_position']}_id{j}"
                     config_list.append(config)
 
             elif random_task == "useitem":
@@ -437,7 +437,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     config["task_goal"] = generate_task_goal(random_task, arg_dict)
                     config["host"] = host
                     config["port"] = port
-                    config["task_name"] = f"useitem_{arg_dict['target']}_id{i}"
+                    config["task_name"] = f"useitem_{arg_dict['target']}_id{j}"
                     config_list.append(config)
 
             elif random_task == "move":
@@ -456,7 +456,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     config["task_goal"] = generate_task_goal(random_task, arg_dict)
                     config["host"] = host
                     config["port"] = port
-                    config["task_name"] = f"move_id{i}"
+                    config["task_name"] = f"move_id{j}"
                     config_list.append(config)
                     
             elif random_task == "interact":
@@ -530,7 +530,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         config["task_goal"] = generate_task_goal(random_task, arg_dict)
                         config["host"] = host
                         config["port"] = port
-                        config["task_name"] = f"interact_{action}_id{i}"
+                        config["task_name"] = f"interact_{action}_id{j}"
                         config_list.append(config)
                     else:
                         additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"]
@@ -669,7 +669,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         config["task_goal"] = generate_task_goal(random_task, arg_dict)
                         config["host"] = host
                         config["port"] = port
-                        config["task_name"] = f"interact_{action}_id{i}"
+                        config["task_name"] = f"interact_{action}_id{j}"
                         config_list.append(config)
                         
             with open(f"{api_model}_launch_config_{task}.json", "w") as f:

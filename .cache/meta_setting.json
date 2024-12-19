@@ -1,27 +1,27 @@
 {
-    "api_model": "gpt-4-1106-preview",
-    "api_base": "https://api.chatanywhere.tech/v1",
+    "api_model": "qwen-max",
+    "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use oak_button to open the iron_trapdoor at (16, -60, 2). The oak_button is in your inventory.",
+    "task_goal": "With the carrot_on_a_stick and the food in your inventory, place the carrot_on_a_stick on the pig, ride it, and then dismount.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "iron_trapdoor",
-        "x": 16,
+        "target": "pig",
+        "x": 8,
         "y": -60,
-        "z": 2,
+        "z": 8,
         "facing": "",
         "item_position": "inventory",
-        "tool": "oak_button",
-        "action": "toggle",
+        "tool": "carrot_on_a_stick",
+        "action": "saddle",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.192.24.163",
     "port": 25565,
-    "task_name": "interact_toggle_id0"
+    "task_name": "interact_saddle_id0"
 }
