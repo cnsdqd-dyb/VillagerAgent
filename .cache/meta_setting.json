@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "With the carrot_on_a_stick and the food in your inventory, place the carrot_on_a_stick on the pig, ride it, and then dismount.",
-    "task_scenario": "interact",
+    "task_goal": "Use diamond_axe to dig the spruce_slab at (15, -59, 11). The diamond_axe is in your inventory.",
+    "task_scenario": "dig",
     "evaluation_arg": {
-        "target": "pig",
-        "x": 8,
-        "y": -60,
-        "z": 8,
+        "target": "spruce_slab",
+        "x": 15,
+        "y": -59,
+        "z": 11,
         "facing": "",
         "item_position": "inventory",
-        "tool": "carrot_on_a_stick",
-        "action": "saddle",
+        "tool": "diamond_axe",
+        "action": "",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
-    "host": "10.192.24.163",
+    "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "interact_saddle_id0"
+    "task_name": "dig_spruce_slab_axe_inventory_id0"
 }
