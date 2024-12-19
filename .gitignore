@@ -36,6 +36,7 @@ result/*
 
 .cache/*.cache
 .cache/state.json
+.cache/meta_setting.json
 
 package-lock.json
 package.json

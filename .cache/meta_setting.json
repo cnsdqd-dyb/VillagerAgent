@@ -1,31 +1,27 @@
 {
-    "api_model": "/mount/NAS1/public/Qwen2.5-7B-Instruct-GPTQ-Int4",
-    "api_base": "http://10.130.130.13:8003/v1",
+    "api_model": "gpt-4-1106-preview",
+    "api_base": "https://api.chatanywhere.tech/v1",
     "task_type": "meta",
-    "task_idx": 1,
+    "task_idx": 0,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "In the inventory, you will find the redstone, the {'trigger': 'button'}, and the switch; use these to construct a circuit that enables control of the {'trigger': 'button'} located at (21, -60, 8).",
+    "task_goal": "Use oak_button to open the iron_trapdoor at (16, -60, 2). The oak_button is in your inventory.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "iron_door",
-        "x": 21,
+        "target": "iron_trapdoor",
+        "x": 16,
         "y": -60,
-        "z": 8,
+        "z": 2,
         "facing": "",
         "item_position": "inventory",
-        "tool": "",
-        "action": "redstone",
+        "tool": "oak_button",
+        "action": "toggle",
         "step": 1,
-        "other_arg": [
-            {
-                "trigger": "button"
-            }
-        ]
+        "other_arg": []
     },
     "document_file": "",
-    "host": "10.214.180.148",
+    "host": "10.192.24.163",
     "port": 25565,
-    "task_name": "interact_redstone_id1"
+    "task_name": "interact_toggle_id0"
 }
