@@ -357,7 +357,7 @@ class VillagerBench:
         else:
             return {"message": "env not running", "status": False}
 
-    def step(self, agent_name: str, action: str, max_turn: int = 5):
+    def step(self, agent_name: str, action: str, max_turn: int = 7):
         '''
         final_answer, {"input": response["input"], "action_list": action_list, "final_answer": final_answer}
         '''

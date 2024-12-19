@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use bucket to pack a bucket of water.",
-    "task_scenario": "interact",
+    "task_goal": "Dig the white_stained_glass at (10, -59, 16). You can dig it directly and don't need to use any tool.",
+    "task_scenario": "dig",
     "evaluation_arg": {
-        "target": "water",
-        "x": 3,
-        "y": -60,
-        "z": 4,
+        "target": "white_stained_glass",
+        "x": 10,
+        "y": -59,
+        "z": 16,
         "facing": "",
-        "item_position": "chest",
-        "tool": "bucket",
-        "action": "water",
+        "item_position": "inventory",
+        "tool": "",
+        "action": "",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "interact_water_id134"
+    "task_name": "dig_white_stained_glass_default_id385"
 }

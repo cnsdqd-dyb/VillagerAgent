@@ -70,7 +70,7 @@ class BaseAgent:
 
         self.IDLE = True  # 控制是否处于 IDLE 状态
         self.stop_event = threading.Event()  # 用于控制线程停止
-        self.start_idle_thread()  # 启动 IDLE 线程
+        # self.start_idle_thread()  # 启动 IDLE 线程
 
         system_type = platform.system().lower()
         if system_type == "linux":
