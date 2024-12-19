@@ -1,27 +1,27 @@
 {
-    "api_model": "qwen-max",
-    "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "api_model": "gpt-4-1106-preview",
+    "api_base": "https://api.chatanywhere.tech/v1",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use diamond_pickaxe to dig the blackstone_stairs at (24, -60, 21). The diamond_pickaxe is in your inventory.",
-    "task_scenario": "dig",
+    "task_goal": "Use oak_button to open the iron_trapdoor at (16, -60, 2). The oak_button is in your inventory.",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "blackstone_stairs",
-        "x": 24,
+        "target": "iron_trapdoor",
+        "x": 16,
         "y": -60,
-        "z": 21,
+        "z": 2,
         "facing": "",
         "item_position": "inventory",
-        "tool": "diamond_pickaxe",
-        "action": "",
+        "tool": "oak_button",
+        "action": "toggle",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.192.24.163",
     "port": 25565,
-    "task_name": "dig_blackstone_stairs_pickaxe_inventory_id0"
+    "task_name": "interact_toggle_id0"
 }

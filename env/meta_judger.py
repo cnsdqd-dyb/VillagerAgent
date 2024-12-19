@@ -551,12 +551,6 @@ def handleViewer(*args):
             bot.chat(f"/summon {target} {x} {y} {z}")
             bot.chat(f"/summon {target} {x} {y} {z}")
         elif arg_dict["action"] == "toggle":
-            if arg_dict["tool"]:
-                if arg_dict["item_position"] == "inventory":
-                    bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
-                else:
-                    set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}])
-            time.sleep(.2)
             facing = random.choice(["west", "east", "north", "south"])
             if "trapdoor" not in arg_dict['target'] and "fence" not in arg_dict['target']:
                 bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} {arg_dict['target']}[facing={facing},half=lower]")
@@ -565,7 +559,20 @@ def handleViewer(*args):
                 bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} {arg_dict['target']}[facing={facing}]")
             else:
                 bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} {arg_dict['target']}")
-
+            time.sleep(.2)
+            if arg_dict["tool"]:
+                if arg_dict["item_position"] == "inventory":
+                    bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                else:
+                    set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}])
+                trigger_block_offset = {
+                    "west": [1, 0, 0],
+                    "east": [-1, 0, 0],
+                    "north": [0, 0, 1],
+                    "south": [0, 0, -1] 
+                }
+                time.sleep(.2)
+                bot.chat(f"/setblock {arg_dict['x'] + trigger_block_offset[facing][0]} {arg_dict['y'] + trigger_block_offset[facing][1]} {arg_dict['z'] + trigger_block_offset[facing][2]} dirt")
 
         elif arg_dict["action"] == "till":
             size = int(arg_dict["other_arg"][0]["size"])
