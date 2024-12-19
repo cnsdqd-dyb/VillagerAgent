@@ -216,6 +216,7 @@ class TaskManager:
         result = extract_info(response, guard_keys=["description", "milestones"])
         omit_keys = [("assigned agents", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
         result = self.fill_keys_omit(result, omit_keys) # fill the result with empty data
+        result = self.fill_agents(result, self.agent_list)
         self.logger.warning(response)
 
         subtask_list = []
@@ -303,6 +304,29 @@ class TaskManager:
 
         return result
     
+    def fill_agents(self, result:[dict], agents:list):
+        for res in result:
+            if "assigned agents" not in res.keys():
+                return result
+            description = res["description"]
+            for agent in agents:
+                if agent not in agents:
+                    agents.append(agent)
+                    if agent.name.lower() in description.lower() \
+                        and agent.name not in res["assigned agents"]:
+                        res["assigned agents"].append(agent.name)
+        # for subtask node assigned with multiple agents, split the agents with the same task
+        new_result = []
+        for res in result:
+            if len(res["assigned agents"]) > 1:
+                for agent in res["assigned agents"]:
+                    new_res = res.copy()
+                    new_res["assigned agents"] = [agent]
+                    new_result.append(new_res)
+            else:
+                new_result.append(res)
+        return result
+
     def fill_keys_omit(self, result:[dict], keys:list):
         for res in result:
             for key in keys:
@@ -504,6 +528,7 @@ class TaskManager:
         result = extract_info(response, guard_keys=["description", "milestones", "assigned agents"])
         omit_keys = [("assigned agents", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
         result = self.fill_keys_omit(result, omit_keys)
+        result = self.fill_agents(result, self.agent_list)
         result
         self.logger.warning(response)
 

@@ -332,6 +332,9 @@ def handleViewer(*args):
     time.sleep(.2)
     bot.chat("/kill @e[type=!minecraft:player]")
     time.sleep(.2)
+
+    for name in agent_names:
+        bot.chat(f'/summon armor_stand ~ ~2.5 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{name}"]}}')
     
     bot.chat(f"/setblock {orx + wall_width} {ory + room_height // 2 - 1} {orz + wall_width} glass")
     time.sleep(.2)
@@ -1141,7 +1144,7 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
             #         score = 100
 
             if config["task_scenario"] == "interact" and arg_dict["action"] == "chat":
-                score += 10
+                score += 20
 
 
 @On(bot, "entityHurt")

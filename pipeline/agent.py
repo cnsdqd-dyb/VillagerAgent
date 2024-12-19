@@ -15,6 +15,7 @@ from pipeline.agent_rl_prompt import *
 from rl_env import *
 from speaking_style import speaking_styles, speaking_styles_zh
 import numpy as np
+import threading
 import torch
 from model.utils import extract_info
 
@@ -65,6 +66,10 @@ class BaseAgent:
 
         self.instruction_history = []  # 新增：保存历史指令
         self.state_history = []        # 新增：保存历史状态
+
+        self.IDLE = True  # 控制是否处于 IDLE 状态
+        self.stop_event = threading.Event()  # 用于控制线程停止
+        self.start_idle_thread()  # 启动 IDLE 线程
 
     def update_reflect(self, system_prompt, user_prompt, response):
         if type(user_prompt) == str:
@@ -163,7 +168,7 @@ class BaseAgent:
                 print(f"{rl_action} - {rl_api}")
                 
                 
-                (act, obs), detail = self.env.rl_step(self.name, current_context + "You need try to use the tool, do not use Final Answer.", 
+                (act, obs), detail = self.env.iter_step(self.name, current_context + "You need try to use the tool, do not use Final Answer.", 
                                                     actions=actions, 
                                                     observations=observations, 
                                                     recommended_actions=[rl_api])
@@ -230,6 +235,105 @@ class BaseAgent:
             summary = f"failed to do {task.description}."
             task.status = Task.failure
         return summary, detail
+
+    def start_idle_thread(self):
+        '''
+        Start the idle_step function in a separate thread.
+        '''
+        self.idle_thread = threading.Thread(target=self.idle_step, daemon=True)
+        self.idle_thread.start()
+
+    def stop_idle_thread(self):
+        '''
+        Stop the idle_step thread.
+        '''
+        self.stop_event.set()  # 设置停止信号
+        self.idle_thread.join()  # 等待线程结束
+
+    def idle_step(self):
+        '''
+        idle_step is the step for the agent to wait for the task
+        At this time, the agent will help other agents to do the task
+        find what the agent can do or talk with other agents or just wait
+        '''
+        if random() < 0.5:
+            speech_style = sample(list(speaking_styles.keys()), 1)[0]
+            personality = speaking_styles[speech_style]['personality']
+            traits = speaking_styles[speech_style]['traits']
+            example = speaking_styles[speech_style]['example']
+        else:
+            speech_style = sample(list(speaking_styles_zh.keys()), 1)[0]
+            personality = speaking_styles_zh[speech_style]['性格']
+            traits = speaking_styles_zh[speech_style]['特征']
+            example = speaking_styles_zh[speech_style]['示例']
+
+        task_str = format_string(idle_prompt, 
+                                 {
+                                "agent_name": self.name,
+                                "agent_state": self.data_manager.query_history(self.name),
+                                "personality": personality,
+                                "example": example,
+                                "traits": traits,
+                                "other_agents": self.other_agents(),
+                                "agent_action_list": self.history_action_list,
+                                "minecraft_knowledge_card": minecraft_knowledge_card})
+
+        actions = []
+        observations = []
+        basic_state = ""
+        current_state = basic_state
+
+        time.sleep(60) # 等待30秒 等待启动
+        while not self.stop_event.is_set():  # 主循环，直到收到退出信号
+            if not self.IDLE:
+                # 如果不处于 IDLE 状态，进入等待
+                time.sleep(1)
+                continue
+
+            # 构建当前状态字符串
+            current_context = f"{task_str}\n{current_state}"
+            if actions and observations:
+                action_history = "\n".join([f"Action: {a}\nObservation: {o}" for a, o in zip(actions, observations)])
+                current_context += f"\nHistory:\n{action_history}"
+
+            if self.env.agents_ping()["status"] == False:
+                self.logger.info("Some agents are offline!")
+                break 
+            
+            try:
+                if self.env.agents_ping()["status"] == False:
+                    self.logger.info("Some agents are offline!")
+                    break 
+                
+                time.sleep(2)
+                (act, obs), detail = self.env.iter_step(self.name, current_context, 
+                                                    actions=actions, 
+                                                    observations=observations, 
+                                                    recommended_actions=[])
+                if act is None:
+                    continue
+                    
+                # 更新状态
+                current_state = f"{basic_state}\nLast Action: {act}\nLast Observation: {obs}"
+
+            except KeyboardInterrupt:
+                self.logger.info("KeyboardInterrupt")
+                self.stop_event.set()  # 设置停止信号
+                raise KeyboardInterrupt
+            except ConnectionError:
+                self.logger.error("ConnectionError")
+                self.stop_event.set()  # 设置停止信号
+                raise ConnectionError
+            except ConnectionRefusedError:
+                self.logger.error("ConnectionRefusedError")
+                self.stop_event.set()  # 设置停止信号
+                raise ConnectionRefusedError
+            except Exception as e:
+                self.logger.error(f"Error: {e}")
+
+            actions.append(act)
+            observations.append(obs)
+
     
     def normal_step(self, task:Task) -> (str, dict):
         if random() < 0.5:
@@ -283,7 +387,7 @@ class BaseAgent:
             "relevant_data": smart_truncate(task.content, max_length=4096), 
             "agent_state": self.data_manager.query_history(self.name),
         })
-      
+        self.IDLE = False
         while max_retry > 0:
             try:
                 feedback, detail = self.env.step(self.name, task_str)
@@ -302,6 +406,8 @@ class BaseAgent:
                 max_retry -= 1
                 time.sleep(3)
         
+        self.IDLE = True
+
         # 耗时操作
         status = self.env.agent_status(self.name)
         self.data_manager.update_database(AgentFeedback(task, detail, status).to_json())
@@ -358,6 +464,7 @@ class BaseAgent:
         action_list = []
 
         max_steps = 5
+        self.IDLE = False
         while max_steps > 0:
             response = self.llm.few_shot_generate_thoughts(system_prompt, prompts, cache_enabled=False, max_tokens=256, json_check=False)
             
@@ -395,7 +502,8 @@ class BaseAgent:
             max_steps -= 1
 
 
-
+        self.IDLE = True
+        self.idle_step()
         status = self.env.agent_status(self.name)
 
         detail = {"input": instruction, "action_list": action_list, "final_answer": final_answer}

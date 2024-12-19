@@ -6,22 +6,24 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use diamond_pickaxe to dig the blackstone_stairs at (24, -60, 21). The diamond_pickaxe is in your inventory.",
-    "task_scenario": "dig",
+    "task_goal": "Alice and Bob should start a chat together. They should have different speaking style. \n    Alice is acting as a expressive and emotional person (exaggerates, emotional expressions, theatrical) eg. \"This is absolutely DEVASTATING!\", \n    but Bob is acting as a truthful and sincere person (straightforward, truthful, direct communication) eg. \"To be completely honest with you...\".\n    Start a conversation about exploring ocean monuments for at least 5 turns, you can also add some other topics in the conversation and try to add some actions (use agent tools) in the conversation to make it more vivid.\n    Keep their characteristics consistent throughout the conversation.\n    (This task should be assigned to two agents for each time)",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "blackstone_stairs",
-        "x": 24,
+        "target": "rabbit_stew",
+        "x": 8,
         "y": -60,
-        "z": 21,
+        "z": 8,
         "facing": "",
         "item_position": "inventory",
-        "tool": "diamond_pickaxe",
-        "action": "",
+        "tool": "",
+        "action": "chat",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "Alice and Bob should start a chat together. They should have different speaking style. \n    Alice is acting as a expressive and emotional person (exaggerates, emotional expressions, theatrical) eg. \"This is absolutely DEVASTATING!\", \n    but Bob is acting as a truthful and sincere person (straightforward, truthful, direct communication) eg. \"To be completely honest with you...\".\n    Start a conversation about exploring ocean monuments for at least 5 turns, you can also add some other topics in the conversation and try to add some actions (use agent tools) in the conversation to make it more vivid.\n    Keep their characteristics consistent throughout the conversation.\n    (This task should be assigned to two agents for each time)"
+        ]
     },
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "dig_blackstone_stairs_pickaxe_inventory_id0"
+    "task_name": "interact_chat_id0"
 }
