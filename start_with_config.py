@@ -21,10 +21,11 @@ start_time = time.time()
 def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num: int, dig_needed: bool, max_task_num: int, task_goal: str, document_file: str, host: str, port: int, task_name: str, role: str = "same", api_key_list: list = [], document: dict = {}):
     start_time = time.time()
 
+    api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 
     Agent.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     Agent.model = "qwen-max"
-    Agent.api_key_list = ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
+    Agent.api_key_list = api_key_list
 
 
     # 设置env
@@ -104,31 +105,31 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
         # 设置llm
         llm_config = {
-            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_key": api_key_list[0],
             "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
             "api_model": "qwen-max",
-            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
+            "api_key_list": api_key_list
         }
 
         tm_llm_config = {
-            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_key": api_key_list[0],
             "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
             "api_model": "qwen-max",
-            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
+            "api_key_list": api_key_list
         }
 
         dm_llm_config = {
-            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_key": api_key_list[0],
             "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
             "api_model": "qwen-plus",
-            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
+            "api_key_list": api_key_list
         }
 
         base_llm_config = {
-            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_key": api_key_list[0],
             "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
             "api_model": "qwen-max",
-            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
+            "api_key_list": api_key_list
         }
 
         ctrl = GlobalController(llm_config, tm, dm, env, 
@@ -149,7 +150,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
 if __name__ == "__main__":
 
-    with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/chat_config.json", "r") as f:
+    with open("qwen_launch_config_meta.json", "r") as f:
         launch_config = json.load(f)
     # shuffle 
     launch_config = random.sample(launch_config, len(launch_config))
@@ -172,10 +173,10 @@ if __name__ == "__main__":
         api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 
         llm_config = {
-            "api_key": "sk-c2cf54dcccff4125a7e1e1fac49e91cb",
+            "api_key": api_key_list[0],
             "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
             "api_model": "qwen-max",
-            "api_key_list": ["sk-c2cf54dcccff4125a7e1e1fac49e91cb"]
+            "api_key_list": api_key_list
         }
 
         process = multiprocessing.Process(target=run,
