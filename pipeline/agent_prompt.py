@@ -33,7 +33,7 @@ Here are some knowledge about minecraft:
 '''
 
 
-agent_prompt = ''' 
+agent_prompt_w_emoji = ''' 
 *** The relevant data of task(not environment data)***
 {{relevant_data}}
 *** Other agents team with you ***
@@ -64,7 +64,7 @@ emojis like:
 At least two Action before the Final Answer.
 '''
 
-idle_prompt = ''' 
+idle_prompt_w_emoji = ''' 
 *** Other agents team with you ***
 {{other_agents}}
 *** {{agent_name}}'s state ***

@@ -280,6 +280,8 @@ class BaseAgent:
 
         if not self.EMOJI:
             idle_prompt = idle_prompt_wo_emoji
+        else:
+            idle_prompt = idle_prompt_w_emoji
 
         task_str = format_string(idle_prompt, 
                                  {
@@ -363,6 +365,8 @@ class BaseAgent:
 
         if not self.EMOJI:
             agent_prompt = agent_prompt_wo_emoji
+        else:
+            agent_prompt = agent_prompt_w_emoji
 
         if len(task._agent) == 1:
             task_str = format_string(agent_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
