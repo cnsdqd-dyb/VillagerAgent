@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use diamond_axe to dig the bee_nest at (18, -59, 1). The diamond_axe is in your inventory.",
-    "task_scenario": "dig",
+    "task_goal": "Use bucket to pack a bucket of water.",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "bee_nest",
-        "x": 18,
-        "y": -59,
-        "z": 1,
+        "target": "water",
+        "x": 3,
+        "y": -60,
+        "z": 4,
         "facing": "",
-        "item_position": "inventory",
-        "tool": "diamond_axe",
-        "action": "",
+        "item_position": "chest",
+        "tool": "bucket",
+        "action": "water",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "dig_bee_nest_axe_inventory_id0"
+    "task_name": "interact_water_id134"
 }
