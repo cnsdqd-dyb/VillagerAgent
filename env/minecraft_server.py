@@ -981,7 +981,7 @@ def emojimurmur():
     if not emoji:
         emoji = ""
     msg = f"{bot.entity.username} {emoji} {murmur}"
-    
+    info_bot.update_emojimurmur(emoji, murmur)
     bot.chat(f'/tellraw @a {json.dumps([{"text": msg, "color": "yellow"}])}')
     return jsonify({'message': msg, 'status': True})
 
@@ -1003,7 +1003,7 @@ def wait_for():
     entity_name, seconds = data.get('entity_name'), data.get('seconds')
 
     # 首先提醒目标用户，然后等待回复
-    chat_long(bot, entity_name, f"I am waiting for your feedback, please reply in {seconds} seconds.", "talk")
+    chat_long(bot, entity_name, f"I am waiting for feedback, please reply in {seconds} seconds.", "talk")
 
     # 等待回复
     start_time = time.time()
@@ -1229,7 +1229,9 @@ def handleViewer(*args):
     time.sleep(.1)
     bot.chat('/clear @s')
     bot.chat('/give @s dirt 20')
-
+    bot.chat(f'/summon armor_stand ~ ~1.8 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{bot.entity.username}"]}}')
+    # print(f'/summon armor_stand ~ ~1.8 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{bot.entity.username}"]}}')
+    info_bot.bot_init = True
     time.sleep(.1)
 
     @On(bot, 'move')
@@ -1489,6 +1491,8 @@ def handleViewer(*args):
 def handle(this):
     # bot.chat("time")
     info_bot.update_time()
+    if info_bot.bot_init:
+        info_bot.follow()
 
     # if info_bot.existing_time % 10 == 0:
     #     new_events = info_bot.get_event_description_new()
@@ -1501,6 +1505,14 @@ class Bot():
         self.events_log = []
         self.action_log = []
         self.sleeping = False
+        self.bot_init = False
+    def follow(self):
+        bot.chat(f'/tp @e[type=armor_stand,tag={bot.entity.username}] ~ ~1.8 ~')
+
+    def update_emojimurmur(self, emoji=[], murmur="Emmm..."):
+        text_with_emoji = f"{bot.entity.username} {emoji} {murmur}"
+        # /data merge entity @e[type=armor_stand,tag=yubo,limit=1] {CustomName:'{"text":"新的名字"}'}
+        bot.chat(f'/data merge entity @e[type=armor_stand,tag={bot.entity.username},limit=1] {{"CustomName":"{{\\"text\\":\\"{text_with_emoji}\\"}}","CustomNameVisible":1,"Invisible":1,"Marker":1,"NoGravity":1,"Tags":["{bot.entity.username}"]}}')
 
     def is_sleeping(self):
         return self.sleeping
@@ -1582,9 +1594,9 @@ class Bot():
         for action in self.action_log:
             if action["new"]:
                 action["new"] = False
-                if self.existing_time - action["time"] < 240:
+                if self.existing_time - action["time"] < 240 or "msg" in action["event"] or "chat" in action["event"]:
                     new_actions.append(action['description'])
-                if len(new_actions) > 5:
+                if len(new_actions) > 5 and "msg" not in action["event"] and "chat" not in action["event"]:
                     new_actions.pop(0)
         current_inventory = self.get_bot_inventory_str()
         if current_inventory != "":

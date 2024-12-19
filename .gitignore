@@ -42,6 +42,8 @@ package-lock.json
 /.vscode/*
 *config*.json
 
+/.cache/meta_setting.json
+/__pycache__/*
 tmp/*
 auto_task/*
 

@@ -734,9 +734,15 @@ class Agent():
     @tool
     @timeit
     def talkTo(player_name: str, entity_name: str, message: str, emotion: list = ["😊"]):
-        """Talk to the Entity with Emojis
+        """Talk to the Entity with Emojis, entity_name is the name of other player.
         """
         Agent._lookAt(player_name, entity_name)
+
+        entity_name = entity_name.lower().replace(" ", "_")
+        if entity_name == "nobody" or entity_name == "anyone" or entity_name == "everyone" or entity_name == "all" \
+            or entity_name == "somebody" or entity_name == "some" or entity_name == "any" or entity_name == ""\
+            or entity_name == "none" or entity_name == "everybody" or entity_name == "someone" or entity_name == "anybody":
+            return {'message': 'You need to specify the other player name.', 'status': False, 'new_events': []}
         url = Agent.get_url_prefix()[player_name] + "/post_talk_to"
         data = {
             "entity_name": entity_name,
@@ -859,7 +865,10 @@ class Agent():
         # return the (action, observation), details.
         assert len(self.api_key_list) > 0, "Please set the api_key_list in Agent class."
 
-        if "instruct" in self.model and "gpt" in self.model:
+        if 'qwen' in self.model:
+            from langchain_community.chat_models.tongyi import ChatTongyi
+            self.llm = ChatTongyi(model=self.model, temperature=0, max_tokens=256, dashscope_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
+        elif "instruct" in self.model and "gpt" in self.model:
             from langchain.llms import OpenAI
             self.llm = OpenAI(model=self.model, temperature=0, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
         elif "gpt" in self.model:
@@ -878,12 +887,8 @@ class Agent():
                 if tool.name == action:
                     recommended_tools.append(tool)
         
-        # mix_tools = []
-        # for tool in self.tools:
-        #     if tool not in recommended_tools:
-        #         mix_tools.append(tool)
-        
-        # mix_tools += recommended_tools
+        if recommended_tools == []:
+            recommended_tools = self.all_tools if len(tools) == 0 else tools
 
         while max_try_turn > 0:
             random.shuffle(self.tools)

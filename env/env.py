@@ -377,13 +377,13 @@ class VillagerBench:
             self.logger.warning(f"agent {agent_name} not found")
             return None, {"input": None, "action_list": None, "final_answer": None}
         
-    def rl_step(self, agent_name: str, instruction: str, actions: [], observations: [], recommended_actions: []):
+    def iter_step(self, agent_name: str, instruction: str, actions: [], observations: [], recommended_actions: []):
         '''
         final_answer, {"input": response["input"], "action_list": action_list, "final_answer": final_answer}
         '''
-        self.logger.debug("=" * 20 + " RL Env Step " + "=" * 20)
+        self.logger.debug("=" * 20 + " Env Step (iter) " + "=" * 20)
         self.logger.info(f"agent {agent_name}")
-        self.logger.info("=" * 20 + " RL Env Step " + "=" * 20)
+        self.logger.info("=" * 20 + " Env Step (iter)" + "=" * 20)
         find_agent = False
         for agent in self.agent_pool:
             if agent.name == agent_name:
