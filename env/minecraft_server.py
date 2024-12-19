@@ -1229,8 +1229,8 @@ def handleViewer(*args):
     time.sleep(.1)
     bot.chat('/clear @s')
     bot.chat('/give @s dirt 20')
-    bot.chat(f'/summon armor_stand ~ ~2.5 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{bot.entity.username}"]}}')
-    # print(f'/summon armor_stand ~ ~2.5 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{bot.entity.username}"]}}')
+    bot.chat(f'/summon armor_stand ~ ~2.4 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{bot.entity.username}"]}}')
+    # print(f'/summon armor_stand ~ ~2.4 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{bot.entity.username}"]}}')
     info_bot.bot_init = True
     time.sleep(.1)
 
@@ -1507,7 +1507,7 @@ class Bot():
         self.sleeping = False
         self.bot_init = False
     def follow(self):
-        bot.chat(f'/tp @e[type=armor_stand,tag={bot.entity.username}] ~ ~2.5 ~')
+        bot.chat(f'/tp @e[type=armor_stand,tag={bot.entity.username}] ~ ~2.4 ~')
 
     def update_emojimurmur(self, emoji=[], murmur="Emmm..."):
         text_with_emoji = f"{bot.entity.username} {emoji} {murmur}"
