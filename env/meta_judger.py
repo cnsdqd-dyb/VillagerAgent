@@ -478,6 +478,15 @@ def handleViewer(*args):
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
         
+        if arg_dict["action"] == "water":
+            if arg_dict["item_position"] == "inventory":
+                bot.chat(f"/give {agent_name} bucket 1")
+            elif arg_dict["item_position"] == "chest":
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "bucket", "count": 1}])
+            else:
+                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+
+
         if arg_dict["action"] == "handover":
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} dirt 5")
