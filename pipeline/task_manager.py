@@ -325,7 +325,7 @@ class TaskManager:
                     new_result.append(new_res)
             else:
                 new_result.append(res)
-        return result
+        return new_result
 
     def fill_keys_omit(self, result:[dict], keys:list):
         for res in result:
@@ -529,7 +529,7 @@ class TaskManager:
         omit_keys = [("assigned agents", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
         result = self.fill_keys_omit(result, omit_keys)
         result = self.fill_agents(result, self.agent_list)
-        result
+        
         self.logger.warning(response)
 
         subtask_list = []

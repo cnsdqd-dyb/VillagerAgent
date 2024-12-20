@@ -6,24 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Alice and Bob should start a chat together. They should have different speaking style. \n    Alice is acting as a witty and cynical person (uses irony, witty remarks, cynical tone) eg. \"Oh, brilliant plan. What could go wrong?\", \n    but Bob is acting as a intelligent and insightful person (uses logic, references facts, analytical thinking) eg. \"Based on my analysis...\".\n    Start a conversation about best way to sort inventory for at least 5 turns, you can also add some other topics in the conversation and try to add some actions (use agent tools) in the conversation to make it more vivid.\n    Keep their characteristics consistent throughout the conversation.\n    (This task should be assigned to two agents for each time)",
-    "task_scenario": "interact",
+    "task_goal": "Use crafting_table to make a grindstone. All ingredients are in your inventory.",
+    "task_scenario": "craft",
     "evaluation_arg": {
-        "target": "rabbit_stew",
+        "target": "grindstone",
         "x": 8,
         "y": -60,
         "z": 8,
         "facing": "",
         "item_position": "inventory",
         "tool": "",
-        "action": "chat",
+        "action": "",
         "step": 1,
-        "other_arg": [
-            "Alice and Bob should start a chat together. They should have different speaking style. \n    Alice is acting as a witty and cynical person (uses irony, witty remarks, cynical tone) eg. \"Oh, brilliant plan. What could go wrong?\", \n    but Bob is acting as a intelligent and insightful person (uses logic, references facts, analytical thinking) eg. \"Based on my analysis...\".\n    Start a conversation about best way to sort inventory for at least 5 turns, you can also add some other topics in the conversation and try to add some actions (use agent tools) in the conversation to make it more vivid.\n    Keep their characteristics consistent throughout the conversation.\n    (This task should be assigned to two agents for each time)"
-        ]
+        "other_arg": []
     },
-    "document_file": "",
+    "document_file": "data\\recipes_hint.json",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "interact_chat_id405"
+    "task_name": "craft_grindstone_inventory_1_id149"
 }
