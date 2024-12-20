@@ -270,6 +270,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 config["document_file"] = ""
                 config_list.append(config)
     elif task == "meta":
+        item_position_weight = [67, 33]
         for j in tqdm.tqdm(range(0, args.meta_task_num)):
             random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [7, 16, 7, 1, 2, 67])[0]
             if random_task == "dig":
@@ -288,15 +289,11 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     if tool == "coweb":
                         tool = "sword"
                         arg_dict["tool"] = f"diamond_{tool}"
-                        # # #
-                        arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-                        # # #
+                        arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                     elif "mineable" in tool:
                         tool = block["material"].split("/", 1)[1]
                         arg_dict["tool"] = f"diamond_{tool}"
-                        # # #
-                        arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-                        # # #
+                        arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                     else:
                         tool = "default"
                     config["task_type"] = "meta"
@@ -322,10 +319,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     config = template.copy()
                     arg_dict = arg_template.copy()
                     arg_dict["target"] = item["name"]
-                    # # #
-                    arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"]) 
-                    arg_dict["step"] = random.choice([1, 2])
-                    # # #
+                    arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
+                    arg_dict["step"] = random.choices([1, 2], [0.7, 0.3])[0]
                     config["task_type"] = "meta"
                     config["task_idx"] = i
                     config["agent_num"] = 1
@@ -343,13 +338,14 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     blocks = json.load(f)
                 placeable_blocks = []
                 allowed_facing = {"north", "south", "east", "west", "x", "y", "z"}
+                invalid_blocks = ["potted", "_cauldron", "candle_cake", "_torch", "soul_fire"]
                 for block in blocks:
                     placeable = True
                     for state in block["states"]:
                         if "values" in state and not all(faceable in allowed_facing for faceable in state["values"]):
                             placeable = False
                             break
-                    if "potted" in block["name"] or "_cauldron" in block["name"]:
+                    if any(substring in block["name"] for substring in invalid_blocks):
                         placeable = False
                     if placeable:
                         placeable_blocks.append(block)
@@ -395,9 +391,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         template_pos = random.choice(block_template)
                         for offset in template_pos["pos"]:
                             arg_dict["other_arg"].append([arg_dict['x'] + offset[0] * direction, arg_dict['y'] + offset[1], arg_dict['z'] + offset[2] * direction])
-                    # # #
-                    arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-                    # # #
+                    arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                     config["task_type"] = "meta"
                     config["task_idx"] = i
                     config["agent_num"] = 1
@@ -484,7 +478,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     # action = "feed"
                     task_level = random.choices(["basic", "advanced"], [39, 61])[0]
                     if task_level == "basic":
-                        action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2, 20000])[0]
+                        action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2, 2])[0]
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         if action == "cook":
@@ -511,8 +505,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["z"] = random.randint(orz + wall_width + 2, orz + room_width + wall_width - 3)
                             arg_dict["y"] = ory + 1
                         else:
-                            target = random.choice(animal_list)
-                        arg_dict["target"] = target["name"]
+                            target = random.choice(animal_list)["name"]
+                        arg_dict["target"] = target
                         arg_dict["action"] = action
                         if action == "attack":
                             arg_dict["tool"] = "iron_sword"
@@ -528,9 +522,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             with open("data/items.json", "r") as f:
                                 items = json.load(f)
                             arg_dict["other_arg"] = [random.choice(items)["name"]]
-                        # # #
-                        arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-                        # # #
+                        arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                         config["task_type"] = "meta"
                         config["task_idx"] = i
                         config["agent_num"] = 1
@@ -560,8 +552,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["tool"] = f"{random.choice(hoes)}_hoe"
 
 
-                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-
+                            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
 
                             arg_dict["other_arg"] = [{"origin_block": origin_block, "crops": random.choice(crops)}]
 
@@ -575,7 +566,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                             arg_dict["y"] = random.randint(ory - 1, ory)
                         
-                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
 
                         elif action == "bone_meal":
                             crops_seeds_in_dirt = ["bamboo", "wheat_seeds", "beetroot_seeds", "melon_seeds", "pumpkin_seeds", "carrot", "potato", "nether_wart"]
@@ -597,7 +588,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                                 crops = random.choice(tree_saplings)
                             arg_dict["target"] = "bone_meal"
                             arg_dict["other_arg"] = [{"base_block": base_block, "crops": crops}]
-                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                             arg_dict["tool"] = "bone_meal"
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
@@ -617,7 +608,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                                 arg_dict["other_arg"] = [random.choice(sign_instruction_hard)]
                             else:
                                 arg_dict["other_arg"] = [random.choice(sign_instruction_easy)]
-                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
 
                         elif action == "toggle":
                             trigger = ["button", "lever"]
@@ -627,7 +618,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             trigger_flag = random.choices(["default", "trigger"], [70, 30])[0]
                             if trigger_flag == "trigger":
                                 arg_dict["target"] = "iron_"+ random.choice(["door", "trapdoor"])
-                                arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                                arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                                 trig = random.choice(trigger)
                                 if trig == "button":
                                     trig = random.choice(material) + "_button"
@@ -644,7 +635,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                                 arg_dict["tool"] = "saddle"
                             else:
                                 arg_dict["tool"] = "carrot_on_a_stick"
-                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
+
     
                         elif action == "boat":
                             boats = ["boat", "chest_boat"]
@@ -652,14 +644,14 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                             arg_dict["y"] = ory + 1
-                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                         
                         elif action == "minecart":
                             arg_dict["target"] = "minecart"
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                             arg_dict["y"] = ory + 1
-                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
 
                         elif action == "bed":
                             bed_color = ["red", "blue", "green", "yellow", "white", "black", "brown", "cyan", "gray", "light_blue", "lime", "magenta", "orange", "pink", "purple"]
@@ -667,7 +659,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                             arg_dict["y"] = ory + 1
-                            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+                            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
 
                         config["task_type"] = "meta"
                         config["task_idx"] = i
@@ -699,15 +691,11 @@ def generate_config(task, api_model, host, port, agent_num=2):
             if tool == "coweb":
                 tool = "sword"
                 arg_dict["tool"] = f"diamond_{tool}"
-                # # #
-                arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-                # # #
+                arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
             elif "mineable" in tool:
                 tool = block["material"].split("/", 1)[1]
                 arg_dict["tool"] = f"diamond_{tool}"
-                # # #
-                arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-                # # #
+                arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
             else:
                 tool = "default"
             config["task_type"] = "meta"
@@ -733,8 +721,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             config = template.copy()
             arg_dict = arg_template.copy()
             arg_dict["target"] = item["name"]
-            # # #
-            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"]) 
+            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
             arg_dict["step"] = 1
             # # #
             config["task_type"] = "meta"
@@ -754,13 +741,15 @@ def generate_config(task, api_model, host, port, agent_num=2):
             blocks = json.load(f)
         placeable_blocks = []
         allowed_facing = {"north", "south", "east", "west", "x", "y", "z"}
+        invalid_blocks = ["potted", "_cauldron", "candle_cake", "_torch", "soul_fire"]
+
         for block in blocks:
             placeable = True
             for state in block["states"]:
                 if "values" in state and not all(faceable in allowed_facing for faceable in state["values"]):
                     placeable = False
                     break
-            if "potted" in block["name"] or "_cauldron" in block["name"]:
+            if any(substring in block["name"] for substring in invalid_blocks):
                 placeable = False
             if placeable:
                 placeable_blocks.append(block)
@@ -807,9 +796,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 template_pos = random.choice(block_template)
                 for offset in template_pos["pos"]:
                     arg_dict["other_arg"].append([arg_dict['x'] + offset[0] * direction, arg_dict['y'] + offset[1], arg_dict['z'] + offset[2] * direction])
-            # # #
-            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-            # # #
+            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
             config["task_type"] = "meta"
             config["task_idx"] = i
             config["agent_num"] = 1
@@ -907,8 +894,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                 arg_dict["y"] = ory + 1
             else:
-                target = random.choice(animal_list)
-            arg_dict["target"] = target["name"]
+                target = random.choice(animal_list)["name"]
+            arg_dict["target"] = target
             arg_dict["action"] = action
             if action == "attack":
                 arg_dict["tool"] = "iron_sword"
@@ -928,9 +915,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 charset = string.ascii_letters + string.digits
                 text_len = random.randint(5, 8)
                 arg_dict["other_arg"] = ['']
-            # # #
-            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
-            # # #
+            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
             config["task_type"] = "meta"
             config["task_idx"] = i
             config["agent_num"] = 1
@@ -953,7 +938,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
         trigger_flag = random.choices(["default", "trigger"], [70, 30])[0]
         if trigger_flag == "trigger":
             arg_dict["target"] = "iron_"+ random.choice(["door", "trapdoor"])
-            arg_dict["item_position"] = random.choice(["inventory", "inventory", "chest"])
+            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
             trig = random.choice(trigger)
             if trig == "button":
                 trig = random.choice(material) + "_button"
