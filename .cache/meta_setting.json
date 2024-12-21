@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "api_model": "qwen-max",
     "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
@@ -24,4 +25,34 @@
     "host": "10.214.180.148",
     "port": 25565,
     "task_name": "interact_toggle_id852"
+=======
+{
+    "api_model": "qwen-max",
+    "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "task_type": "meta",
+    "task_idx": 0,
+    "agent_num": 1,
+    "dig_needed": false,
+    "max_task_num": 0,
+    "task_goal": "Read the content on the oak_sign at (20, -60, 8).",
+    "task_scenario": "interact",
+    "evaluation_arg": {
+        "target": "oak_sign",
+        "x": 20,
+        "y": -60,
+        "z": 8,
+        "facing": "",
+        "item_position": "inventory",
+        "tool": "",
+        "action": "sign",
+        "step": 1,
+        "other_arg": [
+            "Welcome to the room"
+        ]
+    },
+    "document_file": "",
+    "host": "10.192.15.60",
+    "port": 25565,
+    "task_name": "meta_test"
+>>>>>>> 7778538d2bead41da5f3b139427441da4d457023
 }
