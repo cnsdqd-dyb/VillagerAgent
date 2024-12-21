@@ -483,7 +483,8 @@ def handleViewer(*args):
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
 
-        elif arg_dict["action"] == "handover":
+
+        if arg_dict["action"] == "handover":
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} dirt 5")
                 time.sleep(.2)
@@ -614,60 +615,50 @@ def handleViewer(*args):
         elif arg_dict["action"] == "sign":
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             target = aligned_item_name(arg_dict["target"])
-            text = arg_dict["other_arg"]
-            # bot.chat(f"setblock {x} {y} {z} {target}{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
-            bot.chat(f"/setblock {x} {y} {z} {target}{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
+            text = arg_dict["other_arg"][0]
+            # bot.chat(f"/setblock {x} {y} {z} {target}[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
+            # bot.chat(f"/setblock {x} {y} {z} {target}{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
+            bot.chat(f"/setblock {x} {y} {z} {target}[rotation={random.randint(0, 9)}]{{Text1:'{{\"text\":\"{text}\"}}'}}")
 
         elif arg_dict["action"] == "chat":
             pass
 
-        elif arg_dict["action"] in ["store", "cook", "feed"]:
+        elif arg_dict["action"] == "feed":
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
             if arg_dict["item_position"] == "inventory":
-                if type(arg_dict["tool"]) == list:
-                    for item in arg_dict["tool"]:
-                        bot.chat(f"/give {agent_name} {item} 1")
-                else:
-                    bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
             elif arg_dict["item_position"] == "chest":
-                if type(arg_dict["tool"]) == list:
-                    for item in arg_dict["tool"]:
-                        set_chest([], [{"name": item, "count": 1}])
-                else:
-                    set_chest([], [{"name": arg_dict['tool'], "count": 1}])
+                set_chest([], [{"name": arg_dict['tool'], "count": 1}])
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
-        elif arg_dict["action"] in ["cook", "store"]:
-            # bot.chat(f"summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
-            if arg_dict["action"] == "cook":
-                furnace_num = 3
-                furnace_pos = []
-                for _ in range(furnace_num):
+        # bot.chat(f"summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
+        elif arg_dict["action"] == "cook":
+            furnace_num = 3
+            furnace_pos = []
+            for _ in range(furnace_num):
+                furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
+                while furnace_y > ory + 4 or (furnace_x, furnace_y, furnace_z) in furnace_pos:    # 避免生成在太高的地方
                     furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
-                    while furnace_y > ory + 4 or (furnace_x, furnace_y, furnace_z) in furnace_pos:    # 避免生成在太高的地方
-                        furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
-                    furnace_pos.append((furnace_x, furnace_y, furnace_z))
-                    bot.chat(f"setblock {furnace_x} {furnace_y} {furnace_z} furnace")
-                    bot.chat(f"/setblock {furnace_x} {furnace_y} {furnace_z} furnace")
-                    time.sleep(.2)
+                furnace_pos.append((furnace_x, furnace_y, furnace_z))
+                bot.chat(f"/setblock {furnace_x} {furnace_y} {furnace_z} furnace")
+                time.sleep(.2)
 
 
-                # furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)        
-                item_list = [{"name": item, "count": 1} for item in arg_dict['other_arg']]
-                if arg_dict["item_position"] == "inventory":
-                    for item in item_list:                    
-                        bot.chat(f"/give {agent_name} {item['name']} {item['count']}")
-                        time.sleep(.1)
-                elif arg_dict["item_position"] == "chest":
-                    set_chest(furnace_pos, item_list)
-                else:
-                    bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+            # furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)        
+            item_list = [{"name": item, "count": 1} for item in arg_dict['other_arg']]
+            if arg_dict["item_position"] == "inventory":
+                for item in item_list:                    
+                    bot.chat(f"/give {agent_name} {item['name']} {item['count']}")
+                    time.sleep(.1)
+            elif arg_dict["item_position"] == "chest":
+                set_chest(furnace_pos, item_list)
+            else:
+                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
-            if arg_dict["action"] == "store":
-                bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} chest")
-                bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]} 1")
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [])
+        elif arg_dict["action"] == "store":
+            bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']} {arg_dict['z']} chest")
+            bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]} 1")
 
         elif arg_dict["action"] in ["shear", "milk", "attack"]:
             target = aligned_item_name(arg_dict["target"])
@@ -866,7 +857,7 @@ def handle(this):
                         bot.chat(f'/data get entity {arg_dict["target"]}')
 
             if score == 100 and os.path.exists("result/" + task_name + "/Alice_history.json"):
-                time.sleep(5)
+                time.sleep(10)
                 # 至少得等到所有的action都执行完了，有记录了再结束吧
                 if not os.path.exists("result/" + task_name):
                     os.mkdir(os.path.join("result/", task_name))

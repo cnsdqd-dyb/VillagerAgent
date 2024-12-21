@@ -160,7 +160,7 @@ def generate_task_goal(task_scenario, arg_dict):
     
     elif task_scenario == "interact":
         if arg_dict["action"] in ["attack", "feed", "shear", "milk"]:
-            template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} the {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}"
+            template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} the {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "water":
             template_prompt = f"Use {arg_dict['tool']} to pack a bucket of {arg_dict['target']}, then pour the water at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "cook":
@@ -504,14 +504,11 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             target = "water"
                             arg_dict["x"] = random.randint(orx + wall_width + 2, orx + room_width + wall_width - 3)
                             arg_dict["z"] = random.randint(orz + wall_width + 2, orz + room_width + wall_width - 3)
-                            arg_dict["y"] = ory + 1
-                        elif action == "feed":
-                            target = random.choice(animal_list)
-                            arg_dict["tool"] = target["food"]
-                            target = target["name"]
+                            arg_dict["y"] = random.randint(ory, ory + 1)
+                            arg_dict["target"] = "water"
                         else:
-                            target = random.choice(animal_list)["name"]
-                        arg_dict["target"] = target
+                            target = random.choice(animal_list)
+                            arg_dict["target"] = target["name"]
                         arg_dict["action"] = action
                         if action == "attack":
                             arg_dict["tool"] = "iron_sword"
@@ -896,9 +893,10 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                 arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                 arg_dict["y"] = ory + 1
+                arg_dict["target"] = "water"
             else:
-                target = random.choice(animal_list)["name"]
-            arg_dict["target"] = target
+                target = random.choice(animal_list)
+                arg_dict["target"] = target["name"]
             arg_dict["action"] = action
             if action == "attack":
                 arg_dict["tool"] = "iron_sword"
