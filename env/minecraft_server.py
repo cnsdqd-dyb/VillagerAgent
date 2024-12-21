@@ -1179,6 +1179,11 @@ def read_():
     envs_info = get_envs_info(bot, 128)
     msg, tag = read(bot, Vec3, envs_info, mcData, name)
 
+    if tag:
+        msg = str(msg)
+        events = info_bot.get_action_description_new()
+        return jsonify({'message': msg, 'status': tag, "new_events": events})
+
     if "sign" in name:
         msg, tag = readNearestSign(bot, Vec3, mcData, max_distance=16)
         if not tag:
