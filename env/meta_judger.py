@@ -80,8 +80,6 @@ max_time = 360
 
 environment_set_time = 10
 info_count = 0
-interact_type = "block"
-interact_arg = 0
 arg_host = args.host
 arg_port = args.port
 # evaluation_arg 
@@ -333,8 +331,8 @@ def handleViewer(*args):
     bot.chat("/kill @e[type=!minecraft:player]")
     time.sleep(.2)
 
-    for name in agent_names:
-        bot.chat(f'/summon armor_stand ~ ~2.5 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{name}"]}}')
+    # for name in agent_names:
+        # bot.chat(f'/summon armor_stand ~ ~2.5 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{name}"]}}')
     
     bot.chat(f"/setblock {orx + wall_width} {ory + room_height // 2 - 1} {orz + wall_width} glass")
     time.sleep(.2)
@@ -347,7 +345,6 @@ def handleViewer(*args):
     bot.chat(f"/gamemode survival {agent_name}")
     time.sleep(.2)
 
-    global interact_arg, interact_type
     global arg_host, arg_port
     
     bot.chat(f"/give {agent_name} dirt 15")
@@ -457,20 +454,7 @@ def handleViewer(*args):
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
-    elif config["task_scenario"] == "interact":
-        target = aligned_item_name(arg_dict["target"])
-        if target == "Bob":
-            interact_type = "player"
-        else:
-            with open("data/animals.json", "r") as f:
-                
-                animal_list = json.load(f)
-                for animal in animal_list:
-                    if animal["name"] == target:   
-                        interact_type = "animal"
-                        break
-
-        
+    elif config["task_scenario"] == "interact":        
         if arg_dict["action"] == "water":
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             bot.chat(f"/fill {x-4} {y} {z-4} {x+4} {y} {z+4} grass_block")
@@ -481,8 +465,6 @@ def handleViewer(*args):
                 set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "bucket", "count": 1}])
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
-
-
 
         if arg_dict["action"] == "handover":
             if arg_dict["item_position"] == "inventory":
@@ -762,7 +744,7 @@ def handle(this):
 
     global last_time, start_time, score
     if start_time is not None:
-        global complexity_score, efficiency, balance, info_count, environment_set_time, interact_type
+        global complexity_score, efficiency, balance, info_count, environment_set_time
         now_time = time.time()
         with open(".cache/meta_setting.json", "r") as f:
             config = json.load(f)
@@ -851,7 +833,7 @@ def handle(this):
                     if arg_dict["action"] == "milk":
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {agent_name}')
-                if interact_type == "player":
+                if arg_dict["action"] == "handover":
                     if arg_dict["action"] == "handover":
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {arg_dict["target"]}')
@@ -934,7 +916,7 @@ def handle(this):
 
 @On(bot, 'messagestr')
 def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
-    global score, info_count, interact_type
+    global score, info_count
     with open(".cache/meta_setting.json", "r") as f:
         config = json.load(f)
     arg_dict = config["evaluation_arg"]
