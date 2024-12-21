@@ -33,10 +33,10 @@ api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 # }
 
 llm_config = {
-    "api_key": "sk-837276a766734ef8a1f36f7f3853e413",
+    "api_key": api_key_list[0],
     "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
     "api_model": "qwen-max",
-    "api_key_list": ["sk-837276a766734ef8a1f36f7f3853e413"]
+    "api_key_list": api_key_list
 }
 
 # llm_config = {
