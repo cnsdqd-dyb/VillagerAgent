@@ -525,12 +525,15 @@ def get_envs_info_dict(bot, RENDER_DISTANCE=32, same_entity_num=2):
         e = status_info['entities'][e]
         if e:
             s = {}
-            if e.username:
-                if "armor_stand" in e.username:
-                    continue
-            else:
-                if "armor_stand" in e.name:
-                    continue
+            try:
+                if e.username:
+                    if "armor_stand" in e.username:
+                        continue
+                else:
+                    if "armor_stand" in e.name:
+                        continue
+            except:
+                pass
                 
             if e.username is not None:
                 if (bot.entity.username and e.username == bot.entity.username) or "judge" in e.username:

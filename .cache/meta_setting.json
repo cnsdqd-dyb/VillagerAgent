@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Put the saddle on the horse and ride it, then dismount it. The saddle and the food are in your inventory.",
+    "task_goal": "Go fishing at (4, -62, 13). The fishing rod is in the chest.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "horse",
-        "x": 8,
-        "y": -60,
-        "z": 8,
+        "target": "pufferfish",
+        "x": 4,
+        "y": -62,
+        "z": 13,
         "facing": "",
-        "item_position": "inventory",
-        "tool": "saddle",
-        "action": "saddle",
+        "item_position": "chest",
+        "tool": "fishing_rod",
+        "action": "fishing",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "interact_saddle_id711"
+    "task_name": "interact_fishing_id425"
 }
