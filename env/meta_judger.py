@@ -477,6 +477,9 @@ def handleViewer(*args):
                 set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "bucket", "count": 1}])
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+            
+            bot.chat(f"/fill {x-4} {y} {z-4} {x+4} {y} {z+4} grass_block")
+            bot.chat(f"/fill {x-3} {y} {z-3} {x+3} {y} {z+3} water")
 
 
         if arg_dict["action"] == "handover":
