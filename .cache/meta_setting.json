@@ -6,22 +6,24 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use diamond_axe to dig the bee_nest at (18, -59, 1). The diamond_axe is in your inventory.",
-    "task_scenario": "dig",
+    "task_goal": "Read the content on the oak_sign at (20, -60, 8).",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "bee_nest",
-        "x": 18,
-        "y": -59,
-        "z": 1,
+        "target": "oak_sign",
+        "x": 20,
+        "y": -60,
+        "z": 8,
         "facing": "",
         "item_position": "inventory",
-        "tool": "diamond_axe",
-        "action": "",
+        "tool": "",
+        "action": "sign",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "Welcome to the room"
+        ]
     },
     "document_file": "",
-    "host": "10.214.180.148",
+    "host": "10.192.15.60",
     "port": 25565,
-    "task_name": "dig_bee_nest_axe_inventory_id0"
+    "task_name": "meta_test"
 }

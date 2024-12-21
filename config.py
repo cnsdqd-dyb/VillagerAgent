@@ -160,7 +160,7 @@ def generate_task_goal(task_scenario, arg_dict):
     
     elif task_scenario == "interact":
         if arg_dict["action"] in ["attack", "feed", "shear", "milk"]:
-            template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} the {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}"
+            template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} the {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "water":
             template_prompt = f"Use {arg_dict['tool']} to pack a bucket of {arg_dict['target']}."
         elif arg_dict["action"] == "cook":

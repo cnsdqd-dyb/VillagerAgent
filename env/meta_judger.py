@@ -615,9 +615,11 @@ def handleViewer(*args):
         elif arg_dict["action"] == "sign":
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             target = aligned_item_name(arg_dict["target"])
-            text = arg_dict["other_arg"]
+            text = arg_dict["other_arg"][0]
             # /setblock x y z jungle_wall_sign[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{Text you want to write 1.}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{Text you want to write 2.}\\\"}}\"}}
-            bot.chat(f"/setblock {x} {y} {z} {target}[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
+            # bot.chat(f"/setblock {x} {y} {z} {target}[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
+            bot.chat(f"/setblock {x} {y} {z} {target}[rotation={random.randint(0, 9)}]{{Text1:'{{\"text\":\"{text}\"}}'}}")
+            
 
         elif arg_dict["action"] == "chat":
             pass
