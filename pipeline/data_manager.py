@@ -53,6 +53,8 @@ class DataManager:
         self._logger = init_logger("DataManager", dump=True, silent=silent)
         self._logger.info("DataManager initialized")
 
+        self.last_env_response = ""
+
     @staticmethod
     def _process_experience(info: dict) -> dict:
         # process experience
@@ -278,7 +280,7 @@ class DataManager:
     def update_database_init(self, info: list):
         self._logger.debug("=" * 20 + " Update Database Init " + "=" * 20)
         self._logger.info(f"gathering info data: \n{info}")
-        print(info)
+        # print(info)
         new_info = info.copy()
         for item in new_info:
             item["status"] = item["message"] if item["status"] else {}
@@ -399,7 +401,7 @@ class DataManager:
 
         self._logger.info("Update database finished")
 
-    @timed_cache(max_age=30)
+    @timed_cache(max_age=120)
     def query_env(self) -> (str, dict):
         person_info = self._env_data["person_info"]
         if len(person_info) == 0:
@@ -460,11 +462,14 @@ class DataManager:
         with open(os.path.join(root, "DM_query.json"), "w") as f:
             json.dump(self.query_log, f, indent=4)
 
-    @timed_cache(max_age=30)
-    def query_env_with_task(self, task: str) -> str:
+    @timed_cache(max_age=120)
+    def query_env_with_task(self, task: str, agent_query = False) -> str:
         # input task description
         # output task relevant env data
         self._logger.info(f"Start querying environment with task {task}...")
+        if agent_query:
+            return self.last_env_response
+
         # self._logger.debug(f"Using {model}")
         system_prompt = SUMMARY_ENVIRONMENT_SYSTEM_PROMPT
         example_prompt = SUMMARY_ENVIRONMENT_EXAMPLE_PROMPT.copy()
@@ -486,6 +491,7 @@ class DataManager:
         # print(response)
         self._logger.debug(f"Response: {response}")
         self.update_query_log(system_prompt, example_prompt, response)
+        self.last_env_response = response + "\nSign info: " + self._env_data["sign_info"]
         return response + "\nSign info: " + self._env_data["sign_info"]
 
     def query_task_list_experience(self, task_list: list[Task]) -> [str]:

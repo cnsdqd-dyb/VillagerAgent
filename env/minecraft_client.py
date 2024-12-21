@@ -152,22 +152,30 @@ class Agent():
             Agent.withdrawItem, Agent.storeItem, Agent.craftBlock, Agent.ToggleAction, 
         ]
         self.all_tools = [
-            Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
-            Agent.navigateToBuilding, Agent.navigateToAnimal, Agent.navigateToPlayer,
-            Agent.useItemOnEntity, Agent.sleep, Agent.wake,
-            Agent.MineBlock, Agent.placeBlock, Agent.waitForFeedback, Agent.equipItem,
-            Agent.tossItem, Agent.talkTo, Agent.handoverBlock,
-            Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,
-            Agent.SmeltingCooking, Agent.erectDirtLadder, Agent.dismantleDirtLadder,
-            Agent.enchantItem, Agent.trade, Agent.repairItem, Agent.eat,
-            Agent.drink, Agent.wear, Agent.layDirtBeam, Agent.removeDirtBeam,
-            Agent.openContainer, Agent.closeContainer,
-            Agent.fetchContainerContents, Agent.ToggleAction,
-            Agent.get_entity_info, Agent.get_environment_info, 
-            Agent.performMovement, Agent.lookAt, Agent.startFishing,
-            Agent.stopFishing, Agent.read, Agent.readPage, Agent.write,
-            Agent.mountEntity, Agent.dismountEntity, Agent.rideEntity, Agent.disrideEntity,
+            Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget, Agent.useItemOnEntity, 
+            Agent.MineBlock, Agent.placeBlock, Agent.equipItem, Agent.handoverBlock, Agent.SmeltingCooking, Agent.withdrawItem, 
+            Agent.storeItem, Agent.craftBlock, Agent.eat, Agent.fetchContainerContents, 
+            Agent.openContainer, Agent.performMovement, 
+            Agent.sleep, Agent.wake, Agent.talkTo, Agent.waitForFeedback, Agent.startFishing, Agent.ToggleAction, 
+            Agent.read, Agent.mountEntity, Agent.dismountEntity
         ]
+        # self.all_tools = [
+        #     Agent.scanNearbyEntities, Agent.navigateTo, Agent.attackTarget,
+        #     Agent.navigateToBuilding, Agent.navigateToAnimal, Agent.navigateToPlayer,
+        #     Agent.useItemOnEntity, Agent.sleep, Agent.wake,
+        #     Agent.MineBlock, Agent.placeBlock, Agent.waitForFeedback, Agent.equipItem,
+        #     Agent.tossItem, Agent.talkTo, Agent.handoverBlock,
+        #     Agent.withdrawItem, Agent.storeItem, Agent.craftBlock,
+        #     Agent.SmeltingCooking, Agent.erectDirtLadder, Agent.dismantleDirtLadder,
+        #     Agent.enchantItem, Agent.trade, Agent.repairItem, Agent.eat,
+        #     Agent.drink, Agent.wear, Agent.layDirtBeam, Agent.removeDirtBeam,
+        #     Agent.openContainer, Agent.closeContainer,
+        #     Agent.fetchContainerContents, Agent.ToggleAction,
+        #     Agent.get_entity_info, Agent.get_environment_info, 
+        #     Agent.performMovement, Agent.lookAt, Agent.startFishing,
+        #     Agent.stopFishing, Agent.read, Agent.readPage, Agent.write,
+        #     Agent.mountEntity, Agent.dismountEntity, Agent.rideEntity, Agent.disrideEntity,
+        # ]
         if tools:
             self.tools = tools
         else:
@@ -1082,22 +1090,29 @@ if __name__ == "__main__":
     Agent.model = "qwen-max"
     Agent.base_url =  "https://dashscope.aliyuncs.com/compatible-mode/v1"
     Agent.api_key_list = ["sk-837276a766734ef8a1f36f7f3853e413"]
+    agent1 = Agent(name="Alice", local_port=5001, tools=[])
     Agent.launch(host="10.214.180.148", port=25565)
-    # print(Agent.ping("Alice"))
-    url = Agent.get_url_prefix()["Alice"] + "/post_sleep"
-    response = requests.post(url, headers=Agent.headers)
-    print(response.json())
+    time.sleep(5)
+    start_time = time.time()
+    response = Agent.get_environment_info_dict("Alice")
+    print(response)
+    print(time.time() - start_time)
+    # # print(Agent.ping("Alice"))
+    # url = Agent.get_url_prefix()["Alice"] + "/post_use_on"
+    # response = requests.post(url, headers=Agent.headers)
     # data = {
+    #     "item_name": "bucket",
+    #     "entity_name": "water",
     #     }
     # response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
+    # print(response.json)
     # response = Agent.attackTarget({"player_name":"Alice", "target_name":"panda"})
-    # print(response)
     # from langchain.chat_models import ChatOpenAI
     # llm = ChatOpenAI(model=Agent.model, temperature=0.1, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
     # response = llm.invoke("use bone_meal on the large_fern")
     # print(response)
-    # Prompt = "You are act as Alice, sleep on the blue bed"
-    # agent1.run(Prompt, tools=[Agent.sleep])
+    # Prompt = "You are act as Alice, use bucket on water."
+    # agent1.run(Prompt, tools=[Agent.useItemOnEntity])
     # actions = []
     # observations = []
     # while True:

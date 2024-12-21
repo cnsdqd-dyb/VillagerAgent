@@ -44,11 +44,12 @@ Entity: Tom is located at position [-1, -59, 1] and is holding one spruce plank,
 Blocks: a chest at [-4, -60, 0] facing west, a furnace at [-4, -60, 1] and other bloces.
 Creatures: two pigs at [-3, -59, 0] and [-3, -59, 2].
 Interactive-Items: a stone pressure plate at [-3, -60, 2], a juggle button at [-3, -60, 3].
+Environment: [flatten area] A wall maybe at [-3, -60, 0], a house maybe at [-4, -60, 0], a tree maybe at [-3, -61, 0]. (They are estimated based on the blocks around.)
 """,
     """The environment info:
 {environment_info}
 *** The task *** : {task}.
-Return with Entity, Blocks, Creatures and Interactive-Items, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
+Return with Entity, Blocks, Creatures, Interactive-Items and Environment, and give all these position of these blocks and entities like chest, crafting table, furnace, animals, and plants.
 """
 ]
 

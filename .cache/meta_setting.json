@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use crafting_table to make a grindstone. All ingredients are in your inventory.",
-    "task_scenario": "craft",
+    "task_goal": "Open the birch_trapdoor at (10, -60, 3). You can open it directly and do not need any tool.",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "grindstone",
-        "x": 8,
+        "target": "birch_trapdoor",
+        "x": 10,
         "y": -60,
-        "z": 8,
+        "z": 3,
         "facing": "",
         "item_position": "inventory",
         "tool": "",
-        "action": "",
+        "action": "toggle",
         "step": 1,
         "other_arg": []
     },
-    "document_file": "data\\recipes_hint.json",
+    "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "craft_grindstone_inventory_1_id149"
+    "task_name": "interact_toggle_id852"
 }

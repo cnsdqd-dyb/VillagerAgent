@@ -162,9 +162,9 @@ def generate_task_goal(task_scenario, arg_dict):
         if arg_dict["action"] in ["attack", "feed", "shear", "milk"]:
             template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} the {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}"
         elif arg_dict["action"] == "water":
-            template_prompt = f"Use {arg_dict['tool']} to pack a bucket of {arg_dict['target']}."
+            template_prompt = f"Use {arg_dict['tool']} to pack a bucket of {arg_dict['target']}, then pour the water at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "cook":
-            template_prompt = f"Cook the {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}."
+            template_prompt = f"Cook the {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}. The furnace is at {arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}."
         elif arg_dict["action"] == "handover":
             template_prompt = f"Alice hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "store":
@@ -187,9 +187,9 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "saddle":
             template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']} and ride it, then dismount it. The {arg_dict['tool']} and the food are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "boat":
-            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The boat is in the {arg_dict['item_position']}."
+            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The boat is in the {arg_dict['item_position']}, the pour is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
         elif arg_dict["action"] == "minecart":
-            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The minecart is in the {arg_dict['item_position']}."
+            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The minecart is in the {arg_dict['item_position']} and the rail is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
         elif arg_dict["action"] == "bed":
             template_prompt = f"Sleep in the {arg_dict['target']}. The bed is in the {arg_dict['item_position']}, then wake up."
         elif arg_dict["action"] == "chat":
@@ -462,7 +462,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             {"name": "parrot", "food": ["melon_seeds", "pumpkin_seeds"]}, {"name": "fox", "food": ["sweet_berries"]}, {"name": "turtle", "food": ["seagrass"]}, 
                             {"name": "panda", "food": ["bamboo"]}]
                 cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
-                action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "water"]
+                # action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "water"]
+                action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk"] # water not supported
                 additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"]
 
                 # 额外的几个任务 1. 耕地-并加种子 2. 钓鱼 3.作物加骨粉催熟 4. 小花园 5. 建造一个矩形的栅栏 6. 聊天对话 7. 读写牌子上面的内容
@@ -478,7 +479,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     # action = "feed"
                     task_level = random.choices(["basic", "advanced"], [39, 61])[0]
                     if task_level == "basic":
-                        action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2, 2])[0]
+                        action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2])[0]
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         if action == "cook":
@@ -504,14 +505,16 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["x"] = random.randint(orx + wall_width + 2, orx + room_width + wall_width - 3)
                             arg_dict["z"] = random.randint(orz + wall_width + 2, orz + room_width + wall_width - 3)
                             arg_dict["y"] = ory + 1
+                        elif action == "feed":
+                            target = random.choice(animal_list)
+                            arg_dict["tool"] = target["food"]
+                            target = target["name"]
                         else:
                             target = random.choice(animal_list)["name"]
                         arg_dict["target"] = target
                         arg_dict["action"] = action
                         if action == "attack":
                             arg_dict["tool"] = "iron_sword"
-                        elif action == "feed":
-                            arg_dict["tool"] = random.choice(target["food"])
                         elif action == "cook":
                             arg_dict["other_arg"] = ["coal", target]
                         elif action == "shear":
@@ -976,4 +979,4 @@ if __name__ == "__main__":
     api_model = args.api_model.replace("-", "_").replace(".", "_").replace(" ", "_").replace("/", "_")
     generate_config(args.task, api_model, args.host, args.port, args.agent_num)
 
-    # python config.py --task meta --meta_task_num 500 --api_model qwen
+    # python config.py --task meta --meta_task_num 1000 --api_model qwen

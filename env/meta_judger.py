@@ -76,7 +76,7 @@ last_time = time.time()
 start_time = None
 
 max_action_time = 60
-max_time = 250
+max_time = 360
 
 environment_set_time = 10
 info_count = 0
@@ -470,15 +470,11 @@ def handleViewer(*args):
                         interact_type = "animal"
                         break
 
-        if arg_dict["action"] == "water":
-            if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} bucket 1")
-            elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "bucket", "count": 1}])
-            else:
-                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
         
         if arg_dict["action"] == "water":
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            bot.chat(f"/fill {x-4} {y} {z-4} {x+4} {y} {z+4} grass_block")
+            bot.chat(f"/fill {x-3} {y} {z-3} {x+3} {y} {z+3} water")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} bucket 1")
             elif arg_dict["item_position"] == "chest":
@@ -487,7 +483,7 @@ def handleViewer(*args):
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
 
-        if arg_dict["action"] == "handover":
+        elif arg_dict["action"] == "handover":
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} dirt 5")
                 time.sleep(.2)
@@ -499,7 +495,7 @@ def handleViewer(*args):
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
-        if arg_dict["action"] == "till":
+        elif arg_dict["action"] == "till":
             base_block = aligned_item_name(arg_dict["other_arg"][0]['origin_block'])
             crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
@@ -513,7 +509,7 @@ def handleViewer(*args):
             bot.chat(f"/setblock {x} {y} {z} {base_block}")
             bot.chat(f"/setblock {x+1} {y} {z+1} water")
 
-        if arg_dict["action"] == "bone_meal":
+        elif arg_dict["action"] == "bone_meal":
             base_block = aligned_item_name(arg_dict["other_arg"][0]['base_block'])
             crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
@@ -528,10 +524,9 @@ def handleViewer(*args):
 
         elif arg_dict["action"] == "minecart":
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-            bot.chat(f"/setblock {x} {y} {z} air")
-            bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']-1} rail")
-            bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']} rail")
-            bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']+1} rail")
+            bot.chat(f"/fill {x-4} {y+1} {z-4} {x+4} {y+1} {z+4} air")
+            bot.chat(f"/fill {x-3} {y-1} {z-3} {x+3} {y-1} {z+3} gray_concrete")
+            bot.chat(f"/fill {x-3} {y} {z-2} {x+2} {y} {z+3} rail")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} minecart 1")
             elif arg_dict["item_position"] == "chest":
@@ -544,8 +539,9 @@ def handleViewer(*args):
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} saddle 1")
                 bot.chat(f"/give {agent_name} wheat 20")
+                bot.chat(f"/give {agent_name} carrot_on_a_stick 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "saddle", "count": 1}, {"name": "wheat", "count": 20}])
+                set_chest([], [{"name": "saddle", "count": 1}, {"name": "wheat", "count": 20}, {"name": "carrot_on_a_stick", "count": 1}])
 
         elif arg_dict["action"] == "boat":
             if arg_dict["item_position"] == "inventory":
@@ -591,14 +587,12 @@ def handleViewer(*args):
                 bot.chat(f"/setblock {arg_dict['x'] + trigger_block_offset[facing][0]} {arg_dict['y'] + trigger_block_offset[facing][1]} {arg_dict['z'] + trigger_block_offset[facing][2]} dirt")
 
         elif arg_dict["action"] == "till":
-            size = int(arg_dict["other_arg"][0]["size"])
-            size = int(size[0]) * int(size[2])
             crops = aligned_item_name(arg_dict["other_arg"][0]["crops"])
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
-                bot.chat(f"/give {agent_name} {crops} {size}")
+                bot.chat(f"/give {agent_name} {crops} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['tool'], "count": 1}, {"name": crops, "count": size}])
+                set_chest([], [{"name": arg_dict['tool'], "count": 1}, {"name": crops, "count": 1}])
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
             bot.chat(f"/give {agent_name} dirt 5")
@@ -621,22 +615,31 @@ def handleViewer(*args):
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             target = aligned_item_name(arg_dict["target"])
             text = arg_dict["other_arg"]
-            # /setblock x y z jungle_wall_sign[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{Text you want to write 1.}\\\"}}\",Text2:\"{{\\\"text\\\":\\\"{Text you want to write 2.}\\\"}}\"}}
-            bot.chat(f"/setblock {x} {y} {z} {target}[facing=north]{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
+            # bot.chat(f"setblock {x} {y} {z} {target}{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
+            bot.chat(f"/setblock {x} {y} {z} {target}{{Text1:\"{{\\\"text\\\":\\\"{text}\\\"}}\"}}")
 
         elif arg_dict["action"] == "chat":
             pass
 
-        elif interact_type == "animal":
+        elif arg_dict["action"] in ["store", "cook", "feed"]:
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
             if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                if type(arg_dict["tool"]) == list:
+                    for item in arg_dict["tool"]:
+                        bot.chat(f"/give {agent_name} {item} 1")
+                else:
+                    bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['tool'], "count": 1}])
+                if type(arg_dict["tool"]) == list:
+                    for item in arg_dict["tool"]:
+                        set_chest([], [{"name": item, "count": 1}])
+                else:
+                    set_chest([], [{"name": arg_dict['tool'], "count": 1}])
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
-        elif interact_type == "block":
+        elif arg_dict["action"] in ["cook", "store"]:
+            # bot.chat(f"summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
             if arg_dict["action"] == "cook":
                 furnace_num = 3
                 furnace_pos = []
@@ -645,6 +648,7 @@ def handleViewer(*args):
                     while furnace_y > ory + 4 or (furnace_x, furnace_y, furnace_z) in furnace_pos:    # 避免生成在太高的地方
                         furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
                     furnace_pos.append((furnace_x, furnace_y, furnace_z))
+                    bot.chat(f"setblock {furnace_x} {furnace_y} {furnace_z} furnace")
                     bot.chat(f"/setblock {furnace_x} {furnace_y} {furnace_z} furnace")
                     time.sleep(.2)
 
@@ -665,6 +669,22 @@ def handleViewer(*args):
                 bot.chat(f"/give {agent_name} {arg_dict['other_arg'][0]} 1")
                 set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [])
 
+        elif arg_dict["action"] in ["shear", "milk", "attack"]:
+            target = aligned_item_name(arg_dict["target"])
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            bot.chat(f"/summon {target} {x} {y} {z}")
+            tool = aligned_item_name(arg_dict["tool"])
+            if arg_dict["item_position"] == "inventory":
+                bot.chat(f"/give {agent_name} {tool} 1")
+            elif arg_dict["item_position"] == "chest":
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": tool, "count": 1}])
+            else:
+                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+        
+        else:
+            bot.chat("/tellraw @a {\"text\":\"INVALID ACTION!\", \"color\":\"red\"}")
+
+        
 
     else:
         bot.chat("/tellraw @a {\"text\":\"INVALID SCENARIO!\", \"color\":\"red\"}")
@@ -827,13 +847,13 @@ def handle(this):
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {agent_name}')
 
-                if interact_type == "block":
+                if arg_dict["action"] == "store" or arg_dict["action"] == "cook":
                     if arg_dict["action"] == "cook":
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {agent_name}')
                     if arg_dict["action"] == "store":
                         bot.chat(f"/data get block {arg_dict['x']} {arg_dict['y']} {arg_dict['z']}")
-                if interact_type == "animal":
+                if arg_dict["action"] in ["feed", "shear", "milk"]:
                     if arg_dict["action"] in ["feed", "shear"]:
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f"/data get entity @e[type={target},limit=1,sort=nearest]")
@@ -845,8 +865,9 @@ def handle(this):
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {arg_dict["target"]}')
 
-            if score == 100:
+            if score == 100 and os.path.exists("result/" + task_name + "/Alice_history.json"):
                 time.sleep(5)
+                # 至少得等到所有的action都执行完了，有记录了再结束吧
                 if not os.path.exists("result/" + task_name):
                     os.mkdir(os.path.join("result/", task_name))
                 with open(os.path.join(os.path.join("result", task_name), "score.json"), "w") as f:
@@ -1069,6 +1090,9 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                 inlove = data.get("InLove", 0)
                 if int(inlove) > 0:
                     score = 100
+                for item in data.get("Items", []):
+                    if "wool" in item["id"]:
+                        score = 100
             elif config["task_scenario"] == "interact" and arg_dict["action"] == "shear":
                 sheared = data.get("Sheared", "0b")
                 if int(sheared[:-1]):

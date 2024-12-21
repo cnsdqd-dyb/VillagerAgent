@@ -197,7 +197,7 @@ class TaskManager:
                                                                      "meta-data": content},
                                                             "agent_ability": self.agent_describe,
                                                             "env": env_description,
-                                                            "num": random.randint(1, 3)})
+                                                            "num": random.randint(1, 2)})
         elif self.manage_method == "merge":
             system_prompt = DECOMPOSE_SYSTEM_PROMPT
             user_prompt = format_string(DECOMPOSE_USER_PROMPT, {"task": {"description": description, 
@@ -325,6 +325,12 @@ class TaskManager:
                     new_result.append(new_res)
             else:
                 new_result.append(res)
+        
+        # replace unvalid agent with random agent in the agent list
+        for res in new_result:
+            for idx, agent in enumerate(res["assigned agents"]):
+                if agent not in [agent.name for agent in agents]:
+                    res["assigned agents"][idx] = random.choice(agents).name
         return new_result
 
     def fill_keys_omit(self, result:[dict], keys:list):
@@ -515,7 +521,7 @@ class TaskManager:
                                                             "agent_state": [self.dm.query_history(agent.name) for agent in self.agent_list], 
                                                             "failure_previous_subtask": self.fail_trace_description,
                                                             "success_previous_subtask": self.task_trace_description,
-                                                            "num": random.randint(1, 3)})
+                                                            "num": random.randint(1, 2)})
     
 
 

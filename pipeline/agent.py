@@ -141,7 +141,7 @@ class BaseAgent:
         })
         
         basic_state = format_string(state_prompt, {
-            "env": self.data_manager.query_env_with_task(task.description),
+            "env": self.data_manager.query_env_with_task(task.description, agent_query=True),
             "relevant_data": smart_truncate(task.content, max_length=4096), 
         })
 
@@ -370,7 +370,7 @@ class BaseAgent:
 
         if len(task._agent) == 1:
             task_str = format_string(agent_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
-                                    "env": self.data_manager.query_env_with_task(task.description),
+                                    "env": self.data_manager.query_env_with_task(task.description, agent_query=True),
                                     "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
                                     "agent_name": self.name,
                                     "agent_state": self.data_manager.query_history(self.name),
@@ -382,7 +382,7 @@ class BaseAgent:
                                     "minecraft_knowledge_card": minecraft_knowledge_card})
         else:
             task_str = format_string(agent_cooper_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
-                                    "env": self.data_manager.query_env_with_task(task.description),
+                                    "env": self.data_manager.query_env_with_task(task.description, agent_query=True),
                                     "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
                                     "agent_name": self.name,
                                     "agent_state": self.data_manager.query_history(self.name),
@@ -405,7 +405,7 @@ class BaseAgent:
         state = format_string(state_prompt, {
             "other_agents": self.other_agents(),
             "agent_name": self.name,
-            "env": self.data_manager.query_env_with_task(task.description),
+            "env": self.data_manager.query_env_with_task(task.description, agent_query=True),
             "relevant_data": smart_truncate(task.content, max_length=4096), 
             "agent_state": self.data_manager.query_history(self.name),
         })
@@ -450,7 +450,7 @@ class BaseAgent:
             example = speaking_styles_zh[speech_style]['示例']
         if len(task._agent) == 1:
             task_str = format_string(agent_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
-                                    "env": self.data_manager.query_env_with_task(task.description),
+                                    "env": self.data_manager.query_env_with_task(task.description, agent_query=True),
                                     "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
                                     "agent_name": self.name,
                                     "agent_state": self.data_manager.query_history(self.name),
@@ -462,7 +462,7 @@ class BaseAgent:
                                     "minecraft_knowledge_card": minecraft_knowledge_card})
         else:
             task_str = format_string(agent_cooper_prompt, {"task_description": task.description, "milestone_description": task.milestones, 
-                                    "env": self.data_manager.query_env_with_task(task.description),
+                                    "env": self.data_manager.query_env_with_task(task.description, agent_query=True),
                                     "relevant_data": smart_truncate(task.content, max_length=4096), # TODO: change to "relevant_data": task.content
                                     "agent_name": self.name,
                                     "agent_state": self.data_manager.query_history(self.name),

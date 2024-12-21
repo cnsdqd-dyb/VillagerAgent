@@ -306,7 +306,7 @@ def find():
     if name == "":
         # bot.chat(f"can not find anything match '{data.get('name')}'")
         msg = get_envs_info2str(bot, RENDER_DISTANCE=16, same_entity_num=3)
-        blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=distance, max_same_block=3,visible_only=VISIBLE_ONLY)
+        blocks = info_bot.get_blocks_nearby()
         hint, tag = readNearestSign(bot, Vec3, mcData, max_distance=16)
         for block in blocks:
             msg += f"{block['name']} at {position_to_string(block['position'])}\n"
@@ -429,7 +429,8 @@ def use_on():
     data = request.get_json()
     item_name, entity_name = data.get('item_name'), data.get('entity_name')
     envs_info = get_envs_info(bot, 128)
-    msg, tag = useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, item_name, entity_name)
+    blocks = info_bot.get_blocks_nearby()
+    msg, tag = useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, blocks, item_name, entity_name)
     done = tag
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': done, "new_events": events})
@@ -594,7 +595,7 @@ def toss_():
 def environment():
     """environment:  to get the environment info."""
     msg = get_envs_info2str(bot, RENDER_DISTANCE=32, same_entity_num=3)
-    blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=32, max_same_block=3, visible_only=VISIBLE_ONLY)
+    blocks = info_bot.get_blocks_nearby()
     hint, tag = readNearestSign(bot, Vec3, mcData, max_distance=16)
     for block in blocks:
         msg += f"{block['name']} at {position_to_string(block['position'])}\n"
@@ -627,31 +628,31 @@ def environment():
 def environment_info():
     """environment:  to get the environment info."""
     msg = get_envs_info_dict(bot, RENDER_DISTANCE=10, same_entity_num=3)
-    blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=10, max_same_block=3, visible_only=VISIBLE_ONLY)
+    blocks = info_bot.get_blocks_nearby()
     hint, tag = readNearestSign(bot, Vec3, mcData, max_distance=10)
 
     # filter the blocks
-    blocks = [block for block in blocks if "slime" not in str(block)]
+    # blocks = [block for block in blocks if "slime" not in str(block) and "armor_stand" not in str(block)]
+    
+    if "cannot find" in hint:
+        hint = ""
     msg["blocks"] = blocks
     msg["sign"] = hint
-    new_events = info_bot.get_event_description_new()
     # filter the events
-    new_events = [event for event in new_events if "slime" not in str(event)]
-    msg['events'] = new_events
+    msg['events'] = []
 
-    if os.path.exists(".cache/env.cache"):
-        with open(".cache/env.cache", "r") as f:
-            cache = json.load(f)
-        # 找到距离小于5的cache
-        for c in cache:
-            pos = c["center"]
-            if (pos[0] - bot.entity.position.x) ** 2 + (pos[1] - bot.entity.position.y) ** 2 + (
-                    pos[2] - bot.entity.position.z) ** 2 < 25:
-                msg["sign"] += f"The subtask in this room: {c['task_description']}"
-                msg["sign"] += f"The env in the room: {c['state']}"
+    # if os.path.exists(".cache/env.cache"):
+    #     with open(".cache/env.cache", "r") as f:
+    #         cache = json.load(f)
+    #     # 找到距离小于5的cache
+    #     for c in cache:
+    #         pos = c["center"]
+    #         if (pos[0] - bot.entity.position.x) ** 2 + (pos[1] - bot.entity.position.y) ** 2 + (
+    #                 pos[2] - bot.entity.position.z) ** 2 < 25:
+    #             msg["sign"] += f"The subtask in this room: {c['task_description']}"
+    #             msg["sign"] += f"The env in the room: {c['state']}"
     done = True
-    events = info_bot.get_action_description_new()
-    return jsonify({'message': msg, 'status': done, "new_events": events})
+    return jsonify({'message': msg, 'status': done, "new_events": []})
 
 
 @app.route('/post_entity', methods=['POST'])
@@ -873,7 +874,35 @@ def activate():
     item_past = bot.blockAt(Vec3(x, y, z))
     item_now_open = item_past._properties["open"]
     item_now_powered = item_past._properties["powered"]
+    if "lever" in item_name or "button" in item_name or "pressure_plate" in item_name or "trapdoor" in item_name or "gate" in item_name or "door" in item_name:
+        item_name = item_past["name"]
+        
+        # face facing powered open
+        # 切换powered状态
+        face, facing, open_ = None, None, None
+        current_powered = item_past._properties["powered"]
+        property_string = f"powered=true" if not current_powered else f"powered=false"
+        face = item_past._properties["face"]
+        if face is not None:
+            property_string += f",face={face}"
+        facing = item_past._properties["facing"]
+        if facing is not None:
+            property_string += f",facing={facing}"
+        open_ = item_past._properties["open"]
+        if open_ is not None:
+            if current_powered:
+                property_string += f",open=true"
+            else:
+                property_string += f",open=false"
+
+        # 构建完整命令
+        command = f"setblock {x} {y} {z} {item_name}[{property_string}]"
+        
+        # 执行命令
+        bot.chat(f"{command}")
+        bot.chat(f"/{command}")
     tag, flag, data = asyncio.run(interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, item_name, target_position=Vec3(x, y, z)))
+    
     item_now = bot.blockAt(Vec3(x, y, z))
     
 
@@ -1230,7 +1259,6 @@ def handleViewer(*args):
     bot.chat('/clear @s')
     bot.chat('/give @s dirt 20')
     bot.chat(f'/summon armor_stand ~ ~1.8 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{bot.entity.username}"]}}')
-    # print(f'/summon armor_stand ~ ~1.8 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{bot.entity.username}"]}}')
     info_bot.bot_init = True
     time.sleep(.1)
 
@@ -1493,6 +1521,7 @@ def handle(this):
     info_bot.update_time()
     if info_bot.bot_init:
         info_bot.follow()
+        info_bot.update_blocks()
 
     # if info_bot.existing_time % 10 == 0:
     #     new_events = info_bot.get_event_description_new()
@@ -1506,6 +1535,22 @@ class Bot():
         self.action_log = []
         self.sleeping = False
         self.bot_init = False
+        self.block_map = {}
+
+    def update_blocks(self):
+        # bot.chat("update blocks")
+        blocks = BlocksNearby(bot, Vec3, None, RenderRange=16, max_same_block=10,visible_only=False, sample_rate=0.5)
+        # print(blocks)
+        for block in blocks:
+            self.block_map[ f'{block["position"][0]}, {block["position"][1]}, {block["position"][2]}'] = block
+        # print(self.block_map)
+
+    def get_blocks_nearby(self):
+        # convert to list
+        list_blocks = sorted(self.block_map.items(), key=lambda x: x[0])
+        # 只要 value
+        return [block[1] for block in list_blocks]
+
     def follow(self):
         bot.chat(f'/tp @e[type=armor_stand,tag={bot.entity.username}] ~ ~1.8 ~')
 
@@ -1560,34 +1605,27 @@ class Bot():
         for key, value in item_dict.items():
             item_str += f"{key}: {value} "
 
-        local_map = self.get_3x3_map()
-        item_str += "Player center local map with height (y): \n"
-        for item in local_map:
-            for block in item:
-                item_str += f"{block[0]}:{block[1]} "
-            item_str += "\n"
-
+        local_map = self.get_5x3x5_map()
+        item_str += "Player-Center 5x3x5 Map: \n"
+        for block in local_map:
+            item_str += f"[{block[0]}:{block[1]}] "
+        item_str += "\nYou can use scanNearbyEntities to get blocks or entities around you."
         return item_str
 
-    def get_3x3_map(self):
+    def get_5x3x5_map(self):
         # 获取3x3的地图, 第一个是方块的名字, 第二个是方块的相对高度
-        map_3x3 = []
-        for i in range(-1, 2):
-            map_3x3.append([])
-            for j in range(-1, 2):
-                block_name = "low"
-                block_height = f"< {bot.entity.position.y - 2}"
-                for k in range(5):
-                    block = bot.blockAt(bot.entity.position.offset(i, 2-k, j))
-                    if block.name == "air":
+        map_5x3x5 = []
+        for i in range(-2, 3):
+            for k in range(-2, 3):
+                for j in range(-1, 2):
+                    block = bot.blockAt(bot.entity.position.offset(i, j, k))
+                    block_name = block.name
+                    if block_name == "air":
                         continue
-                    else:
-                        block_name = block.name
-                        block_height = f"{block.position.y}"
-                        break
-                map_3x3[-1].append((block_name, block_height))
+                    block_pos = f"{block.position.x} {block.position.y} {block.position.z}"
+                    map_5x3x5.append((block_name, block_pos))
 
-        return map_3x3
+        return map_5x3x5
 
     def get_action_description_new(self):
         new_actions = []

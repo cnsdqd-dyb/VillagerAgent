@@ -254,7 +254,7 @@ class VillagerBench:
     def agent_status(self, agent_name: str):  # 返回一个dict
         for agent in self.agent_pool:
             if agent.name == agent_name:
-                return Agent.get_environment_info_dict(agent_name)
+               return Agent.get_environment_info_dict(agent_name)
         return {"message": f"agent {agent_name} not found", "status": False}
 
     def agent_register(self, agent_tool=[], agent_number: int = 1, name_list: [str] = []):

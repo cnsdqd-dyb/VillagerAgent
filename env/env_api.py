@@ -48,7 +48,73 @@ def readNearestSign(bot, Vec3, mcData, max_distance=7) -> str:
         return text.join('\n'), True
     else:
         return f"cannot find the specific sign within {max_distance} blocks", False
-    
+
+from math import floor
+import random
+
+def bfs_search_sample(bot, Vec3, bot_position, max_distance, sample_rate=0.1):
+    """
+    修改后的BFS搜索算法，使用随机采样策略
+    :param bot: 机器人对象
+    :param Vec3: 向量类
+    :param bot_position: 起始位置
+    :param max_distance: 最大搜索距离
+    :param sample_rate: 采样率(0-1之间)，表示保留多少比例的方块
+    """
+    queue = deque([(bot_position, 0),
+                   ((bot_position[0], bot_position[1]-1, bot_position[2]), 1),
+                   ((bot_position[0], bot_position[1]+1, bot_position[2]), 1)])
+
+    visited = set()
+    visible_blocks = []
+
+    while queue:
+        # 随机决定是否处理当前方块
+        if random.random() > sample_rate:
+            queue.popleft()  # 直接丢弃
+            continue
+            
+        position, distance = queue.popleft()
+        if distance > max_distance or position in visited:
+            continue
+            
+        visited.add(position)
+        block = getBlock(bot, Vec3, *position)
+        
+        if block["name"] != "air":
+            block_info = {
+                "name": block["name"],
+                "position": [floor(position[0]), floor(position[1]), floor(position[2])],
+                "facing": block["_properties"]["facing"],
+                "axis": block["_properties"]["axis"],
+                "part": block["_properties"]["part"],
+                "hinge": block["_properties"]["hinge"],
+                "powered": block["_properties"]["powered"],
+                "face": block["_properties"]["face"],
+                "open": block["_properties"]["open"]
+            }
+            # 去除None属性
+            block_info = {k: v for k, v in block_info.items() if v is not None}
+            visible_blocks.append(block_info)
+            
+            if "fence" not in block["name"]:
+                continue
+
+        x, y, z = position
+        
+        # 对相邻方块也进行随机采样
+        directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]
+        sampled_directions = random.sample(directions, 
+                                        k=max(1, int(len(directions) * sample_rate)))
+        
+        for dx, dy, dz in sampled_directions:
+            next_position = (x + dx, y + dy, z + dz)
+            if next_position not in visited:
+                queue.append((next_position, distance + 1))
+
+    return visible_blocks
+
+
 from math import floor
 def bfs_search(bot, Vec3, bot_position, max_distance):
     queue = deque([(bot_position, 0),
@@ -83,6 +149,7 @@ def bfs_search(bot, Vec3, bot_position, max_distance):
                 continue            
 
         x, y, z = position
+
         for dx, dy, dz in [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]:
             next_position = (x + dx, y + dy, z + dz)
             if next_position not in visited:  # 检查是否已访问
@@ -90,11 +157,12 @@ def bfs_search(bot, Vec3, bot_position, max_distance):
 
     return visible_blocks
 
-def BlocksNearby(bot, Vec3, mcData, RenderRange=5, max_time=3, max_same_block=3, max_block_num=24, visible_only=True):
+def BlocksNearby(bot, Vec3, mcData, RenderRange=5, max_time=3, max_same_block=3, max_block_num=24, visible_only=True, sample_rate=0.1):
     import math
     if visible_only:
         anchor_pos = bot.entity.position
-        blocks = bfs_search(bot, Vec3, (anchor_pos.x, anchor_pos.y, anchor_pos.z), RenderRange)
+        # blocks = bfs_search(bot, Vec3, (anchor_pos.x, anchor_pos.y, anchor_pos.z), RenderRange)
+        blocks = bfs_search_sample(bot, Vec3, (anchor_pos.x, anchor_pos.y, anchor_pos.z), RenderRange, sample_rate=sample_rate)
         
         # 去除重复超过max_same_block次的方块
         new_blocks = []
@@ -119,6 +187,8 @@ def BlocksNearby(bot, Vec3, mcData, RenderRange=5, max_time=3, max_same_block=3,
             for x in range(-half_range, half_range):
                 for y in range(-half_range // 2, half_range // 2):
                     for z in range(-half_range, half_range):
+                        if random.random() > sample_rate: # 随机采样
+                            continue
                         if abs(x) + abs(y) + abs(z) != total:
                             continue
                         if len(blocks) > max_block_num:
@@ -455,11 +525,18 @@ def get_envs_info_dict(bot, RENDER_DISTANCE=32, same_entity_num=2):
         e = status_info['entities'][e]
         if e:
             s = {}
+            if e.username:
+                if "armor_stand" in e.username:
+                    continue
+            else:
+                if "armor_stand" in e.name:
+                    continue
+                
             if e.username is not None:
                 if (bot.entity.username and e.username == bot.entity.username) or "judge" in e.username:
                     continue
                 s['other_entity'] = e.username
-
+    
             if e.position:
                 if distanceTo(e.position, status_info['my_position']) > RENDER_DISTANCE:
                     continue
@@ -1751,18 +1828,21 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
             # bot.chat(f'#opened crafting table {name}')
             if not get_item_name:
                 return f" open crafting table {name}, what do you want to craft?", True, recipe_data
-            recipe = bot.recipesFor(mcData.itemsByName[get_item_name].id, None, count, craftingTable)[0]
+            recipe = bot.recipesFor(bot.registry.itemsByName[get_item_name].id, None, count, craftingTable)[0]
             _recipes = []
-            for r in bot.recipesAll(mcData.itemsByName[get_item_name].id, None, craftingTable):
-                _recipes.append(r)
+            for r in bot.recipesAll(bot.registry.itemsByName[get_item_name].id, None, craftingTable):
+                if r['result']['id'] == bot.registry.itemsByName[get_item_name].id:
+                    _recipes.append(r)
             _recipe = random.choice(_recipes)
             # [DEBUG] print(_recipe)
             # input()
+            target_item_num_past = countInventoryItems(bot, get_item_name)
+            # bot.chat(f'try crafting {get_item_name} X {count} {target_item_num_past}')
             if _recipe is None:
                 return f"There is no recipe for {get_item_name} in crafting table, what do you want to craft?", False, recipe_data
             try:
                 result_id = _recipe['result']['id']
-                recipe_str = "one example recipe is:"
+                recipe_str = "One example recipe is:"
                 for item in _recipe['delta']:
                     # id to name
                     if item['id'] == result_id:
@@ -1771,15 +1851,19 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
                     recipe_str += f" {mcData.items[item['id']]['name']} X {abs(item['count'])},"
                     recipe_data.append({'name': mcData.items[item['id']]['name'], 'count': abs(item['count'])})
 
+                recipe_str += "It is important to mention that the recipe is variable, and the above is just an example. For example, you can use different types of wood to make a chest, try the materials you can easily get first."
                 if recipe is None:
                     return f'I cannot make {get_item_name} now, check your inventory. {recipe_str}', False, recipe_data
 
                 bot.craft(recipe, count, craftingTable)
                 return f"I made {get_item_name} X {count}.", True, recipe_data
             except Exception as e:
-                # bot.chat(f'I cannot make {get_item_name}')
+                target_item_num_new = countInventoryItems(bot, get_item_name)
+                # bot.chat(f'I cannot make {get_item_name} {e} {target_item_num_new}')
+                if target_item_num_new[1] == target_item_num_past[1] + count:
+                    return f"I made {get_item_name} X {count}.", True, recipe_data
                 # [DEBUG] print(f'I cannot make {get_item_name} {e}')
-                return f'I cannot make {get_item_name}, maybe you should get more. {recipe_str}', False, recipe_data
+                return f'I cannot make {get_item_name}, maybe you should get more or create middle material first. {recipe_str}', False, recipe_data
         except Exception as e:
             # bot.chat(f'unable to open crafting table: {e}')
             return f'unable to open crafting table {name}', False, recipe_data
@@ -1831,7 +1915,7 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
                     chest.withdraw(target_item['type'], None, abs(count))
                     chest.close()
                     return f"Warning I don't have {count} X {get_item_name} in my bag. Execute -{count} X {get_item_name} to get from {name}.", True, chest_data
-                chest.deposit(mcData.itemsByName[get_item_name].id, None, count)
+                chest.deposit(bot.registry.itemsByName[get_item_name].id, None, count)
                 chest.close()
                 return f" open {name}, and deposit {get_item_name} X {count} to it", True, chest_data
         except Exception as e:
@@ -1901,7 +1985,7 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
                 furnace.close()
                 return f"the furnace is still working for {furnace.inputItem()['name']}", False, {"furnace_info":fuel_data}
             if not furnace.inputItem():
-                item = mcData.itemsByName[get_item_name]
+                item = bot.registry.itemsByName[get_item_name]
                 if not item:
                     return f"No item named {get_item_name}", False, {"furnace_info":fuel_data}
                 bot.updateHeldItem()
@@ -1911,7 +1995,7 @@ async def interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, RANGE_GOAL
                 furnace.putInput(item.id, None, count)
                 time.sleep(.1)
             if fuel_item_name:
-                fuel = mcData.itemsByName[fuel_item_name]
+                fuel = bot.registry.itemsByName[fuel_item_name]
                 if not fuel:
                     return f"No item named {fuel_item_name}", False, {"furnace_info":fuel_data}
                 if len(getInventoryItemByName(bot, fuel_item_name)) < 1 and furnace.fuelItem()['count'] < 1:
@@ -2223,15 +2307,14 @@ def toss(bot, mcData, item_name, amount=-1):  # need test
         return f"unable to toss {item_name}", False
 
 
-def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, item_name, name):
+def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, blocks, item_name, name):
     msg, tag = equip(bot, item_name)
     # #[DEBUG] print(msg,tag)
     if not tag and (not bot.heldItem or bot.heldItem.name != item_name):
         return msg, tag
     try:
-        blocks = BlocksNearby(bot, Vec3, mcData, RenderRange=5, max_same_block=3, visible_only=True)
         for block in blocks:
-            bot.chat(f"{block['name']}")
+            # bot.chat(f"{block['name']}")
             if block['name'] == name:
                 bot.chat(f'#used {item_name} on item {name}')
                 pos = Vec3(block["position"][0], block["position"][1], block["position"][2])
@@ -2289,12 +2372,12 @@ def findSomething(bot, mcData, name, type='None'):
         # bot.chat(f'#find {name} -- {ID}')
         return ID, f" find {name}"
     elif type == 'item':
-        ID = mcData.itemsByName[name].id
+        ID = bot.registry.itemsByName[name].id
         # bot.chat(f'#find {name} -- {ID}')
         return ID, f" find {name}"
 
     try:
-        ID = mcData.itemsByName[name].id
+        ID = bot.registry.itemsByName[name].id
         # bot.chat(f'#find {name} -- {ID}')
         return ID, " find {name}"
     except:
