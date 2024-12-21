@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Open the birch_door at (8, -60, 3). You can open it directly and do not need any tool.",
+    "task_goal": "Put the saddle on the horse and ride it, then dismount it. The saddle and the food are in your inventory.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "birch_door",
+        "target": "horse",
         "x": 8,
         "y": -60,
-        "z": 3,
+        "z": 8,
         "facing": "",
         "item_position": "inventory",
-        "tool": "",
-        "action": "toggle",
+        "tool": "saddle",
+        "action": "saddle",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "interact_toggle_id82"
+    "task_name": "interact_saddle_id711"
 }

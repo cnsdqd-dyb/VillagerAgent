@@ -613,7 +613,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         elif action == "toggle":
                             trigger = ["button", "lever"]
                             material = ["acacia", "birch", "dark_oak", "jungle", "mangrove", "oak", "spruce"]
-                            device = ["door", "trapdoor", "fence"]
+                            device = ["door", "trapdoor", "fence_gate"]
 
                             trigger_flag = random.choices(["default", "trigger"], [70, 30])[0]
                             if trigger_flag == "trigger":
@@ -934,7 +934,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
         arg_dict["action"] = action
         trigger = ["button", "lever"]
         material = ["acacia", "birch", "dark_oak", "jungle", "mangrove", "oak", "spruce"]
-        device = ["door", "trapdoor", "fence"]
+        device = ["door", "trapdoor", "fence_gate"]
 
         trigger_flag = random.choices(["default", "trigger"], [70, 30])[0]
         if trigger_flag == "trigger":
