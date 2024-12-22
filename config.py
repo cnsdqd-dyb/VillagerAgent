@@ -649,7 +649,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["target"] = random.choice(boats)
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-                            arg_dict["y"] = ory + 1
+                            arg_dict["y"] = random(ory, ory + 1)
                             arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                         
                         elif action == "minecart":
@@ -684,7 +684,13 @@ def generate_config(task, api_model, host, port, agent_num=2):
     elif task == "dig":
         with open("data/blocks.json", "r") as f:
             blocks = json.load(f)
-        block_id_list = random.sample(range(len(blocks)), k=task_number)
+        diggable_blocks = []
+        for block in blocks:
+            if "plant" in block["material"] or "horn" in block["name"]:
+                continue
+            else:
+                diggable_blocks.append(block)
+        block_id_list = random.sample(range(len(diggable_blocks)), k=task_number)
         for i, id in enumerate(block_id_list):
             block = blocks[id]
             tool = block["material"]

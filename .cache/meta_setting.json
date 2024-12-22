@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Use carrot to feed the rabbit. The carrot is in your inventory",
+    "task_goal": "Ride the boat and dismount it. The boat is in your inventory.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "rabbit",
-        "x": 8,
+        "target": "boat",
+        "x": 10,
         "y": -60,
-        "z": 8,
+        "z": 21,
         "facing": "",
         "item_position": "inventory",
-        "tool": "carrot",
-        "action": "feed",
+        "tool": "",
+        "action": "boat",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.192.15.60",
     "port": 25565,
-    "task_name": "test"
+    "task_name": "interact_boat_id491"
 }
