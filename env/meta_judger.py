@@ -210,7 +210,7 @@ def handleViewer(*args):
         with open("data/recipe_hint.json", "w") as f:
             json.dump(recipe_hint, f, indent=4)        
 
-    def set_chest(invalid_position, items, chest_num):
+    def set_chest(invalid_position, items, chest_num = 3):
         for _ in range(chest_num):
             chest_x, chest_y, chest_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
             while ((chest_x, chest_y, chest_z) in invalid_position) or ((chest_x, chest_y+1, chest_z) in invalid_position) or chest_y > ory + 4:
