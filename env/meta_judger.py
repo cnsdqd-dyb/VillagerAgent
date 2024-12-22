@@ -210,17 +210,19 @@ def handleViewer(*args):
         with open("data/recipe_hint.json", "w") as f:
             json.dump(recipe_hint, f, indent=4)        
 
-    def set_chest(invalid_position, items):
-        chest_x, chest_y, chest_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
-        while ((chest_x, chest_y, chest_z) in invalid_position) or ((chest_x, chest_y+1, chest_z) in invalid_position) or chest_y > ory + 4:
+    def set_chest(invalid_position, items, chest_num):
+        for _ in range(chest_num):
             chest_x, chest_y, chest_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
-        item_str = "{Items:["
-        for i, item in enumerate(items):
-            if i > 0:
-                item_str += ","
-            item_str += "{Slot:" + str(i) + ",id:" + item["name"] + ",Count:" + str(item["count"]) + "}"
-        item_str += "]}"
-        bot.chat(f"/setblock {chest_x} {chest_y} {chest_z} chest{item_str}")
+            while ((chest_x, chest_y, chest_z) in invalid_position) or ((chest_x, chest_y+1, chest_z) in invalid_position) or chest_y > ory + 4:
+                chest_x, chest_y, chest_z= random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1)
+            item_str = "{Items:["
+            for i, item in enumerate(items):
+                if i > 0:
+                    item_str += ","
+                item_str += "{Slot:" + str(i) + ",id:" + item["name"] + ",Count:" + str(item["count"]) + "}"
+            item_str += "]}"
+            bot.chat(f"/setblock {chest_x} {chest_y} {chest_z} chest{item_str}")
+            invalid_position.append((chest_x, chest_y, chest_z))
     
     bot.chat("/gamemode spectator")
     time.sleep(.2)
@@ -259,7 +261,7 @@ def handleViewer(*args):
     tree_list = ["acacia", "birch", "spruce", "oak", "jungle_tree", "dark_oak", "mangrove"]
     tree_weight = [5, 30, 5, 50, 4, 3, 3]
     invalid_pos = []
-    if config["task_scenario"] in ["dig", "place", "move"] or (config["task_scenario"] == "useitem" and "sign" in arg_dict["target"]) or (config["task_scenario"] == "interact" and arg_dict["action"] in ["store", "till", "fishing", "bone_meal", "sign", "boat", "minecart", "bed"]):
+    if config["task_scenario"] in ["dig", "place", "move"] or (config["task_scenario"] == "useitem" and "sign" in arg_dict["target"]) or (config["task_scenario"] == "interact" and arg_dict["action"] in ["store", "till", "fishing", "bone_meal", "sign", "boat", "minecart", "bed", "water"]):
         invalid_pos.append((arg_dict['x'], arg_dict['y'], arg_dict['z']))
     
     crx, cry, crz = random_position(orx + wall_width + 3, orz + wall_width + 3, orx + room_width + wall_width - 3, orz + room_width + wall_width - 3, 1, invalid_pos)
@@ -281,8 +283,8 @@ def handleViewer(*args):
     # time.sleep(.2)
     # bot.chat("/kill @e[type=!minecraft:player]")
     # 清空 史莱姆
-    bot.chat(f"/kill @e[type=minecraft:slime]")
-    time.sleep(.2)
+    # bot.chat(f"/kill @e[type=minecraft:slime]")
+    # time.sleep(.2)
     # 清空原来的环境
 
     # peakx, peakz = random.randint(orx + wall_width, orx + room_width + wall_width - 1), random.randint(orz + wall_width, orx + room_width + wall_width - 1)
@@ -353,7 +355,7 @@ def handleViewer(*args):
     if config["task_scenario"] == "dig":
         if arg_dict["tool"]:
             if arg_dict["item_position"] == "chest":
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict["tool"], "count": 1}])
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict["tool"], "count": 1}], 3)
             elif arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
             else:
@@ -410,9 +412,7 @@ def handleViewer(*args):
             time.sleep(.2)
 
         if arg_dict["item_position"] == "chest": # 材料在随机位置的箱子里
-            set_chest(craft_pos, ingredients_list)
-            set_chest(craft_pos, ingredients_list)
-            set_chest(craft_pos, ingredients_list)
+            set_chest(craft_pos, ingredients_list, 3)
         elif arg_dict["item_position"] == "inventory": # 材料在Agent身上
             for ingredients in ingredients_list:
                 bot.chat(f"/give {agent_name} {ingredients['name']} {ingredients['count']}")
@@ -427,7 +427,7 @@ def handleViewer(*args):
             bot.chat(f"/give {agent_name} dirt 15")
         elif arg_dict["item_position"] == "chest":
             invalid_pos = [(p[0], p[1], p[2]) for p in arg_dict["other_arg"]]
-            set_chest(invalid_pos, [{"name": goal_item, "count": len(arg_dict['other_arg'])}, {"name": "dirt", "count": 15}])
+            set_chest(invalid_pos, [{"name": goal_item, "count": len(arg_dict['other_arg'])}, {"name": "dirt", "count": 15}], 3)
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
@@ -439,7 +439,7 @@ def handleViewer(*args):
             time.sleep(.2)
             bot.chat(f"/give {agent_name} diamond_pickaxe 1")
         elif arg_dict["item_position"] == "chest":
-            set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "dirt", "count": 10}, {"name": "ladder", "count": 10}, {"name": "diamond_pickaxe", "count": 1}])
+            set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "dirt", "count": 10}, {"name": "ladder", "count": 10}, {"name": "diamond_pickaxe", "count": 1}], 3)
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
@@ -450,7 +450,7 @@ def handleViewer(*args):
             time.sleep(.2)
             bot.chat(f"/give {agent_name} dirt 5")
         elif arg_dict["item_position"] == "chest":
-            set_chest([], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 5}])
+            set_chest([], [{"name": goal_item, "count": 1}, {"name": "dirt", "count": 5}], 3)
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
@@ -462,7 +462,7 @@ def handleViewer(*args):
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} bucket 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "bucket", "count": 1}])
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "bucket", "count": 1}], 3)
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
@@ -472,9 +472,7 @@ def handleViewer(*args):
                 time.sleep(.2)
                 bot.chat(f"/give {agent_name} {target} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "dirt", "count": 5}, {"name": target, "count": 1}])
-                set_chest([], [{"name": "dirt", "count": 5}, {"name": target, "count": 1}])
-                set_chest([], [{"name": "dirt", "count": 5}, {"name": target, "count": 1}])
+                set_chest([], [{"name": "dirt", "count": 5}, {"name": target, "count": 1}], 3)
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
@@ -487,7 +485,7 @@ def handleViewer(*args):
                 bot.chat(f"/give {agent_name} {tool} 1")
                 bot.chat(f"/give {agent_name} {crop} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": tool, "count": 1}, {"name": crop, "count": 1}])
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": tool, "count": 1}, {"name": crop, "count": 1}], 3)
             bot.chat(f"/fill {x} {y} {z} {x+2} {y} {z+2} dirt")
             bot.chat(f"/setblock {x} {y} {z} {base_block}")
             bot.chat(f"/setblock {x+1} {y} {z+1} water")
@@ -503,7 +501,7 @@ def handleViewer(*args):
                 time.sleep(.2)
                 bot.chat(f"/give {agent_name} {crop} {random.randint(1, 2)}")
             elif arg_dict["item_position"] == "chest":
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}, {"name": crop, "count": random.randint(1, 2)}])
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}, {"name": crop, "count": random.randint(1, 2)}], 3)
 
         elif arg_dict["action"] == "minecart":
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
@@ -513,7 +511,7 @@ def handleViewer(*args):
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} minecart 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "minecart", "count": 1}])
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "minecart", "count": 1}], 3)
 
         elif arg_dict["action"] == "saddle":
             target = aligned_item_name(arg_dict["target"])
@@ -524,13 +522,13 @@ def handleViewer(*args):
                 bot.chat(f"/give {agent_name} wheat 20")
                 bot.chat(f"/give {agent_name} carrot_on_a_stick 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "saddle", "count": 1}, {"name": "wheat", "count": 20}, {"name": "carrot_on_a_stick", "count": 1}])
+                set_chest([], [{"name": "saddle", "count": 1}, {"name": "wheat", "count": 20}, {"name": "carrot_on_a_stick", "count": 1}], 3)
 
         elif arg_dict["action"] == "boat":
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['target']} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['target'], "count": 1}])
+                set_chest([], [{"name": arg_dict['target'], "count": 1}], 3)
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             bot.chat(f"/fill {x-4} {y} {z-4} {x+4} {y} {z+4} grass_block")
             bot.chat(f"/fill {x-3} {y} {z-3} {x+3} {y} {z+3} water")
@@ -539,7 +537,7 @@ def handleViewer(*args):
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} fishing_rod 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "fishing_rod", "count": 1}])
+                set_chest([], [{"name": "fishing_rod", "count": 1}], 3)
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             bot.chat(f'/fill {x-2} {y} {z-2} {x+2} {y} {z+2} grass_block')
             bot.chat(f'/fill {x-1} {y} {z-1} {x+1} {y} {z+1} water')
@@ -559,7 +557,7 @@ def handleViewer(*args):
                 if arg_dict["item_position"] == "inventory":
                     bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
                 else:
-                    set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}])
+                    set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}], 3)
                 trigger_block_offset = {
                     "west": [1, 0, 0],
                     "east": [-1, 0, 0],
@@ -575,7 +573,7 @@ def handleViewer(*args):
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
                 bot.chat(f"/give {agent_name} {crops} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['tool'], "count": 1}, {"name": crops, "count": 1}])
+                set_chest([], [{"name": arg_dict['tool'], "count": 1}, {"name": crops, "count": 1}], 3)
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
             bot.chat(f"/give {agent_name} dirt 5")
@@ -589,7 +587,7 @@ def handleViewer(*args):
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['target']} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['target'], "count": 1}])
+                set_chest([], [{"name": arg_dict['target'], "count": 1}], 3)
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
             bot.chat(f"/give {agent_name} dirt 5")
@@ -610,7 +608,7 @@ def handleViewer(*args):
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['tool'], "count": 1}])
+                set_chest([], [{"name": arg_dict['tool'], "count": 1}], 3)
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
@@ -634,7 +632,7 @@ def handleViewer(*args):
                     bot.chat(f"/give {agent_name} {item['name']} {item['count']}")
                     time.sleep(.1)
             elif arg_dict["item_position"] == "chest":
-                set_chest(furnace_pos, item_list)
+                set_chest(furnace_pos, item_list, 3)
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
@@ -650,7 +648,7 @@ def handleViewer(*args):
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {tool} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": tool, "count": 1}])
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": tool, "count": 1}], 3)
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
         

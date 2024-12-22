@@ -6,22 +6,25 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Open the birch_door at (8, -60, 3). You can open it directly and do not need any tool.",
+    "task_goal": "Cook the beef in furnace by coal. The coal and the beef are in the chest.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "birch_door",
+        "target": "furnace",
         "x": 8,
         "y": -60,
-        "z": 3,
+        "z": 8,
         "facing": "",
-        "item_position": "inventory",
+        "item_position": "chest",
         "tool": "",
-        "action": "toggle",
+        "action": "cook",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "coal",
+            "beef"
+        ]
     },
     "document_file": "",
-    "host": "10.214.180.148",
+    "host": "10.192.15.60",
     "port": 25565,
-    "task_name": "interact_toggle_id82"
+    "task_name": "interact_cook_id186"
 }

@@ -276,7 +276,13 @@ def generate_config(task, api_model, host, port, agent_num=2):
             if random_task == "dig":
                 with open("data/blocks.json", "r") as f:
                     blocks = json.load(f)
-                block_id_list = random.sample(range(len(blocks)), k=task_number)
+                diggable_blocks = []
+                for block in blocks:
+                    if "plant" in block["material"] or "horn" in block["name"]:
+                        continue
+                    else:
+                        diggable_blocks.append(block)
+                block_id_list = random.sample(range(len(diggable_blocks)), k=task_number)
                 for i, id in enumerate(block_id_list):
                     block = blocks[id]
                     tool = block["material"]
@@ -462,8 +468,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             {"name": "parrot", "food": ["melon_seeds", "pumpkin_seeds"]}, {"name": "fox", "food": ["sweet_berries"]}, {"name": "turtle", "food": ["seagrass"]}, 
                             {"name": "panda", "food": ["bamboo"]}]
                 cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
-                # action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "water"]
-                action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk"] # water not supported
+                action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "water"]
+                # action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk"] # water not supported
                 additional_task_list = ["till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"]
 
                 # 额外的几个任务 1. 耕地-并加种子 2. 钓鱼 3.作物加骨粉催熟 4. 小花园 5. 建造一个矩形的栅栏 6. 聊天对话 7. 读写牌子上面的内容
@@ -613,7 +619,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         elif action == "toggle":
                             trigger = ["button", "lever"]
                             material = ["acacia", "birch", "dark_oak", "jungle", "mangrove", "oak", "spruce"]
-                            device = ["door", "trapdoor", "fence"]
+                            device = ["door", "trapdoor", "fence_gate"]
 
                             trigger_flag = random.choices(["default", "trigger"], [70, 30])[0]
                             if trigger_flag == "trigger":
@@ -934,7 +940,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
         arg_dict["action"] = action
         trigger = ["button", "lever"]
         material = ["acacia", "birch", "dark_oak", "jungle", "mangrove", "oak", "spruce"]
-        device = ["door", "trapdoor", "fence"]
+        device = ["door", "trapdoor", "fence_gate"]
 
         trigger_flag = random.choices(["default", "trigger"], [70, 30])[0]
         if trigger_flag == "trigger":
