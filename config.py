@@ -652,7 +652,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["target"] = material + "_" + boat
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-                            arg_dict["y"] = random(ory, ory + 1)
+                            arg_dict["y"] = random.randint(ory, ory + 1)
                             arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                         
                         elif action == "minecart":

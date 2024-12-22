@@ -1162,7 +1162,6 @@ async def place_block_op(bot, mcData, pathfinder, Vec3, item_name, pos, axis=Non
         return False, f"cannot place the block at this position, no reference block can be found, the ground block is at {pos[0]} {ground_y-1} {pos[2]}, {hint}. Consider placing blocks from the nearest solid block to create a support structure."
     
     bot.unequip("hand")
-    bot.chat(f"/clear {bot.entity.username} {item_name} {1}")
     
     # 检测能不能走到附近
     move_to(pathfinder, bot, Vec3, 1.4,Vec3(pos[0], pos[1], pos[2]))
