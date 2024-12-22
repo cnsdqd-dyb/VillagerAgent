@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "With the fishing rod located in the chest, head to the coordinates (3, -62, 7) for some fishing.",
+    "task_goal": "Open the birch_door at (8, -60, 3). You can open it directly and do not need any tool.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "salmon",
-        "x": 3,
-        "y": -62,
-        "z": 7,
+        "target": "birch_door",
+        "x": 8,
+        "y": -60,
+        "z": 3,
         "facing": "",
         "item_position": "chest",
-        "tool": "fishing_rod",
-        "action": "fishing",
+        "tool": "",
+        "action": "boat",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.192.15.60",
     "port": 25565,
-    "task_name": "interact_fishing_id448"
+    "task_name": "interact_toggle_id82"
 }

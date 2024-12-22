@@ -83,12 +83,15 @@ class DataManager:
         action_list = []
         try:
             for action in info_copy["detail"]["action_list"]:
-                action["feedback"]["status"] = str(action["feedback"]["status"])
-                action_dict = {
-                    "behavior": action["action"]["tool"],
-                    "feedback": action["feedback"]["message"]
-                }
-                action_list.append(action_dict)
+                try:
+                    action["feedback"]["status"] = str(action["feedback"]["status"])
+                    action_dict = {
+                        "behavior": action["action"]["tool"],
+                        "feedback": action["feedback"]["message"]
+                    }
+                    action_list.append(action_dict)
+                except:
+                    pass # 忽略action 生成失败的情况
         except Exception as e:
             # self.logger.ERROR(info_copy)
             raise e        

@@ -484,22 +484,24 @@ def handleViewer(*args):
                 bot.chat(f"/give {agent_name} {crop} 1")
             elif arg_dict["item_position"] == "chest":
                 set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": tool, "count": 1}, {"name": crop, "count": 1}], 3)
-            bot.chat(f"/fill {x} {y} {z} {x+2} {y} {z+2} dirt")
+            bot.chat(f"/fill {x-2} {y} {z-2} {x+2} {y} {z+2} dirt")
+            bot.chat(f"/fill {x-1} {y} {z-1} {x+1} {y} {z+1} water")
             bot.chat(f"/setblock {x} {y} {z} {base_block}")
-            bot.chat(f"/setblock {x+1} {y} {z+1} water")
 
         elif arg_dict["action"] == "bone_meal":
             base_block = aligned_item_name(arg_dict["other_arg"][0]['base_block'])
             crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             bot.chat(f"/setblock {x} {y} {z} air")
-            bot.chat(f"/setblock {arg_dict['x']} {arg_dict['y']-1} {arg_dict['z']} {base_block}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
                 time.sleep(.2)
                 bot.chat(f"/give {agent_name} {crop} {random.randint(1, 2)}")
             elif arg_dict["item_position"] == "chest":
                 set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": arg_dict['tool'], "count": 1}, {"name": crop, "count": random.randint(1, 2)}], 3)
+            bot.chat(f"/fill {x-2} {y-1} {z-2} {x+2} {y-1} {z+2} dirt")
+            bot.chat(f"/fill {x-1} {y-1} {z-1} {x+1} {y-1} {z+1} water")
+            bot.chat(f"/setblock {x} {y-1} {z} {base_block}")
 
         elif arg_dict["action"] == "minecart":
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
@@ -564,20 +566,6 @@ def handleViewer(*args):
                 }
                 time.sleep(.2)
                 bot.chat(f"/setblock {arg_dict['x'] + trigger_block_offset[facing][0]} {arg_dict['y'] + trigger_block_offset[facing][1]} {arg_dict['z'] + trigger_block_offset[facing][2]} dirt")
-
-        elif arg_dict["action"] == "till":
-            crops = aligned_item_name(arg_dict["other_arg"][0]["crops"])
-            if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
-                bot.chat(f"/give {agent_name} {crops} 1")
-            elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['tool'], "count": 1}, {"name": crops, "count": 1}], 3)
-            else:
-                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
-            bot.chat(f"/give {agent_name} dirt 5")
-            origin_block = aligned_item_name(arg_dict["other_arg"][0]["origin_block"])
-            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-            bot.chat(f"/setblock {x} {y} {z} {origin_block}")
 
         
         elif arg_dict["action"] == "bed":

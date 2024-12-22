@@ -645,8 +645,11 @@ def generate_config(task, api_model, host, port, agent_num=2):
 
     
                         elif action == "boat":
+                            material = ["oak", "birch", "acacia", "dark_oak", "jungle", "mangrove", "spruce"]
                             boats = ["boat", "chest_boat"]
-                            arg_dict["target"] = random.choice(boats)
+                            boat = random.choice(boats)
+                            material = random.choice(material)
+                            arg_dict["target"] = material + "_" + boat
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                             arg_dict["y"] = random(ory, ory + 1)

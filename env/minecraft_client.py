@@ -744,7 +744,7 @@ class Agent():
     def talkTo(player_name: str, entity_name: str, message: str, emotion: list = ["😊"]):
         """Talk to the Entity with Emojis, entity_name is the name of other player.
         """
-        Agent._lookAt(player_name, entity_name)
+        # Agent._lookAt(player_name, entity_name) # 容易出现问题
 
         entity_name = entity_name.lower().replace(" ", "_")
         if entity_name == "nobody" or entity_name == "anyone" or entity_name == "everyone" or entity_name == "all" \
