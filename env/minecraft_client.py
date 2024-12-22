@@ -1089,7 +1089,7 @@ if __name__ == "__main__":
 
     Agent.model = "qwen-max"
     Agent.base_url =  "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    Agent.api_key_list = ["sk-837276a766734ef8a1f36f7f3853e413"]
+    Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
     agent1 = Agent(name="Alice", local_port=5001, tools=[])
     Agent.launch(host="10.214.180.148", port=25565)
     time.sleep(5)

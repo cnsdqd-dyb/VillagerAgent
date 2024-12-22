@@ -6,13 +6,13 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Ride the acacia_chest_boat and dismount it. The boat is in the chest, the pour is at (19, -60, 20).",
+    "task_goal": "Open the birch_door at (8, -60, 3). You can open it directly and do not need any tool.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "acacia_chest_boat",
-        "x": 19,
+        "target": "birch_door",
+        "x": 8,
         "y": -60,
-        "z": 20,
+        "z": 3,
         "facing": "",
         "item_position": "chest",
         "tool": "",
@@ -21,7 +21,7 @@
         "other_arg": []
     },
     "document_file": "",
-    "host": "10.214.180.148",
+    "host": "10.192.15.60",
     "port": 25565,
-    "task_name": "interact_boat_id20"
+    "task_name": "interact_toggle_id82"
 }

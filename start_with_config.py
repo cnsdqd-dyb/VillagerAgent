@@ -149,7 +149,7 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
 
 if __name__ == "__main__":
-
+    # with open("meta_test_config.json", "r") as f:
     with open("qwen_launch_config_meta.json", "r") as f:
         launch_config = json.load(f)
     # shuffle 
