@@ -1305,10 +1305,12 @@ def handleViewer(*args):
                 host_name = match.group(1)  # 第一个方括号内的内容
                 target_name = match.group(3)  # 第二个方括号内的内容
                 msg = match.group(4)  # 剩余的消息内容
+                # bot.chat(f"[DEBUG] Received a message from {host_name}: {msg}")
                 
                 # # 根据匹配的结果做处理
                 # print(f"Host: {host_name}, Target: {target_name}, Message: {msg}")
                 if target_name == bot.entity.username:
+                    bot.chat(f"[DEBUG] Received a message from {host_name}: {msg}")
                     if "--MSG--" in message:
                         info_bot.add_event("msg", info_bot.existing_time, f"I received a message from {host_name}: {msg}", True)
                     elif "--CHAT--" in message:
@@ -1384,7 +1386,8 @@ def handleViewer(*args):
     def entitySpawn(this, entity):
         if entity.type == "mob":
             p = entity.position
-            info_bot.add_event("entitySpawn", info_bot.existing_time, f"A {entity.displayName} spawned", True, acition=False)
+            if "Slime" != entity.displayName: # Noisy
+                info_bot.add_event("entitySpawn", info_bot.existing_time, f"A {entity.displayName} spawned", True, acition=False)
             # console.log(f"Look out! A {entity.displayName} spawned at {p.toString()}")
         elif entity.type == "player":
             pass
@@ -1547,9 +1550,9 @@ def handle(this):
         info_bot.update_blocks()
 
     # if info_bot.existing_time % 10 == 0:
-    #     new_events = info_bot.get_event_description_new()
+    #     new_events = info_bot.get_action_description_new()
     #     for event in new_events:
-    #         bot.chat(event["description"])
+    #         bot.chat(event)
 
 class Bot():
     def __init__(self):
@@ -1586,6 +1589,10 @@ class Bot():
         return self.sleeping
 
     def add_event(self, event, time, description, status, acition=True):
+        # omit same content
+        for event in self.events_log:
+            if event["description"] == description:
+                return
         self.events_log.append({"event": event, "time": time, "description": description, "status": status, "new": True})
         if acition:
             self.action_log.append({"event": event, "time": time, "description": description, "status": status, "new": True})
@@ -1595,9 +1602,9 @@ class Bot():
         for event in self.events_log:
             if event["new"]:
                 event["new"] = False
-                if self.existing_time - event["time"] < 240:
+                if self.existing_time - event["time"] < 240 or "msg" in str(action) or "chat" in str(action):
                     new_events.append(event)
-                if len(new_events) > 5:
+                if len(new_events) > 5 and "msg" not in str(new_events[0]) and "chat" not in str(new_events[0]):
                     new_events.pop(0)
         return new_events
     
@@ -1655,10 +1662,11 @@ class Bot():
         for action in self.action_log:
             if action["new"]:
                 action["new"] = False
-                if self.existing_time - action["time"] < 240 or "msg" in action["event"] or "chat" in action["event"]:
-                    new_actions.append(action['description'])
-                if len(new_actions) > 5 and "msg" not in action["event"] and "chat" not in action["event"]:
-                    new_actions.pop(0)
+                new_actions.append(action['description'])
+                # if self.existing_time - action["time"] < 300 or "msg" in str(action) or "chat" in str(action):
+                #     new_actions.append(action['description'])
+                # if len(new_actions) > 5 and "msg" not in str(new_actions[0]) and "chat" not in str(new_actions[0]):
+                #     new_actions.pop(0)
         current_inventory = self.get_bot_inventory_str()
         if current_inventory != "":
             new_actions.append(current_inventory)

@@ -17,7 +17,7 @@ class VLLMLanguageModel(AbstractLanguageModel):
     _supported_models = ["llama_gptq4"]
     
     def __init__(self, api_key="sk-villagertuning", api_base="http://10.130.130.13:8000/v1", 
-                 api_model="llama_gptq4", role_name=""):
+                 api_model="/home/yubo/LLaMA-Factory/saves/llama3-8b/freeze/sft", role_name=""):
         self.api_key = api_key
         self.api_base = api_base
         self.api_model = api_model
@@ -78,7 +78,7 @@ class VLLMLanguageModel(AbstractLanguageModel):
     def evaluate_states(self, states):
         pass
 
-    @retry(tries=5, delay=1, backoff=2, max_delay=5)
+    # @retry(tries=5, delay=1, backoff=2, max_delay=5)
     def few_shot_generate_thoughts(self, system_prompt: str = "", example_prompt: [str] or str = [], 
                                  max_tokens=2048, temperature=0.2, top_p=0.7, top_k=1,
                                  stop: [str]=None, cache_enabled=True, api_model="",

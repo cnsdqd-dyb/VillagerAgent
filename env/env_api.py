@@ -351,12 +351,12 @@ def chat_long(bot, name, message, type='msg'):
     '''
     if type == 'msg':
         if len(message) < 256:
-            time.sleep(.5)
             bot.chat(f'[{bot.entity.username}] --MSG-- [{name}] {message}')
+            time.sleep(.5)
             return
         while len(message) > 0:
-            time.sleep(.5)
             bot.chat(f'[{bot.entity.username}] --MSG-- [{name}] {message[:200]}' + '[SENDING]')
+            time.sleep(.5)
             message = message[200:]
         # bot.chat(f'msg {name} [SEND]')
 
@@ -1690,6 +1690,7 @@ async def attack(bot, envs_info, mcData, mobName=None):
             "fox",
             "pig",
             "horse",
+            "turtle",
             "parrot",
             "panda",
             "blaze",

@@ -746,7 +746,6 @@ class Agent():
         """
         # Agent._lookAt(player_name, entity_name) # 容易出现问题
 
-        entity_name = entity_name.lower().replace(" ", "_")
         if entity_name == "nobody" or entity_name == "anyone" or entity_name == "everyone" or entity_name == "all" \
             or entity_name == "somebody" or entity_name == "some" or entity_name == "any" or entity_name == ""\
             or entity_name == "none" or entity_name == "everybody" or entity_name == "someone" or entity_name == "anybody":

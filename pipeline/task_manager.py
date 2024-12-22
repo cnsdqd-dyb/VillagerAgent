@@ -217,7 +217,7 @@ class TaskManager:
         omit_keys = [("assigned agents", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
         result = self.fill_keys_omit(result, omit_keys) # fill the result with empty data
         result = self.fill_agents(result, self.agent_list)
-        self.logger.warning(response)
+        self.logger.warning(result)
 
         subtask_list = []
         for subtask_data in result:
@@ -305,10 +305,9 @@ class TaskManager:
         return result
     
     def fill_agents(self, result:[dict], agents:list):
+        self.logger.debug(f"fill agents:")
         for res in result:
-            if "assigned agents" not in res.keys():
-                return result
-            description = res["description"]
+            description = str(res["description"]) + str(res["milestones"])
             for agent in agents:
                 if agent not in agents:
                     agents.append(agent)
@@ -318,19 +317,19 @@ class TaskManager:
         # for subtask node assigned with multiple agents, split the agents with the same task
         new_result = []
         for res in result:
-            if len(res["assigned agents"]) > 1:
-                for agent in res["assigned agents"]:
-                    new_res = res.copy()
-                    new_res["assigned agents"] = [agent]
-                    new_result.append(new_res)
-            else:
-                new_result.append(res)
+            for agent in res["assigned agents"]:
+                new_res = res.copy()
+                new_res["assigned agents"] = [agent]
+                new_res["id"] = len(new_result) + 1
+                self.logger.debug(f"new_res: {new_res}")
+                new_result.append(new_res)
         
         # replace unvalid agent with random agent in the agent list
         for res in new_result:
             for idx, agent in enumerate(res["assigned agents"]):
                 if agent not in [agent.name for agent in agents]:
                     res["assigned agents"][idx] = random.choice(agents).name
+        self.logger.debug(f"fill agents: {new_result}")
         return new_result
 
     def fill_keys_omit(self, result:[dict], keys:list):
@@ -535,8 +534,7 @@ class TaskManager:
         omit_keys = [("assigned agents", "list"), ("required subtasks", "list"), ("retrieval paths", "list")]
         result = self.fill_keys_omit(result, omit_keys)
         result = self.fill_agents(result, self.agent_list)
-        
-        self.logger.warning(response)
+        self.logger.warning(result)
 
         subtask_list = []
         for subtask_data in result:

@@ -54,7 +54,7 @@ class GlobalController:
         self.assignment = {}
         self.feedback = {}
 
-        self.logger = init_logger("GlobalController", level=logging.WARNING, dump=True, silent=silent)
+        self.logger = init_logger("GlobalController", level=logging.DEBUG, dump=True, silent=silent)
         self.env = env
         self.llm = llm
         self.llm.role_name = "GlobalController"
@@ -130,7 +130,6 @@ class GlobalController:
             with self.task_list_lock:
                 task_instance.status = Task.running
                 self.task_queue.append((agent_instances[0], task_instance))
-                time.sleep(1)
         
             name_list = ", ".join([agent.name for agent in agent_instances])
             self.logger.info(f"Agent(s) {name_list} assigned to do task {task_instance.description}")
@@ -162,9 +161,10 @@ class GlobalController:
                     agent, task = agent_task
 
                     future = self.executor.submit(agent.step, task)
+                    self.logger.info(f"Agent {agent.name} is executing task now ...")
                     with self.result_list_lock:
                         self.result_queue.append((future, agent, task, time.time()))
-                    time.sleep(self.query_interval)
+                    # time.sleep(self.query_interval)
 
     def set_task_status(self, task_id, status, feedback):
         for task in self.task_manager.graph.vertex:
@@ -335,7 +335,7 @@ class GlobalController:
                         if task.number == len(task.candidate_list) and task.available and \
                             all([self.assignment.get(agent.name) is None for agent in self.agent_list if agent.name in task.candidate_list]):
 
-                            self.logger.info(f"Task {task.description} is assigned to all agents!")
+                            self.logger.info(f"Task {task.description} is assigned to {task.candidate_list}")
                             self.execute_assignments([{
                                 "task_instance": task,
                                 "agent_instances": [agent for agent in self.agent_list if agent.name in task.candidate_list]

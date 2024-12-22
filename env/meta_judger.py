@@ -330,10 +330,12 @@ def handleViewer(*args):
     time.sleep(.2)
     bot.chat("/kill @e[type=!minecraft:player]")
     time.sleep(.2)
-
-    # for name in agent_names:
-        # bot.chat(f'/summon armor_stand ~ ~2.5 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{name}"]}}')
-    
+    if system_type == 'linux':
+        # for name in agent_names:
+        #     bot.chat(f'/summon armor_stand ~ ~2.5 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{name}"]}}')
+        pass
+    else:
+        pass
     bot.chat(f"/setblock {orx + wall_width} {ory + room_height // 2 - 1} {orz + wall_width} glass")
     time.sleep(.2)
     bot.chat(f"/tp @s {orx + wall_width} {ory + room_height // 2} {orz + wall_width} -45 45")
@@ -730,6 +732,7 @@ def handle(this):
                 return True
 
     global last_time, start_time, score
+    bot.chat(f"/kill @e[type=minecraft:slime]")
     if start_time is not None:
         global complexity_score, efficiency, balance, info_count, environment_set_time
         now_time = time.time()

@@ -6,22 +6,24 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Open the birch_door at (8, -60, 3). You can open it directly and do not need any tool.",
+    "task_goal": "Alice and Bob should start a chat **in Chinese** together. They should have different speaking style. \n    Alice is acting as a \u81ea\u5927\u4e14\u8f7b\u89c6\u4ed6\u4eba person (\u76ee\u4e2d\u65e0\u4eba\uff0c\u81ea\u4ee5\u4e3a\u662f\uff0c\u559c\u6b22\u8d2c\u4f4e\u4ed6\u4eba) eg. \"\u54fc\uff0c\u5c31\u4f60\u4eec\u8fd9\u6c34\u5e73\u8fd8\u60f3\u8ddf\u6211\u6bd4\uff1f\",\n    but Bob is acting as a \u667a\u6167\u4e14\u6d1e\u5bdf\u529b\u5f3a person (\u903b\u8f91\u6027\u5f3a\uff0c\u5f15\u7ecf\u636e\u5178\uff0c\u601d\u7ef4\u7f1c\u5bc6) eg. \"\u6839\u636e\u6211\u7684\u5206\u6790\uff0c\u8fd9\u4e2a\u95ee\u9898\u7684\u5173\u952e\u5728\u4e8e...\".\n    Start a conversation about \u88c5\u9970\u82b1\u56ed for at least 5 turns, you can also add some other topics in the conversation and try to add some actions (use agent tools) in the conversation to make it more vivid.\n    Keep their characteristics consistent throughout the conversation.\n    (This task should be assigned to two agents for each time)",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "birch_door",
+        "target": "rabbit_stew",
         "x": 8,
         "y": -60,
-        "z": 3,
+        "z": 8,
         "facing": "",
-        "item_position": "chest",
+        "item_position": "inventory",
         "tool": "",
-        "action": "boat",
+        "action": "chat",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "Alice and Bob should start a chat **in Chinese** together. They should have different speaking style. \n    Alice is acting as a \u81ea\u5927\u4e14\u8f7b\u89c6\u4ed6\u4eba person (\u76ee\u4e2d\u65e0\u4eba\uff0c\u81ea\u4ee5\u4e3a\u662f\uff0c\u559c\u6b22\u8d2c\u4f4e\u4ed6\u4eba) eg. \"\u54fc\uff0c\u5c31\u4f60\u4eec\u8fd9\u6c34\u5e73\u8fd8\u60f3\u8ddf\u6211\u6bd4\uff1f\",\n    but Bob is acting as a \u667a\u6167\u4e14\u6d1e\u5bdf\u529b\u5f3a person (\u903b\u8f91\u6027\u5f3a\uff0c\u5f15\u7ecf\u636e\u5178\uff0c\u601d\u7ef4\u7f1c\u5bc6) eg. \"\u6839\u636e\u6211\u7684\u5206\u6790\uff0c\u8fd9\u4e2a\u95ee\u9898\u7684\u5173\u952e\u5728\u4e8e...\".\n    Start a conversation about \u88c5\u9970\u82b1\u56ed for at least 5 turns, you can also add some other topics in the conversation and try to add some actions (use agent tools) in the conversation to make it more vivid.\n    Keep their characteristics consistent throughout the conversation.\n    (This task should be assigned to two agents for each time)"
+        ]
     },
     "document_file": "",
-    "host": "10.192.15.60",
+    "host": "10.214.180.148",
     "port": 25565,
-    "task_name": "interact_toggle_id82"
+    "task_name": "interact_chat_id226"
 }
