@@ -485,7 +485,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     # action = "feed"
                     task_level = random.choices(["basic", "advanced"], [39, 61])[0]
                     if task_level == "basic":
-                        action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2])[0]
+                        action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2, 2])[0]
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         if action == "cook":

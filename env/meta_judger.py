@@ -465,6 +465,7 @@ def handleViewer(*args):
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
         if arg_dict["action"] == "handover":
+            target = aligned_item_name(arg_dict["target"])
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} dirt 5")
                 time.sleep(.2)
@@ -534,6 +535,7 @@ def handleViewer(*args):
             bot.chat(f"/fill {x-3} {y} {z-3} {x+3} {y} {z+3} water")
 
         elif arg_dict["action"] == "fishing":
+            target = aligned_item_name(arg_dict["target"])
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} fishing_rod 1")
             elif arg_dict["item_position"] == "chest":
