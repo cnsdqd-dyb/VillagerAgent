@@ -188,7 +188,7 @@ def handleViewer(*args):
         while True:
             cover = False
             for pos in invalid_pos:
-                if abs(pos[0] - randx) <= 2 and abs(pos[2] - randz) <= 2:
+                if abs(pos[0] - randx) <= 4 and abs(pos[2] - randz) <= 4:
                     cover = True
                     break
             if cover:

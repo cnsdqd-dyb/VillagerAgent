@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Ride the boat and dismount it. The boat is in your inventory.",
+    "task_goal": "With the fishing rod located in the chest, head to the coordinates (3, -62, 7) for some fishing.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "boat",
-        "x": 10,
-        "y": -60,
-        "z": 21,
+        "target": "salmon",
+        "x": 3,
+        "y": -62,
+        "z": 7,
         "facing": "",
-        "item_position": "inventory",
-        "tool": "",
-        "action": "boat",
+        "item_position": "chest",
+        "tool": "fishing_rod",
+        "action": "fishing",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.192.15.60",
     "port": 25565,
-    "task_name": "interact_boat_id491"
+    "task_name": "interact_fishing_id448"
 }
