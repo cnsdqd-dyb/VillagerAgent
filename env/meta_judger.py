@@ -302,6 +302,8 @@ def handleViewer(*args):
     time.sleep(.2)
     bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} air replace jigsaw")
     time.sleep(.2)
+    bot.chat(f"/fill {orx} {ory} {orz} {orx + room_width + wall_width} {ory + room_height + wall_width} {orz + room_width + wall_width} air replace chest") # 去掉房屋中原本可能存在的箱子
+    time.sleep(.2)
     bot.chat(f"/tp {tx} {get_surface_y(tx, tz)} {tz}")
     time.sleep(.2)
     bot.chat(f"/place feature {random.choices(tree_list, tree_weight)[0]}")
@@ -323,10 +325,6 @@ def handleViewer(*args):
     # 生成一个内部空间width*width*height，五面玻璃一面草方块的封闭空间
     
     bot.chat("/clear @e[distance=..10,type=player,gamemode=survival]")
-    time.sleep(.2)
-    bot.chat("/kill @e[type=!minecraft:player]")
-    time.sleep(.2)
-    bot.chat("/kill @e[type=!minecraft:player]")
     time.sleep(.2)
     bot.chat("/kill @e[type=!minecraft:player]")
     time.sleep(.2)
@@ -604,6 +602,7 @@ def handleViewer(*args):
             pass
 
         elif arg_dict["action"] == "feed":
+            target = aligned_item_name(arg_dict["target"])
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
