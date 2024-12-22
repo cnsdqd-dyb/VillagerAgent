@@ -75,7 +75,25 @@ def log_activity(bot):
             except Exception as e:
                 # 如果发生异常，打印异常信息
                 # bot.chat(f"{bot.username} Error in task: {func.__name__} - {str(e)}")
-                raise e
+                # raise e
+                global bot
+                bot.chat(f"/tellraw {bot.username} Status Error in task: {func.__name__}: Try to restart the bot")
+                bot = mineflayer.createBot({
+                    "host": args.host,
+                    "port": args.port,
+                    'username': args.username.replace(' ', '_'),
+                    'checkTimeoutInterval': 600000,
+                    'auth': 'offline',
+                    'version': '1.19.2',
+                })
+                Item = require("prismarine-item")(bot.registry)
+
+                bot.loadPlugin(pathfinder.pathfinder)
+                bot.loadPlugin(collectBlock.plugin)
+                bot.loadPlugin(pvp)
+                bot.loadPlugin(minecraftHawkEye)
+                # 这里改成重新启动bot
+
         return wrapper
     return decorator
 
