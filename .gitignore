@@ -33,6 +33,7 @@ img/*graph.md
 ui/logs/*
 
 result/*
+*.zip
 
 .cache/*.cache
 .cache/state.json

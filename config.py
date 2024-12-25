@@ -166,14 +166,14 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "cook":
             template_prompt = f"Cook the {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}. The furnace is at {arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}."
         elif arg_dict["action"] == "handover":
-            template_prompt = f"Alice hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
+            template_prompt = f"Ask Alice to hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "store":
             template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
             # "till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"
         elif arg_dict["action"] == "till":
             template_prompt = f"Till the land at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}) to farmland. The hoe is in the {arg_dict['item_position']}, plant the {arg_dict['other_arg'][0]['crops']} in the farmland."
         elif arg_dict["action"] == "fishing":
-            template_prompt = f"Go fishing at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The fishing rod is in the {arg_dict['item_position']}."
+            template_prompt = f"Go fishing at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The fishing_rod is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "bone_meal":
             template_prompt = f"First place the {arg_dict['other_arg'][0]['crops']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). Then use bone meal to grow it. The bone meal is in the {arg_dict['item_position']}. If the {arg_dict['other_arg'][0]['crops']} is not in the {arg_dict['item_position']}, you can find seeds or crop in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "sign":
@@ -187,7 +187,7 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "saddle":
             template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']} and ride it, then dismount it. The {arg_dict['tool']} and the food are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "boat":
-            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The boat is in the {arg_dict['item_position']}, the pour is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
+            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The {arg_dict['target']} is in the {arg_dict['item_position']}, the pour is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
         elif arg_dict["action"] == "minecart":
             template_prompt = f"Ride the {arg_dict['target']} and dismount it. The minecart is in the {arg_dict['item_position']} and the rail is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
         elif arg_dict["action"] == "bed":
@@ -205,11 +205,11 @@ def generate_task_goal(task_scenario, arg_dict):
     template_prompt = template_prompt.replace("the inventory", "your inventory")
 
     task_goal = template_prompt
-    # if random.randint(1, 5) == 1: # 有小概率直接用原始的prompt
-    #     task_goal = template_prompt
-    # else:
-    #     template_prompt = "Original Sentence: " + template_prompt
-    #     task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.2)
+    if random.randint(1, 5) == 1: # 有小概率直接用原始的prompt
+        task_goal = template_prompt
+    else:
+        template_prompt = "Original Sentence: " + template_prompt
+        task_goal = llm.few_shot_generate_thoughts(system_prompt=task_goal_prompt, example_prompt=template_prompt, temperature=0.2)
     logger.warning(task_goal)
     logger.debug("-" * 50)
     return task_goal
@@ -518,6 +518,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         arg_dict["action"] = action
                         if action == "attack":
                             arg_dict["tool"] = "iron_sword"
+                        elif action == "feed":
+                            arg_dict["tool"] = random.choice(target["food"])
                         elif action == "cook":
                             arg_dict["other_arg"] = ["coal", target]
                         elif action == "shear":
@@ -570,7 +572,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
 
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
                             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-                            arg_dict["y"] = random.randint(ory - 1, ory)
+                            arg_dict["y"] = random.randint(ory, ory + 1)
                         
                             arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
 
@@ -604,7 +606,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["other_arg"] = ['']
 
                         elif action == "sign":
-                            sign_instruction_easy = ["Welcome to the room", "Please close the door", "Don't touch my stuff", "I'm watching you", "Be careful of the trap", "Don't break the block", "Don't feed the animals", "Don't steal my items", "Don't kill the animals", "Don't destroy the crops"]
+                            sign_instruction_easy = ["Welcome to the room", "Please close the door", "Do not touch my stuff", "I am watching you", "Be careful of the trap", "Do not break the block", "Do not feed the animals", "Do not steal my items", "Do not kill the animals", "Do not destroy the crops"]
                             sign_instruction_hard = ["withdraw items from the chest", "place a dirt block", "dig a hole", "craft a wooden sword"]
                             arg_dict["target"] = "oak_sign"
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)

@@ -513,10 +513,14 @@ def place():
         facing = 'A'
     if facing.lower() == 'up' or facing.lower() == 'down':
         facing = 'y'
-    if facing.lower() == 'north' or facing.lower() == 'south':
-        facing = 'z'
-    if facing.lower() == 'west' or facing.lower() == 'east':
-        facing = 'x'
+    if facing.lower() == 'north':
+        facing = 'N'
+    elif facing.lower() == 'south':
+        facing = 'S'
+    elif facing.lower() == 'west':
+        facing = 'W'
+    elif facing.lower() == 'east':
+        facing = 'E'
     if facing not in ['x', 'y', 'z', "W", "E", "S", "N", "A"]:
         events = info_bot.get_action_description_new()
         return jsonify({'message': "facing is one of [W, E, S, N, x, y, z, A]", 'status': False, "new_events": events})

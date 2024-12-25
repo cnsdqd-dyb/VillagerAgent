@@ -125,18 +125,18 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
             "api_key_list": api_key_list
         }
 
-        # base_llm_config = {
-        #     "api_key": api_key_list[0],
-        #     "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        #     "api_model": "qwen-max",
-        #     "api_key_list": api_key_list
-        # }
         base_llm_config = {
-            "api_key": "sk-villagertuning",
-            "api_base": "http://0.0.0.0:8000/v1",
-            "api_model": "/home/yubo/LLaMA-Factory/saves/llama3-8b/freeze/sft",
-            "api_key_list": ["sk-villagertuning"]
+            "api_key": api_key_list[0],
+            "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "api_model": "qwen-max",
+            "api_key_list": api_key_list
         }
+        # base_llm_config = {
+        #     "api_key": "sk-villagertuning",
+        #     "api_base": "http://0.0.0.0:8000/v1",
+        #     "api_model": "/home/yubo/LLaMA-Factory/saves/llama3-8b/freeze/sft",
+        #     "api_key_list": ["sk-villagertuning"]
+        # }
 
 
         ctrl = GlobalController(llm_config, tm, dm, env, 
@@ -158,10 +158,11 @@ def run(api_model: str, api_base: str, task_type: str, task_idx: int, agent_num:
 
 if __name__ == "__main__":
     # with open("meta_test_config.json", "r") as f:
-    with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/test_config.json", "r") as f:
+    # with open("/home/yubo/VillagerAgent-Minecraft-multiagent-framework/test_config.json", "r") as f:
+    with open("qwen_launch_config_meta.json", "r") as f:
         launch_config = json.load(f)
     # shuffle 
-    launch_config = random.sample(launch_config, len(launch_config))
+    # launch_config = random.sample(launch_config, len(launch_config))
     for i, config in enumerate(launch_config):
 
         if os.path.exists(f"result/{config['task_name']}"):
