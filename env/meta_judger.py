@@ -405,7 +405,7 @@ def handleViewer(*args):
         craft_pos = []
         for _ in range(craft_num):
             craft_x, craft_y, craft_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
-            while craft_y > ory + 4 or (craft_x, craft_y, craft_z) in craft_pos:    # 避免生成在太高的地方
+            while craft_y > ory + 3 or (craft_x, craft_y, craft_z) in craft_pos:    # 避免生成在太高的地方
                 craft_x, craft_y, craft_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
             craft_pos.append((craft_x, craft_y, craft_z))
             bot.chat(f"/setblock {craft_x} {craft_y} {craft_z} crafting_table")
@@ -520,7 +520,7 @@ def handleViewer(*args):
         elif arg_dict["action"] == "saddle":
             target = aligned_item_name(arg_dict["target"])
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-            bot.chat(f"/summon {target} {x} {y} {z} {{InLove:600,Age:0,Tame:1}}")
+            bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3} {{InLove:600,Age:0,Tame:1}}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} saddle 1")
                 bot.chat(f"/give {agent_name} wheat 20")
@@ -574,14 +574,25 @@ def handleViewer(*args):
 
         
         elif arg_dict["action"] == "bed":
-            bot.chat(f"/time set night")
-            if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} {arg_dict['target']} 1")
-            elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": arg_dict['target'], "count": 1}], 3)
-            else:
-                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
-            bot.chat(f"/give {agent_name} dirt 5")
+            target = arg_dict['target']
+            bed_num = 3
+            bed_pos = []
+            for _ in range(bed_num):
+                bed_x, bed_y, bed_z = random_position(orx + wall_width + 1, orz + wall_width + 1, orx + wall_width + room_width - 2, orz + wall_width + room_width - 2, 1) 
+                while bed_y > ory + 3 or (bed_x, bed_y, bed_z) in bed_pos:    # 避免生成在太高的地方
+                    bed_x, bed_y, bed_z = random_position(orx + wall_width + 1, orz + wall_width + 1, orx + wall_width + room_width - 2, orz + wall_width + room_width - 2, 1) 
+                bed_pos.append((bed_x, bed_y, bed_z))
+                facing = random.choice(["west", "east", "north", "south"])
+                bed_offset = {
+                    "west": [1, 0, 0],
+                    "east": [-1, 0, 0],
+                    "north": [0, 0, 1],
+                    "south": [0, 0, -1] 
+                }
+                bot.chat(f"/setblock {bed_x} {bed_y} {bed_z} {target}[facing={facing},part=head]")
+                bot.chat(f"/setblock {bed_x + bed_offset[facing][0]} {bed_y + bed_offset[facing][1]} {bed_z + bed_offset[facing][2]} {target}[facing={facing},part=foot]")
+                time.sleep(.2)
+            bot.chat("/time set night")
 
         elif arg_dict["action"] == "sign":
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
@@ -610,7 +621,7 @@ def handleViewer(*args):
             furnace_pos = []
             for _ in range(furnace_num):
                 furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
-                while furnace_y > ory + 4 or (furnace_x, furnace_y, furnace_z) in furnace_pos:    # 避免生成在太高的地方
+                while furnace_y > ory + 3 or (furnace_x, furnace_y, furnace_z) in furnace_pos:    # 避免生成在太高的地方
                     furnace_x, furnace_y, furnace_z = random_position(orx + wall_width, orz + wall_width, orx + wall_width + room_width - 1, orz + wall_width + room_width - 1, 1) 
                 furnace_pos.append((furnace_x, furnace_y, furnace_z))
                 bot.chat(f"/setblock {furnace_x} {furnace_y} {furnace_z} furnace")

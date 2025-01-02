@@ -6,22 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "After you have saddled the horse and taken a ride, dismount it; remember, both the saddle and the food are in your inventory.",
+    "task_goal": "Sleep on the black_bed, then wake up. The black_bed is in the environment, so you don't need to make one.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "horse",
-        "x": 8,
-        "y": -60,
-        "z": 8,
+        "target": "black_bed",
+        "x": 0,
+        "y": 0,
+        "z": 0,
         "facing": "",
         "item_position": "inventory",
-        "tool": "saddle",
-        "action": "saddle",
+        "tool": "",
+        "action": "bed",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.192.15.60",
     "port": 25565,
-    "task_name": "interact_saddle_id7"
+    "task_name": "test"
 }

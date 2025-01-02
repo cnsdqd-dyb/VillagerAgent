@@ -97,9 +97,9 @@ template = {
 
 arg_template = {
     "target": "rabbit_stew",
-    "x": 8,
-    "y": -60,
-    "z": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
     "facing": "",
     "item_position": "inventory",
     "tool": "",
@@ -131,7 +131,7 @@ def generate_task_goal(task_scenario, arg_dict):
             template_prompt = f"Dig the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can dig it directly and don't need to use any tool."
     
     elif task_scenario == "craft":
-        template_prompt = f"Use crafting_table to make a {arg_dict['target']}. All ingredients are in the {arg_dict['item_position']}."
+        template_prompt = f"Use crafting_table to make a {arg_dict['target']}. All ingredients are in the {arg_dict['item_position']}. You can directly use the crafting_table in the environment without having to make one yourself."
     
     elif task_scenario == "place":
         if arg_dict["facing"] in ["north", "south", "east", "west"]:
@@ -162,9 +162,9 @@ def generate_task_goal(task_scenario, arg_dict):
         if arg_dict["action"] in ["attack", "feed", "shear", "milk"]:
             template_prompt = f"Use {arg_dict['tool']} to {arg_dict['action']} the {arg_dict['target']}. The {arg_dict['tool']} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "water":
-            template_prompt = f"Use {arg_dict['tool']} to pack a bucket of {arg_dict['target']}, then pour the water at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
+            template_prompt = f"Use {arg_dict['tool']} to pack a bucket of {arg_dict['target']}, the pool is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "cook":
-            template_prompt = f"Cook the {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}. The furnace is at {arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}."
+            template_prompt = f"Cook the {arg_dict['other_arg'][-1]} in furnace by coal. The coal and the {arg_dict['other_arg'][-1]} are in the {arg_dict['item_position']}. You can directly use the furnace in the environment without having to make one yourself."
         elif arg_dict["action"] == "handover":
             template_prompt = f"Ask Alice to hand over a {arg_dict['other_arg'][0]} to {arg_dict['target']}. The {arg_dict['other_arg'][0]} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "store":
@@ -181,26 +181,23 @@ def generate_task_goal(task_scenario, arg_dict):
             template_prompt = f"Read the content on the {sign} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
         elif arg_dict["action"] == "toggle":
             if "iron" in arg_dict["target"]:
-                template_prompt = f"Use {arg_dict['tool']} to open the {arg_dict['target']}. The {arg_dict['target']} is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
+                template_prompt = f"Use {arg_dict['tool']} to open the {arg_dict['target']}. The {arg_dict['target']} is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}. You should place the {arg_dict['tool']} next to the {arg_dict['target']} and toggle it."
             else:
                 template_prompt = f"Open the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can open it directly and do not need any tool."
         elif arg_dict["action"] == "saddle":
             template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']} and ride it, then dismount it. The {arg_dict['tool']} and the food are in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "boat":
-            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The {arg_dict['target']} is in the {arg_dict['item_position']}, the pour is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
+            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The {arg_dict['target']} is in the {arg_dict['item_position']}, the pool is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
         elif arg_dict["action"] == "minecart":
-            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The minecart is in the {arg_dict['item_position']} and the rail is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
+            template_prompt = f"Ride the {arg_dict['target']} and dismount it. The {arg_dict['target']} is in the {arg_dict['item_position']} and the rail is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
         elif arg_dict["action"] == "bed":
-            template_prompt = f"Sleep in the {arg_dict['target']}. The bed is in the {arg_dict['item_position']}, then wake up."
+            template_prompt = f"Sleep on the {arg_dict['target']}, then wake up. The {arg_dict['target']} is in the environment, so you don't need to make one."
         elif arg_dict["action"] == "chat":
             if random.randint(1, 2) == 1:
                 template_prompt = generate_conversation_prompt_zh()
             else:
                 template_prompt = generate_conversation_prompt()
             arg_dict["other_arg"] = [template_prompt]
-        elif arg_dict["action"] == "ladder":
-            size = arg_dict["other_arg"][0]["size"]
-            template_prompt = f"Build a {size} ladder upward start from ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The ladder is in the {arg_dict['item_position']}, you may use some dirts at near places internally to place the ladder."
     
     template_prompt = template_prompt.replace("the inventory", "your inventory")
 
@@ -667,10 +664,6 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         elif action == "bed":
                             bed_color = ["red", "blue", "green", "yellow", "white", "black", "brown", "cyan", "gray", "light_blue", "lime", "magenta", "orange", "pink", "purple"]
                             arg_dict["target"] = random.choice(bed_color) + "_bed"
-                            arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
-                            arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
-                            arg_dict["y"] = ory + 1
-                            arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
 
                         config["task_type"] = "meta"
                         config["task_idx"] = i
