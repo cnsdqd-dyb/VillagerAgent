@@ -1,27 +1,27 @@
 {
-    "api_model": "qwen-max",
-    "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "api_model": "deepseek-chat",
+    "api_base": "https://api.deepseek.com",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Sleep on the black_bed, then wake up. The black_bed is in the environment, so you don't need to make one.",
+    "task_goal": "Head to the coordinates (14, -60, 16) to go fishing, as the fishing_rod is stored in the chest.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "black_bed",
-        "x": 0,
-        "y": 0,
-        "z": 0,
+        "target": "cod",
+        "x": 14,
+        "y": -60,
+        "z": 16,
         "facing": "",
-        "item_position": "inventory",
-        "tool": "",
-        "action": "bed",
+        "item_position": "chest",
+        "tool": "fishing_rod",
+        "action": "fishing",
         "step": 1,
         "other_arg": []
     },
     "document_file": "",
     "host": "10.192.15.60",
     "port": 25565,
-    "task_name": "test"
+    "task_name": "interact_fishing_id6"
 }

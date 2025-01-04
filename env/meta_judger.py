@@ -541,9 +541,9 @@ def handleViewer(*args):
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             bot.chat(f'/fill {x-2} {y} {z-2} {x+2} {y} {z+2} grass_block')
             bot.chat(f'/fill {x-1} {y} {z-1} {x+1} {y} {z+1} water')
-            bot.chat(f"/summon {target} {x} {y} {z}")
-            bot.chat(f"/summon {target} {x} {y} {z}")
             target = aligned_item_name(arg_dict["target"])
+            bot.chat(f"/summon {target} {x} {y} {z}")
+            bot.chat(f"/summon {target} {x} {y} {z}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} fishing_rod 1")
             elif arg_dict["item_position"] == "chest":
@@ -821,13 +821,11 @@ def handle(this):
                 if arg_dict["action"] == "water":
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f'/data get entity {agent_name}')
-
-                if arg_dict["action"] == "store" or arg_dict["action"] == "cook":
-                    if arg_dict["action"] == "cook":
-                        bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
-                        bot.chat(f'/data get entity {agent_name}')
-                    if arg_dict["action"] == "store":
-                        bot.chat(f"/data get block {arg_dict['x']} {arg_dict['y']} {arg_dict['z']}")
+                if arg_dict["action"] == "cook":
+                    bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
+                    bot.chat(f'/data get entity {agent_name}')
+                if arg_dict["action"] == "store":
+                    bot.chat(f"/data get block {arg_dict['x']} {arg_dict['y']} {arg_dict['z']}")
                 if arg_dict["action"] in ["feed", "shear", "milk"]:
                     if arg_dict["action"] in ["feed", "shear"]:
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成

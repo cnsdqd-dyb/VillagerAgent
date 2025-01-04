@@ -31,12 +31,18 @@ api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
 #     "api_key_list": api_key_list,
 #     "api_key": random.choice(api_key_list)
 # }
+# llm_config = {
+#     "api_key": api_key_list[0],
+#     "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+#     "api_model": "qwen-max",
+#     "api_key_list": api_key_list
+# }
 
-llm_config = {
+llm_config ={
     "api_key": api_key_list[0],
-    "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-    "api_model": "qwen-max",
-    "api_key_list": api_key_list
+    "api_base": "https://api.deepseek.com",
+    "api_model": "deepseek-chat",
+    "api_key_list":api_key_list
 }
 
 # llm_config = {
@@ -299,6 +305,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                     else:
                         tool = "default"
+                    config["api_model"] = api_model
                     config["task_type"] = "meta"
                     config["task_idx"] = i
                     config["agent_num"] = 1
@@ -324,6 +331,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     arg_dict["target"] = item["name"]
                     arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                     arg_dict["step"] = random.choices([1, 2], [0.7, 0.3])[0]
+                    config["api_model"] = api_model
                     config["task_type"] = "meta"
                     config["task_idx"] = i
                     config["agent_num"] = 1
@@ -396,6 +404,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["other_arg"].append([arg_dict['x'] + offset[0] * direction, arg_dict['y'] + offset[1], arg_dict['z'] + offset[2] * direction])
                     arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                     config["task_type"] = "meta"
+                    config["api_model"] = api_model
                     config["task_idx"] = i
                     config["agent_num"] = 1
                     config["task_scenario"] = "place"
@@ -428,6 +437,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     else:
                         arg_dict["target"] = random.choice(material) + "_" + random.choice(equipment)
 
+                    config["api_model"] = api_model
                     config["task_type"] = "meta"
                     config["task_idx"] = i
                     config["agent_num"] = 1
@@ -448,6 +458,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
                     arg_dict["y"] = random.randint(ory + 1, ory + 3)
                     config["task_type"] = "meta"
+                    config["api_model"] = api_model
                     config["task_idx"] = i
                     config["agent_num"] = 1
                     config["task_scenario"] = "move"
@@ -482,7 +493,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     # action = "feed"
                     task_level = random.choices(["basic", "advanced"], [39, 61])[0]
                     if task_level == "basic":
-                        action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2, 1])[0]
+                        action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2, 2])[0]
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         if action == "cook":
@@ -529,6 +540,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["other_arg"] = [random.choice(items)["name"]]
                         arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                         config["task_type"] = "meta"
+                        config["api_model"] = api_model
                         config["task_idx"] = i
                         config["agent_num"] = 1
                         config["task_scenario"] = "interact"
@@ -543,6 +555,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         arg_dict["action"] = action
+
                         if action == "till":
                             arg_dict["target"] = "farmland"
                             arg_dict["x"] = random.randint(orx + wall_width, orx + room_width + wall_width - 1)
@@ -666,6 +679,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["target"] = random.choice(bed_color) + "_bed"
 
                         config["task_type"] = "meta"
+                        config["api_model"] = api_model
                         config["task_idx"] = i
                         config["agent_num"] = 1
                         config["task_scenario"] = "interact"
@@ -709,6 +723,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             else:
                 tool = "default"
             config["task_type"] = "meta"
+            config["api_model"] = api_model
             config["task_idx"] = i
             config["agent_num"] = 1
             config["task_scenario"] = "dig"
@@ -735,6 +750,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             arg_dict["step"] = 1
             # # #
             config["task_type"] = "meta"
+            config["api_model"] = api_model
             config["task_idx"] = i
             config["agent_num"] = 1
             config["task_goal"] = generate_task_goal(task, arg_dict)
@@ -808,6 +824,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                     arg_dict["other_arg"].append([arg_dict['x'] + offset[0] * direction, arg_dict['y'] + offset[1], arg_dict['z'] + offset[2] * direction])
             arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
             config["task_type"] = "meta"
+            config["api_model"] = api_model
             config["task_idx"] = i
             config["agent_num"] = 1
             config["task_scenario"] = "place"
@@ -841,6 +858,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 arg_dict["target"] = random.choice(material) + "_" + random.choice(equipment)
 
             config["task_type"] = "meta"
+            config["api_model"] = api_model
             config["task_idx"] = i
             config["agent_num"] = 1
             config["task_scenario"] = "useitem"
@@ -860,6 +878,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
             arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
             arg_dict["y"] = random.randint(ory + 1, ory + 3)
             config["task_type"] = "meta"
+            config["api_model"] = api_model
             config["task_idx"] = i
             config["agent_num"] = 1
             config["task_scenario"] = "move"
@@ -928,6 +947,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 arg_dict["other_arg"] = ['']
             arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
             config["task_type"] = "meta"
+            config["api_model"] = api_model
             config["task_idx"] = i
             config["agent_num"] = 1
             config["task_scenario"] = "interact"
@@ -960,6 +980,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
         arg_dict["z"] = random.randint(orz + wall_width, orz + room_width + wall_width - 1)
         arg_dict["y"] = ory + 1
         config["task_type"] = "meta"
+        config["api_model"] = api_model
         config["task_idx"] = 0
         config["agent_num"] = 1
         config["task_scenario"] = "interact"

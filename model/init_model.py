@@ -7,7 +7,7 @@ from model.vllm_model import VLLMLanguageModel
 def init_language_model(args: dict):
     api_model = args.get("api_model", "")
 
-    if "gpt" in api_model and 'llama' not in api_model or "qwen" in api_model:
+    if "gpt" in api_model and 'llama' not in api_model or "qwen" in api_model or "deepseek" in api_model:
         new_args = {
             "api_key": args.get("api_key", None),
             "api_model": api_model,
@@ -51,7 +51,6 @@ def init_language_model(args: dict):
     else:
         new_args = {
             "api_key": args.get("api_key", None),
-            "api_model": api_model,
             "model_tokenizer": args.get("model_tokenizer", None),
             "verbose": args.get("verbose", None),
             "api_key_list": args.get("api_key_list", None)

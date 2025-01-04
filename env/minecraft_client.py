@@ -977,6 +977,9 @@ class Agent():
         elif "glm" in self.model:
             from zhipu import ChatZhipuAI
             self.llm = ChatZhipuAI(model_name=self.model, temperature=0.01, api_key=random.choice(Agent.api_key_list))
+        elif "deepseek" in self.model:
+            from langchain.chat_models import ChatOpenAI
+            self.llm = ChatOpenAI(model=self.model, temperature=0,  max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
         else:
             raise NotImplementedError(f"Model {self.model} not implemented.")
         # 这个地方是定义的agent的类型，初始化位置的agent没有被使用
