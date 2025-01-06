@@ -6,22 +6,25 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Head to the coordinates (14, -60, 16) to go fishing, as the fishing_rod is stored in the chest.",
+    "task_goal": "Using the coal, cook the chicken in the furnace, where both the coal and the chicken are stored in the chest. You can utilize the furnace in the environment directly, without needing to craft one yourself.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "cod",
-        "x": 14,
-        "y": -60,
-        "z": 16,
+        "target": "furnace",
+        "x": 0,
+        "y": 0,
+        "z": 0,
         "facing": "",
         "item_position": "chest",
-        "tool": "fishing_rod",
-        "action": "fishing",
+        "tool": "",
+        "action": "cook",
         "step": 1,
-        "other_arg": []
+        "other_arg": [
+            "coal",
+            "chicken"
+        ]
     },
     "document_file": "",
     "host": "10.192.15.60",
     "port": 25565,
-    "task_name": "interact_fishing_id6"
+    "task_name": "interact_cook_id12"
 }

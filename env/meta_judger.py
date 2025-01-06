@@ -80,6 +80,7 @@ max_time = 360
 
 environment_set_time = 10
 info_count = 0
+feed_num = 10
 arg_host = args.host
 arg_port = args.port
 # evaluation_arg 
@@ -482,7 +483,7 @@ def handleViewer(*args):
             base_block = aligned_item_name(arg_dict["other_arg"][0]['origin_block'])
             crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-            bot.chat(f"/fill {x-2} {y} {z-2} {x+2} {y} {z+2} dirt")
+            bot.chat(f"/fill {x-2} {y} {z-2} {x+2} {y} {z+2} grass_block")
             bot.chat(f"/fill {x-1} {y} {z-1} {x+1} {y} {z+1} water")
             bot.chat(f"/setblock {x} {y} {z} {base_block}")
             tool = aligned_item_name(arg_dict["tool"])
@@ -497,7 +498,7 @@ def handleViewer(*args):
             crop = aligned_item_name(arg_dict["other_arg"][0]['crops'])
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             bot.chat(f"/setblock {x} {y} {z} air")
-            bot.chat(f"/fill {x-2} {y-1} {z-2} {x+2} {y-1} {z+2} dirt")
+            bot.chat(f"/fill {x-2} {y-1} {z-2} {x+2} {y-1} {z+2} grass_block")
             bot.chat(f"/fill {x-1} {y-1} {z-1} {x+1} {y-1} {z+1} water")
             bot.chat(f"/setblock {x} {y-1} {z} {base_block}")
             if arg_dict["item_position"] == "inventory":
@@ -609,7 +610,7 @@ def handleViewer(*args):
             target = aligned_item_name(arg_dict["target"])
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3}")
             if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} {arg_dict['tool']} 1")
+                bot.chat(f"/give {agent_name} {arg_dict['tool']} {feed_num}")
             elif arg_dict["item_position"] == "chest":
                 set_chest([], [{"name": arg_dict['tool'], "count": 1}], 3)
             else:
@@ -826,8 +827,11 @@ def handle(this):
                     bot.chat(f'/data get entity {agent_name}')
                 if arg_dict["action"] == "store":
                     bot.chat(f"/data get block {arg_dict['x']} {arg_dict['y']} {arg_dict['z']}")
-                if arg_dict["action"] in ["feed", "shear", "milk"]:
-                    if arg_dict["action"] in ["feed", "shear"]:
+                if arg_dict["action"] == "feed":
+                    bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
+                    bot.chat(f'/data get entity {agent_name}')
+                if arg_dict["action"] in ["shear", "milk"]:
+                    if arg_dict["action"] in ["shear"]:
                         bot.chat(f'/recipe take {agent_name} *') # 去除合成表中的所有合成
                         bot.chat(f"/data get entity @e[type={target},limit=1,sort=nearest]")
                     if arg_dict["action"] == "milk":
@@ -1056,16 +1060,20 @@ def handleChat(_, message, messagePosition, jsonMsg, sender, *args):
                 if distance < 3 and score == 0:
                     score = 80
                 if score >= 80:
-                    score += 1
+                    score += 4
                 if score >= 100:
                     score = 100
             elif config["task_scenario"] == "interact" and arg_dict["action"] == "feed":
-                inlove = data.get("InLove", 0)
-                if int(inlove) > 0:
-                    score = 100
-                for item in data.get("Items", []):
-                    if "wool" in item["id"]:
+                if start_time is not None:
+                    now_time = time.time()
+                    if now_time - start_time  > environment_set_time:
+                        inventory = data.get("Inventory", [])  
+                        feed_item = aligned_item_name(arg_dict["tool"])
                         score = 100
+                        for item in inventory:
+                            if aligned_item_name(item['id']) == feed_item:
+                                if int(item['Count'][:-1]) == feed_num:
+                                    score = 0
             elif config["task_scenario"] == "interact" and arg_dict["action"] == "shear":
                 sheared = data.get("Sheared", "0b")
                 if int(sheared[:-1]):

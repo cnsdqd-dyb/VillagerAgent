@@ -162,7 +162,7 @@ def generate_task_goal(task_scenario, arg_dict):
         else:
             template_prompt = f"Equip the {arg_dict['target']}. The {arg_dict['target']} is in the {arg_dict['item_position']}."
     elif task_scenario == "move":
-        template_prompt = f"Move to ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You may need some block or tool to get to that position, you can find them in the {arg_dict['item_position']}."
+        template_prompt = f"Move to ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can go there directly."
     
     elif task_scenario == "interact":
         if arg_dict["action"] in ["attack", "feed", "shear", "milk"]:
@@ -181,7 +181,7 @@ def generate_task_goal(task_scenario, arg_dict):
         elif arg_dict["action"] == "fishing":
             template_prompt = f"Go fishing at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The fishing_rod is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "bone_meal":
-            template_prompt = f"First place the {arg_dict['other_arg'][0]['crops']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). Then use bone meal to grow it. The bone meal is in the {arg_dict['item_position']}. If the {arg_dict['other_arg'][0]['crops']} is not in the {arg_dict['item_position']}, you can find seeds or crop in the {arg_dict['item_position']}."
+            template_prompt = f"First place the {arg_dict['other_arg'][0]['crops']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). Then use bone_meal to grow it up. The bone_meal is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "sign":
             sign = arg_dict["target"]
             template_prompt = f"Read the content on the {sign} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
@@ -473,8 +473,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 animal_list = [{"name": "sheep", "food": ["wheat"]}, {"name": "cow", "food": ["wheat"]}, {"name": "rabbit", "food": ["carrot"]}, 
                             {"name": "pig", "food": ["potato", "beetroot", "carrot"]}, {"name": "chicken", "food": ["wheat_seeds", "melon_seeds", "pumpkin_seeds", "beetroot_seeds"]}, 
                             {"name": "horse", "food": ["golden_carrot", "golden_apple", "sugar", "apple"]}, {"name": "wolf", "food": ["bone"]}, {"name": "cat", "food": ["cod", "salmon"]},
-                            {"name": "parrot", "food": ["melon_seeds", "pumpkin_seeds"]}, {"name": "fox", "food": ["sweet_berries"]}, {"name": "turtle", "food": ["seagrass"]}, 
-                            {"name": "panda", "food": ["bamboo"]}]
+                            {"name": "parrot", "food": ["melon_seeds", "pumpkin_seeds"]}, {"name": "fox", "food": ["sweet_berries"]}, 
+                            {"name": "turtle", "food": ["seagrass"]}, {"name": "panda", "food": ["bamboo"]}]
                 cooked_list = ["mutton", "beef", "rabbit", "porkchop", "chicken", "potato", "cod", "salmon"]
                 action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk", "water"]
                 # action_list = ["attack", "feed", "cook", "handover", "store", "shear", "milk"] # water not supported
