@@ -33,6 +33,7 @@ img/*graph.md
 ui/logs/*
 
 result/*
+!result/*.py
 *.zip
 
 .cache/*.cache

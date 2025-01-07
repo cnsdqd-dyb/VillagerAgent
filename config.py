@@ -10,6 +10,7 @@ from pipeline.utils import *
 from model.init_model import init_language_model
 from model.openai_models import OpenAILanguageModel
 from speaking_style import generate_conversation_prompt, generate_conversation_prompt_zh
+from datetime import datetime
 room_width = 25
 room_height = 15
 wall_width = 1
@@ -990,6 +991,10 @@ def generate_config(task, api_model, host, port, agent_num=2):
         config["port"] = port
         config["task_name"] = f"interact_{action}_id{0}"
         config_list.append(config)
+    
+    current_mdh = datetime.now()
+    for config in config_list:
+        config["task_name"] += current_mdh.strftime("_%m-%d-%H")
 
     with open(f"{api_model}_launch_config_{task}.json", "w") as f:
         json.dump(config_list, f, indent=4)
