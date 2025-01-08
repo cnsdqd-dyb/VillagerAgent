@@ -34,6 +34,7 @@ ui/logs/*
 
 result/*
 !result/*.py
+processed_result/*
 *.zip
 
 .cache/*.cache

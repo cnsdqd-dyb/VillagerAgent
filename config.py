@@ -75,8 +75,8 @@ You should randomly select only one sentence from your rewritten version and ret
 """
 
 template = {
-    "api_model": "qwen-max",
-    "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "api_model": "deepseek-chat",
+    "api_base": "https://api.deepseek.com",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
@@ -994,7 +994,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
     
     current_mdh = datetime.now()
     for config in config_list:
-        config["task_name"] += current_mdh.strftime("_%m-%d-%H")
+        config["task_name"] += current_mdh.strftime("_%m%d%H")
 
     with open(f"{api_model}_launch_config_{task}.json", "w") as f:
         json.dump(config_list, f, indent=4)
@@ -1003,7 +1003,7 @@ def generate_config(task, api_model, host, port, agent_num=2):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, default="construction", help="task type")
-    parser.add_argument("--api_model", type=str, default="qwen", help="api model")
+    parser.add_argument("--api_model", type=str, default="deepseek-chat", help="api model")
     parser.add_argument("--host", type=str, default="10.214.180.148", help="host")
     parser.add_argument("--port", type=int, default=25565, help="port")
     parser.add_argument("--agent_num", type=int, default=1, help="agent number")

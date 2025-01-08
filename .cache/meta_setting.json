@@ -6,25 +6,38 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Using the coal, cook the chicken in the furnace, where both the coal and the chicken are stored in the chest. You can utilize the furnace in the environment directly, without needing to craft one yourself.",
-    "task_scenario": "interact",
+    "task_goal": "Place 3 gray_wool at (23, -59, 9) , (21, -58, 9) and (21, -59, 8). The gray_wool is in your inventory.",
+    "task_scenario": "place",
     "evaluation_arg": {
-        "target": "furnace",
-        "x": 0,
-        "y": 0,
-        "z": 0,
+        "target": "gray_wool",
+        "x": 23,
+        "y": -59,
+        "z": 9,
         "facing": "",
-        "item_position": "chest",
+        "item_position": "inventory",
         "tool": "",
-        "action": "cook",
+        "action": "",
         "step": 1,
         "other_arg": [
-            "coal",
-            "chicken"
+            [
+                23,
+                -59,
+                9
+            ],
+            [
+                21,
+                -58,
+                9
+            ],
+            [
+                21,
+                -59,
+                8
+            ]
         ]
     },
     "document_file": "",
-    "host": "10.192.15.60",
+    "host": "10.193.129.152",
     "port": 25565,
-    "task_name": "interact_cook_id12"
+    "task_name": "place_multi_inventory_id8_01-08-14"
 }
