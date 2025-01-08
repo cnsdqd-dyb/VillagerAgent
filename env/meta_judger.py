@@ -201,7 +201,7 @@ def handleViewer(*args):
         randy = sur_y + random.randint(1 , y_range) - 1
         return randx, randy, randz
     
-    def generate_recipe_hint(goal_item):
+    def generate_recipe_hint(goal_item): # 为了避免recipe_hint太长，已弃用
         recipe_hint = []
         with open("data/recipes.json", "r") as f:
             recipes = json.load(f)
@@ -368,40 +368,42 @@ def handleViewer(*args):
     elif config["task_scenario"] == "craft":
         goal_item = aligned_item_name(arg_dict["target"])
         ingredients_list = []
+        hint_recipes = []
         with open("data/recipes.json", "r") as f:
             recipes = json.load(f)
-            for item in recipes:
-                if item["result"]["name"] == goal_item:
-                    for ingredients in item["ingredients"]:
-                        ingredients_list.append(ingredients)
+        random.shuffle(recipes)
+        for recipe in recipes:
+            if recipe["result"]["name"] == goal_item:
+                hint_recipes.append(recipe)
+                for ingredients in recipe["ingredients"]:
+                    ingredients_list.append(ingredients)
+                break
+        random.shuffle(ingredients_list)
+        
+        if arg_dict["step"] == 2: # 两步合成长度        
+            rm_flag, rm_ingredient = False, {}
+            for ingredients in ingredients_list:
+                if rm_flag:
                     break
-            random.shuffle(ingredients_list)
-           
-            if arg_dict["step"] == 2: # 两步合成长度        
-                    rm_flag, rm_ingredient = False, {}
-                    for ingredients in ingredients_list:
-                        if rm_flag:
+                for recipe in recipes:
+                    if recipe["result"]["name"] == ingredients["name"]: #找到第一个可以合成的材料
+                        ing_flag = True
+                        for ing2 in recipe["ingredients"]:
+                            if ing2["name"] == goal_item:  #这个材料的配料中不应该有目标物品，防止出现互相合成时直接获得goal_item
+                                ing_flag = False
+                                break
+                        if ing_flag:
+                            rm_ingredient = ingredients
+                            rm_flag = True
+                            hint_recipes.append(recipe)
+                            for ing2 in recipe["ingredients"]:
+                                ingredients_list.append({"name": ing2["name"], "count": ing2["count"] * ingredients["count"]})
                             break
-                        for item in recipes:
-                            if item["result"]["name"] == ingredients["name"]: #找到第一个可以合成的材料
-                                ing_flag = True
-                                for ing2 in item["ingredients"]:
-                                    if ing2["name"] == goal_item:  #这个材料的配料中不应该有目标物品，防止出现互相合成时直接获得goal_item
-                                        ing_flag = False
-                                        break
-                                if ing_flag:
-                                    rm_ingredient = ingredients
-                                    rm_flag = True
-                                    for ing2 in item["ingredients"]:
-                                        ingredients_list.append({"name": ing2["name"], "count": ing2["count"] * ingredients["count"]})
-                                    break
-                    if rm_flag:
-                        ingredients_list.remove(rm_ingredient)
-                        generate_recipe_hint([goal_item, rm_ingredient["name"]])
-                    else:
-                        generate_recipe_hint([goal_item])
-            else:
-                generate_recipe_hint([goal_item])
+            if rm_flag:
+                ingredients_list.remove(rm_ingredient)
+        with open("data/recipe_hint.json", "w") as f:
+            json.dump(hint_recipes, f, indent=4)
+        # generate_recipe_hint(hint_recipes)
         craft_num = 3
         craft_pos = []
         for _ in range(craft_num):

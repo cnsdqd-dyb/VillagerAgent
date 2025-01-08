@@ -1572,7 +1572,8 @@ class Bot():
         blocks = BlocksNearby(bot, Vec3, None, RenderRange=16, max_same_block=10,visible_only=False, sample_rate=0.5)
         # print(blocks)
         for block in blocks:
-            self.block_map[ f'{block["position"][0]}, {block["position"][1]}, {block["position"][2]}'] = block
+            if "position" in block:
+                self.block_map[ f'{block["position"][0]}, {block["position"][1]}, {block["position"][2]}'] = block
         # print(self.block_map)
 
     def get_blocks_nearby(self):

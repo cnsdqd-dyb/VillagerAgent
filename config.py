@@ -324,12 +324,15 @@ def generate_config(task, api_model, host, port, agent_num=2):
             elif random_task == "craft":
                 with open("data/recipes.json", "r") as f:
                     recipes = json.load(f)
-                item_id_list = random.sample(range(len(recipes)), k=task_number)
-                for i, id in enumerate(item_id_list):
-                    item = recipes[id]["result"]
+                result_list = []
+                for recipe in recipes:
+                    result_list.append(recipe["result"]["name"])
+                result_list = list(set(result_list))
+                item_list = random.sample(result_list, k=task_number)
+                for i, item in enumerate(item_list):
                     config = template.copy()
                     arg_dict = arg_template.copy()
-                    arg_dict["target"] = item["name"]
+                    arg_dict["target"] = item
                     arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
                     arg_dict["step"] = random.choices([1, 2], [0.7, 0.3])[0]
                     config["api_model"] = api_model
@@ -741,12 +744,15 @@ def generate_config(task, api_model, host, port, agent_num=2):
     elif task == "craft":
         with open("data/recipes.json", "r") as f:
             recipes = json.load(f)
-        item_id_list = random.sample(range(len(recipes)), k=task_number)
-        for i, id in enumerate(item_id_list):
-            item = recipes[id]["result"]
+        result_list = []
+        for recipe in recipes:
+            result_list.append(recipe["result"]["name"])
+        result_list = list(set(result_list))
+        item_list = random.sample(result_list, k=task_number)
+        for i, id in enumerate(item_list):
             config = template.copy()
             arg_dict = arg_template.copy()
-            arg_dict["target"] = item["name"]
+            arg_dict["target"] = item
             arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
             arg_dict["step"] = 1
             # # #

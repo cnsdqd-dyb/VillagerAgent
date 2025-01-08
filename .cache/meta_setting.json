@@ -6,38 +6,27 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Place 3 gray_wool at (23, -59, 9) , (21, -58, 9) and (21, -59, 8). The gray_wool is in your inventory.",
-    "task_scenario": "place",
+    "task_goal": "Transform the land at (13, -60, 1) into farmland using the hoe from your inventory, then plant the beetroot_seeds there.",
+    "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "gray_wool",
-        "x": 23,
-        "y": -59,
-        "z": 9,
+        "target": "farmland",
+        "x": 13,
+        "y": -60,
+        "z": 1,
         "facing": "",
         "item_position": "inventory",
-        "tool": "",
-        "action": "",
+        "tool": "stone_hoe",
+        "action": "till",
         "step": 1,
         "other_arg": [
-            [
-                23,
-                -59,
-                9
-            ],
-            [
-                21,
-                -58,
-                9
-            ],
-            [
-                21,
-                -59,
-                8
-            ]
+            {
+                "origin_block": "dirt",
+                "crops": "beetroot_seeds"
+            }
         ]
     },
     "document_file": "",
     "host": "10.193.129.152",
     "port": 25565,
-    "task_name": "place_multi_inventory_id8_01-08-14"
+    "task_name": "interact_till_id17_01-08-14"
 }

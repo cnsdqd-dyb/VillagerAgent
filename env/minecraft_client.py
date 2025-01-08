@@ -875,6 +875,9 @@ class Agent():
         if 'qwen' in self.model:
             from langchain_community.chat_models.tongyi import ChatTongyi
             self.llm = ChatTongyi(model=self.model, temperature=0, max_tokens=256, dashscope_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
+        elif "deepseek" in self.model:
+            from openai import OpenAI
+            self.llm = OpenAI(model=self.model, temperature=0, max_token=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
         elif "instruct" in self.model and "gpt" in self.model:
             from langchain.llms import OpenAI
             self.llm = OpenAI(model=self.model, temperature=0, max_tokens=256, openai_api_key=random.choice(Agent.api_key_list), base_url=Agent.base_url)
