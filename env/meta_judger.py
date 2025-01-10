@@ -696,10 +696,10 @@ def handle(this):
         time_array = np.array(agent_time)
         
         # 对时间进行归一化处理
-        time_array = (time_array - np.min(time_array)) / (np.max(time_array) - np.min(time_array) + 1e-8)
+        time_array = (time_array) / (np.max(time_array) + 1e-8)
         
         # 计算并返回 Balanced Agent Utilization Score (BAUS)
-        return 1 - np.sqrt(np.sum((time_array - np.mean(time_array))**2)) / (len(time_array) * np.mean(time_array) + 1e-8)
+        return 1 - np.std(time_array)
 
     def calculate_action_time():
         if not os.path.exists('data/action_log.json'):
