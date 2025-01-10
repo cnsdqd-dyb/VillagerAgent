@@ -339,10 +339,7 @@ if __name__ == '__main__':
             time_array = np.array(agent_time)
             
             # 对时间进行归一化处理
-            if np.max(time_array) == np.min(time_array):
-                time_array = np.ones_like(time_array)
-            else:
-                time_array = (time_array - np.min(time_array)) / (np.max(time_array) - np.min(time_array))
+            time_array = (time_array) / (np.max(time_array) + 1e-8)
             
             # 计算并返回 Balanced Agent Utilization Score (BAUS)
             return 1 - np.std(time_array)

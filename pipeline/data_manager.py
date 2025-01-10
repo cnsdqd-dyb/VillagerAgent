@@ -283,7 +283,7 @@ class DataManager:
     def update_database_init(self, info: list):
         self._logger.debug("=" * 20 + " Update Database Init " + "=" * 20)
         self._logger.info(f"gathering info data: \n{info}")
-        # print(info)
+        print(info)
         new_info = info.copy()
         for item in new_info:
             item["status"] = item["message"] if item["status"] else {}
