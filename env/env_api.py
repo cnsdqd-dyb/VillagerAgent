@@ -2580,7 +2580,7 @@ def read(bot, Vec3, envs_info, mcData, block_name, page=1, world_type="flatten")
             block = bot.blockAt(pos)
             text = block.getSignText()
             # [DEBUG] print(text)
-            bot.chat(f'the {block_name} said {text}')
+            # bot.chat(f'the {block_name} said {text}')
             if text == "":
                 return f"the {block_name} is empty", True
             return f"the {block_name} said {text.join(' ')}", True

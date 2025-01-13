@@ -606,7 +606,10 @@ def handleViewer(*args):
             bot.chat(f"/setblock {x} {y} {z} {target}[rotation={random.randint(0, 9)}]{{Text1:'{{\"text\":\"{text}\"}}'}}")
 
         elif arg_dict["action"] == "chat":
-            pass
+            other_agent_name = "Bob"
+            # other_agent_name = agent_names[1]
+            sur_y = get_surface_y(orx + room_width // 2, orz + 4)
+            bot.chat(f"/tp {other_agent_name} {orx + room_width // 2} {sur_y} {orz + 4} 0 0")
 
         elif arg_dict["action"] == "feed":
             target = aligned_item_name(arg_dict["target"])

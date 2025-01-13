@@ -1549,7 +1549,9 @@ def handleViewer(*args):
 def handle(this):
     # bot.chat("time")
     info_bot.update_time()
-    if info_bot.bot_init:
+    with open(".cache/load_status.cache", "r") as f:
+        status_data = json.load(f)
+    if status_data["status"] == "loaded" and info_bot.bot_init:
         info_bot.follow()
         info_bot.update_blocks()
 
