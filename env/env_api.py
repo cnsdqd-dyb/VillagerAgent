@@ -2321,7 +2321,10 @@ def useOnBlock(bot, Vec3, pathfinder, item_name, x, y, z):
             move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=pos)
         bot.lookAt(pos)
         bot.activateBlock(bot.blockAt(pos))
+        bot.activateItem()
         bot.useOn(bot.blockAt(pos))
+        bot.activateEntity(bot.blockAt(pos))
+        bot.activateEntityAt(bot.blockAt(pos), pos)
         return f" use {item_name} on block {x} {y} {z}", True
     except Exception as e:
         bot.chat(f'unable to use: {e}')
@@ -2343,6 +2346,7 @@ def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, blocks, item_name, na
                     move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=pos)
                 bot.lookAt(pos)
                 bot.activateBlock(bot.blockAt(pos))
+                bot.activateItem()
                 bot.useOn(bot.blockAt(pos))
                 bot.activateEntity(bot.blockAt(pos))
                 return f" use {item_name} on {name}", True
@@ -2357,6 +2361,7 @@ def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, blocks, item_name, na
             if distance > 3:
                 move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=entity["position"])
             bot.lookAt(entity["position"])
+            bot.activateItem()
             bot.useOn(entity)
             bot.activateEntity(entity)
             

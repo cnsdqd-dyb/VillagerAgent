@@ -1106,14 +1106,21 @@ if __name__ == "__main__":
     # Agent.base_url = "https://api.chatanywhere.tech/v1"
     # Agent.api_key_list = api_key_list
 
-    Agent.model = "qwen-max"
-    Agent.base_url =  "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    Agent.model = "deepseek-chat"
+    Agent.base_url =  "https://api.deepseek.com"
     Agent.api_key_list = json.load(open("API_KEY_LIST", "r"))["AGENT_KEY"]
     agent1 = Agent(name="Alice", local_port=5001, tools=[])
     Agent.launch(host="10.214.180.148", port=25565)
     time.sleep(5)
     start_time = time.time()
-    response = Agent.get_environment_info_dict("Alice")
+    url = Agent.get_url_prefix()["Alice"] + "/post_use_on_block"
+    data = {
+        "item_name": "bucket",
+        "x": 2,
+        "y": -61,
+        "z": 2,
+    }
+    response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
     print(response)
     print(time.time() - start_time)
     # # print(Agent.ping("Alice"))
