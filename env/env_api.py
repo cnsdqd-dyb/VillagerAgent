@@ -2309,6 +2309,23 @@ def toss(bot, mcData, item_name, amount=-1):  # need test
         bot.chat(f'unable to toss: {e}')
         return f"unable to toss {item_name}", False
 
+def useOnBlock(bot, Vec3, pathfinder, item_name, x, y, z):
+    msg, tag = equip(bot, item_name)
+    # #[DEBUG] print(msg,tag)
+    if not tag and (not bot.heldItem or bot.heldItem.name != item_name):
+        return msg, tag
+    try:
+        pos = Vec3(x, y, z)
+        distance = distanceTo(bot.entity.position, pos)
+        if distance > 3:
+            move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=pos)
+        bot.lookAt(pos)
+        bot.activateBlock(bot.blockAt(pos))
+        bot.useOn(bot.blockAt(pos))
+        return f" use {item_name} on block {x} {y} {z}", True
+    except Exception as e:
+        bot.chat(f'unable to use: {e}')
+        return f"unable to use {item_name} {e}", False
 
 def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, blocks, item_name, name):
     msg, tag = equip(bot, item_name)

@@ -453,6 +453,17 @@ def use_on():
     events = info_bot.get_action_description_new()
     return jsonify({'message': msg, 'status': done, "new_events": events})
 
+@app.route('/post_use_on_block', methods=['POST'])
+@log_activity(bot)
+def use_on_block():
+    """use_on item_name entity_name: For example, you can use shears on sheep, use bucket on cow."""
+    data = request.get_json()
+    item_name, x, y, z = data.get('item_name'), data.get('x'), data.get('y'), data.get('z')
+    msg, tag = useOnBlock(bot, Vec3, pathfinder, item_name, x, y, z)
+    done = tag
+    events = info_bot.get_action_description_new()
+    return jsonify({'message': msg, 'status': done, "new_events": events})
+
 
 @app.route('/post_sleep', methods=['POST'])
 @log_activity(bot)
