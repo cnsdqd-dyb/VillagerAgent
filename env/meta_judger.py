@@ -458,16 +458,6 @@ def handleViewer(*args):
             bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
     elif config["task_scenario"] == "interact":        
-        if arg_dict["action"] == "water":
-            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-            bot.chat(f"/fill {x-4} {y} {z-4} {x+4} {y} {z+4} grass_block")
-            bot.chat(f"/fill {x-3} {y} {z-3} {x+3} {y} {z+3} water")
-            if arg_dict["item_position"] == "inventory":
-                bot.chat(f"/give {agent_name} bucket 1")
-            elif arg_dict["item_position"] == "chest":
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "bucket", "count": 1}], 3)
-            else:
-                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
 
         if arg_dict["action"] == "handover":
             target = aligned_item_name(arg_dict["other_arg"][0])
@@ -522,7 +512,6 @@ def handleViewer(*args):
 
         elif arg_dict["action"] == "saddle":
             target = aligned_item_name(arg_dict["target"])
-            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3} {{InLove:600,Age:0,Tame:1}}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} saddle 1")
@@ -651,16 +640,26 @@ def handleViewer(*args):
 
         elif arg_dict["action"] in ["shear", "milk", "attack"]:
             target = aligned_item_name(arg_dict["target"])
-            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
-            bot.chat(f"/summon {target} {x} {y} {z}")
+            bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3} {{InLove:600,Age:0,Tame:1}}")
             tool = aligned_item_name(arg_dict["tool"])
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} {tool} 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": tool, "count": 1}], 3)
+                set_chest([], [{"name": tool, "count": 1}], 3)
             else:
                 bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
-        
+
+        elif arg_dict["action"] == "water":
+            x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
+            bot.chat(f"/fill {x-4} {y} {z-4} {x+4} {y} {z+4} grass_block")
+            bot.chat(f"/fill {x-3} {y} {z-3} {x+3} {y} {z+3} water")
+            if arg_dict["item_position"] == "inventory":
+                bot.chat(f"/give {agent_name} bucket 1")
+            elif arg_dict["item_position"] == "chest":
+                set_chest([(arg_dict['x'], arg_dict['y'], arg_dict['z'])], [{"name": "bucket", "count": 1}], 3)
+            else:
+                bot.chat("/tellraw @a {\"text\":\"INVALID ITEM POSITION!\", \"color\":\"red\"}")
+                
         else:
             bot.chat("/tellraw @a {\"text\":\"INVALID ACTION!\", \"color\":\"red\"}")
 

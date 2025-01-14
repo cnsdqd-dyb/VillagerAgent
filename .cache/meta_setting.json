@@ -6,24 +6,22 @@
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Alice and Bob ought to engage in a conversation **in Chinese**, each adopting distinct speaking styles. Alice should embody a \u6d6e\u5938\u4e14\u7231\u8868\u73b0 persona (exaggerated, dramatic, and attention-seeking), while Bob should portray a \u8fdf\u949d\u4e14\u7ecf\u5e38\u72af\u7cca\u6d82 character (slow to understand, often confused, and illogical). They should discuss \u7269\u54c1\u680f\u6574\u7406\u7684\u6700\u4f73\u65b9\u5f0f for at least five exchanges, incorporating additional topics and actions to enrich the dialogue. Ensure their traits remain consistent throughout. (This task requires two agents to participate each time.)",
+    "task_goal": "Put the saddle on the horse and ride it, then dismount it. The saddle and the food are in the inventory.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "rabbit_stew",
+        "target": "horse",
         "x": 0,
         "y": 0,
         "z": 0,
         "facing": "",
         "item_position": "inventory",
-        "tool": "",
-        "action": "chat",
+        "tool": "saddle",
+        "action": "saddle",
         "step": 1,
-        "other_arg": [
-            "Alice and Bob should start a chat **in Chinese** together. They should have different speaking style. \n    Alice is acting as a \u6d6e\u5938\u4e14\u7231\u8868\u73b0 person (\u5938\u5f20\u505a\u4f5c\uff0c\u60c5\u7eea\u5316\uff0c\u559c\u6b22\u8868\u73b0\u81ea\u5df1) eg. \"\u5929\u5450\uff01\u8fd9\u7b80\u76f4\u662f\u5929\u5d29\u5730\u88c2\u822c\u7684\u6253\u51fb\uff01\",\n    but Bob is acting as a \u8fdf\u949d\u4e14\u7ecf\u5e38\u72af\u7cca\u6d82 person (\u7406\u89e3\u80fd\u529b\u6781\u5dee\uff0c\u5e38\u5e38\u7b54\u975e\u6240\u95ee\uff0c\u903b\u8f91\u6df7\u4e71) eg. \"\u554a\uff1f\u4ec0\u4e48\u610f\u601d\uff1f\u6211\u5b8c\u5168\u641e\u4e0d\u61c2\u8bf6...\".\n    Start a conversation about \u7269\u54c1\u680f\u6574\u7406\u7684\u6700\u4f73\u65b9\u5f0f for at least 5 turns, you can also add some other topics in the conversation and try to add some actions (use agent tools) in the conversation to make it more vivid.\n    Keep their characteristics consistent throughout the conversation.\n    (This task should be assigned to two agents for each time)"
-        ]
+        "other_arg": []
     },
     "document_file": "",
     "host": "10.192.0.137",
     "port": 25565,
-    "task_name": "interact_chat_id18_01-08-14"
+    "task_name": "test_saddle"
 }

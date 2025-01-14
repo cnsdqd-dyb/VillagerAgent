@@ -1326,7 +1326,7 @@ def handleViewer(*args):
                 # # 根据匹配的结果做处理
                 # print(f"Host: {host_name}, Target: {target_name}, Message: {msg}")
                 if target_name == bot.entity.username:
-                    bot.chat(f"[DEBUG] Received a message from {host_name}: {msg}")
+                    # bot.chat(f"[DEBUG] Received a message from {host_name}: {msg}")
                     if "--MSG--" in message:
                         info_bot.add_event("msg", info_bot.existing_time, f"I received a message from {host_name}: {msg}", True)
                     elif "--CHAT--" in message:

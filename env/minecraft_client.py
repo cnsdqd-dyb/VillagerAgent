@@ -408,7 +408,7 @@ class Agent():
     @tool
     @timeit
     def useItemOnEntity(player_name: str, item_name: str, entity_name: str, emotion: list, murmur: str):
-        """Use a Specific Item on a Specific Entity, return string result (minecaft on rail, bone on dog, hoe on dirt, seeds on farmland, bucket on water, saddle on horse, etc)"""
+        """Use a Specific Item on a Specific Entity, return string result (bone on dog, bucket on cow, shears on sheep, saddle on horse, etc)"""
         url = Agent.get_url_prefix()[player_name] + "/post_use_on"
         data = {
             "item_name": item_name.lower().replace(" ", "_"),
@@ -420,7 +420,7 @@ class Agent():
     @tool
     @timeit
     def useItemOnBlock(player_name: str, item_name: str, x: int, y: int, z: int, emotion: list, murmur: str):
-        """Use a Specific Item on a Specific block at x y z, return string result (minecaft on rail, bone on dog, hoe on dirt, seeds on farmland, bucket on water, saddle on horse, etc)"""
+        """Use a Specific Item on a Specific block at x y z, return string result (minecaft on rail, hoe on dirt, seeds on farmland, bucket on water, etc)"""
         url = Agent.get_url_prefix()[player_name] + "/post_use_on_block"
         data = {
             "item_name": item_name.lower().replace(" ", "_"),
