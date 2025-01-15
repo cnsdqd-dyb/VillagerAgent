@@ -1296,7 +1296,7 @@ def handleViewer(*args):
     time.sleep(.1)
     bot.chat('/clear @s')
     bot.chat('/give @s dirt 20')
-    bot.chat('/give @s bucket 1')
+    bot.chat('/give @s saddle 1')
     bot.chat(f'/summon armor_stand ~ ~1.8 ~ {{CustomName:\'{{\"text\":\"😊\"}}\',CustomNameVisible:1,Invisible:1,Marker:1,NoGravity:1,Tags:["{bot.entity.username}"]}}')
     info_bot.bot_init = True
     time.sleep(.1)

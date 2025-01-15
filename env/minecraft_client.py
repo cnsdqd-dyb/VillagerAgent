@@ -1113,12 +1113,10 @@ if __name__ == "__main__":
     Agent.launch(host="10.214.180.148", port=25565)
     time.sleep(5)
     start_time = time.time()
-    url = Agent.get_url_prefix()["Alice"] + "/post_use_on_block"
+    url = Agent.get_url_prefix()["Alice"] + "/post_use_on"
     data = {
-        "item_name": "bucket",
-        "x": 2,
-        "y": -61,
-        "z": 2,
+        "item_name": "saddle",
+        "entity_name": "horse",
     }
     response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
     print(response)
