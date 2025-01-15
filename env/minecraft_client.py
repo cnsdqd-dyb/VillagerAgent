@@ -1113,11 +1113,13 @@ if __name__ == "__main__":
     Agent.launch(host="10.214.180.148", port=25565)
     time.sleep(5)
     start_time = time.time()
-    url = Agent.get_url_prefix()["Alice"] + "/post_sleep"
+    url = Agent.get_url_prefix()["Alice"] + "/post_use_on"
     data = {
+        "item_name": "saddle",
+        "entity_name": "horse",
     }
     response = requests.post(url, data=json.dumps(data), headers=Agent.headers)
-    print(response)
+    print(response.json())
     print(time.time() - start_time)
     # # print(Agent.ping("Alice"))
     # url = Agent.get_url_prefix()["Alice"] + "/post_use_on"

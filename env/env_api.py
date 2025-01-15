@@ -2374,7 +2374,9 @@ def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, blocks, item_name, na
                 bot.activateEntity(entity)
 
         if item_name == "bucket" or item_name == "saddle" or "bucket" in item_name:
-            if bot.heldItem.name == item_name: # 说明没有成功的施加作用
+            bot.updateHeldItem()
+            time.sleep(1) # 必须要等到更新结果
+            if bot.heldItem and bot.heldItem.name == item_name: # 说明没有成功的施加作用
                 return f" use {item_name} on {name} failed or the entity confused.", False
         return f" use {item_name} on {name}", True
     except Exception as e:
