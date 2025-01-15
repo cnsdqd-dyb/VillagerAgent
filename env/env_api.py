@@ -2152,7 +2152,7 @@ def getInventoryItemByName(bot, item_name, count=1):
         return []
 
 
-def sleep(bot, Vec3, mcData):
+def sleep(bot, Vec3, pathfinder, mcData):
     # bot.chat('/time set night')
     try:
         bot.chat('searching for bed')
@@ -2161,6 +2161,9 @@ def sleep(bot, Vec3, mcData):
         if bedBlock is None:
             return "failed to sleep because no bed found"
         bedBlock = bedBlock[0]
+        distance = distanceTo(bot.entity.position, bedBlock['position'])
+        if distance > 2:
+            move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=bedBlock['position'])
         if bot.isABed(bedBlock):
             bot.sleep(bedBlock)
             return "Sleep!"

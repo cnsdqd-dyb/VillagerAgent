@@ -299,7 +299,7 @@ def dismantle():
         if bot.blockAt(Vec3(x, y, z)).name == "dirt":
             bot.chat(f"/setblock {x} {y} {z} air")
             bot.chat(f"/give @s dirt 1")
-            bot.chat(f"/give @s ladder 1")
+            # bot.chat(f"/give @s ladder 1")
         bot.chat(f"setblock {x} {y} {z} air {bot.blockAt(Vec3(x, y, z)).name}")
         move_to(pathfinder, bot, Vec3, 3, Vec3(x, y, z+1))
         time.sleep(.1)
@@ -473,7 +473,7 @@ def sleep_():
         return jsonify({'message': "I am already sleeping", 'status': False, "new_events": events})
     """sleep: to sleep."""
     # bot.chat("/gamemode creative")
-    msg = sleep(bot, Vec3, mcData)
+    msg = sleep(bot, Vec3, pathfinder, mcData)
     if "failed" not in msg:
         done = True
         info_bot.sleeping = True
