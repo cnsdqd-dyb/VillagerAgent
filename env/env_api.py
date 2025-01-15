@@ -2152,7 +2152,7 @@ def getInventoryItemByName(bot, item_name, count=1):
         return []
 
 
-def sleep(bot, Vec3, mcData):
+def sleep(bot, Vec3, pathfinder, mcData):
     # bot.chat('/time set night')
     try:
         bot.chat('searching for bed')
@@ -2161,6 +2161,9 @@ def sleep(bot, Vec3, mcData):
         if bedBlock is None:
             return "failed to sleep because no bed found"
         bedBlock = bedBlock[0]
+        distance = distanceTo(bot.entity.position, bedBlock['position'])
+        if distance > 2:
+            move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=bedBlock['position'])
         if bot.isABed(bedBlock):
             bot.sleep(bedBlock)
             return "Sleep!"
@@ -2323,8 +2326,6 @@ def useOnBlock(bot, Vec3, pathfinder, item_name, x, y, z):
         bot.activateBlock(bot.blockAt(pos))
         bot.activateItem()
         bot.useOn(bot.blockAt(pos))
-        bot.activateEntity(bot.blockAt(pos))
-        bot.activateEntityAt(bot.blockAt(pos), pos)
         return f" use {item_name} on block {x} {y} {z}", True
     except Exception as e:
         bot.chat(f'unable to use: {e}')
@@ -2336,20 +2337,21 @@ def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, blocks, item_name, na
     if not tag and (not bot.heldItem or bot.heldItem.name != item_name):
         return msg, tag
     try:
-        for block in blocks:
-            # bot.chat(f"{block['name']}")
-            if block['name'] == name:
-                bot.chat(f'#used {item_name} on item {name}')
-                pos = Vec3(block["position"][0], block["position"][1], block["position"][2])
-                distance = distanceTo(bot.entity.position, pos)
-                if distance > 3:
-                    move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=pos)
-                bot.lookAt(pos)
-                bot.activateBlock(bot.blockAt(pos))
-                bot.activateItem()
-                bot.useOn(bot.blockAt(pos))
-                bot.activateEntity(bot.blockAt(pos))
-                return f" use {item_name} on {name}", True
+        if item_name != "shears" and item_name != "saddle": #这两个一定是entity
+            for block in blocks:
+                # bot.chat(f"{block['name']}")
+                if block['name'] == name:
+                    bot.chat(f'#used {item_name} on item {name}')
+                    pos = Vec3(block["position"][0], block["position"][1], block["position"][2])
+                    distance = distanceTo(bot.entity.position, pos)
+                    if distance > 3:
+                        move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=pos)
+                    bot.lookAt(pos)
+                    bot.activateBlock(bot.blockAt(pos))
+                    bot.activateItem()
+                    bot.useOn(bot.blockAt(pos))
+                    bot.activateEntity(bot.blockAt(pos))
+                    return f" use {item_name} on {name}", True
 
         entities = get_entity_by('name', envs_info, name, bot.entity.username)
         if len(entities) == 0:
@@ -2361,12 +2363,19 @@ def useOnNearest(bot, Vec3, pathfinder, envs_info, mcData, blocks, item_name, na
             if distance > 3:
                 move_to(pathfinder=pathfinder, bot=bot, Vec3=Vec3, RANGE_GOAL=2, pos=entity["position"])
             bot.lookAt(entity["position"])
-            bot.activateItem()
-            bot.useOn(entity)
-            bot.activateEntity(entity)
-            
-            pos = bot.entity.position
-            bot.activateEntityAt(entity, pos)
+            if item_name == "shears" or item_name == "saddle":
+                bot.useOn(entity)
+            elif item_name == "bucket":
+                bot.activateItem()
+                bot.useOn(entity) 
+            else:  # 剩余未分类的进行多次尝试
+                bot.activateItem()
+                bot.useOn(entity) 
+                bot.activateEntity(entity)
+
+        if item_name == "bucket" or item_name == "saddle" or "bucket" in item_name:
+            if bot.heldItem.name == item_name: # 说明没有成功的施加作用
+                return f" use {item_name} on {name} failed or the entity confused.", False
         return f" use {item_name} on {name}", True
     except Exception as e:
         print(e)
