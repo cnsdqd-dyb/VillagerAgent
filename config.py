@@ -135,7 +135,7 @@ def generate_task_goal(task_scenario, arg_dict):
         if arg_dict["tool"]:
             template_prompt = f"Use {arg_dict['tool']} to dig the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
         else:
-            template_prompt = f"Dig the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can dig it directly and don't need to use any tool."
+            template_prompt = f"Dig the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can dig it directly without using any tool."
     
     elif task_scenario == "craft":
         template_prompt = f"Use crafting_table to make a {arg_dict['target']}. All ingredients are in the {arg_dict['item_position']}. You can directly use the crafting_table in the environment without having to make one yourself."
