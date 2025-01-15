@@ -135,7 +135,7 @@ def generate_task_goal(task_scenario, arg_dict):
         if arg_dict["tool"]:
             template_prompt = f"Use {arg_dict['tool']} to dig the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The {arg_dict['tool']} is in the {arg_dict['item_position']}."
         else:
-            template_prompt = f"Dig the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can dig it directly and don't need to use any tool."
+            template_prompt = f"Dig the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can dig it directly without using any tool."
     
     elif task_scenario == "craft":
         template_prompt = f"Use crafting_table to make a {arg_dict['target']}. All ingredients are in the {arg_dict['item_position']}. You can directly use the crafting_table in the environment without having to make one yourself."
@@ -178,11 +178,11 @@ def generate_task_goal(task_scenario, arg_dict):
             template_prompt = f"Store a {arg_dict['other_arg'][0]} in the chest. The chest is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
             # "till", "fishing", "bone_meal", "chat", "sign", "toggle", "saddle", "boat", "minecart", "bed"
         elif arg_dict["action"] == "till":
-            template_prompt = f"Till the land at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}) to farmland. The hoe is in the {arg_dict['item_position']}, plant the {arg_dict['other_arg'][0]['crops']} in the farmland."
+            template_prompt = f"Till the land at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}) to farmland and plant the {arg_dict['other_arg'][0]['crops']} in the farmland. The hoe is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "fishing":
             template_prompt = f"Go fishing at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). The fishing_rod is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "bone_meal":
-            template_prompt = f"First place the {arg_dict['other_arg'][0]['crops']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). Then use bone_meal to grow it up. The bone_meal is in the {arg_dict['item_position']}."
+            template_prompt = f"First place the {arg_dict['other_arg'][0]['crops']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). Then use bone_meal to grow it up. The bone_meal and the {arg_dict['other_arg'][0]['crops']} is in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "sign":
             sign = arg_dict["target"]
             template_prompt = f"Read the content on the {sign} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
