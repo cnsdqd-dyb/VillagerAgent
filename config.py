@@ -192,7 +192,7 @@ def generate_task_goal(task_scenario, arg_dict):
             else:
                 template_prompt = f"Open the {arg_dict['target']} at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']}). You can open it directly and do not need any tool."
         elif arg_dict["action"] == "saddle":
-            template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']} and ride it, then dismount it. The {arg_dict['tool']} and the food are in the {arg_dict['item_position']}."
+            template_prompt = f"Put the {arg_dict['tool']} on the {arg_dict['target']} and ride it, then dismount it. The {arg_dict['tool']} in the {arg_dict['item_position']}."
         elif arg_dict["action"] == "boat":
             template_prompt = f"Ride the {arg_dict['target']} and dismount it. The {arg_dict['target']} is in the {arg_dict['item_position']}, the pool is at ({arg_dict['x']}, {arg_dict['y']}, {arg_dict['z']})."
         elif arg_dict["action"] == "minecart":
@@ -276,7 +276,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
     elif task == "meta":
         item_position_weight = [67, 33]
         for j in tqdm.tqdm(range(0, args.meta_task_num)):
-            random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [7, 16, 7, 1, 2, 67])[0]
+            # random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [7, 16, 7, 1, 2, 67])[0]
+            random_task = random.choices(["craft", "place", "move", "interact"], [16, 7, 2, 75])[0]
             if random_task == "dig":
                 with open("data/blocks.json", "r") as f:
                     blocks = json.load(f)
@@ -652,11 +653,8 @@ def generate_config(task, api_model, host, port, agent_num=2):
                             arg_dict["y"] = ory + 1
 
                         elif action == "saddle":
-                            arg_dict["target"] = random.choice(["horse", "pig"])
-                            if arg_dict["target"] == "horse":
-                                arg_dict["tool"] = "saddle"
-                            else:
-                                arg_dict["tool"] = "carrot_on_a_stick"
+                            arg_dict["target"] = random.choices(["horse", "pig"], [70,30])[0]
+                            arg_dict["tool"] = "saddle"
                             arg_dict["item_position"] = random.choices(["inventory", "chest"], item_position_weight)[0]
 
     

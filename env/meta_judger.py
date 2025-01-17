@@ -75,8 +75,8 @@ if not os.path.exists("result"):
 last_time = time.time()
 start_time = None
 
-max_action_time = 100
-max_time = 360
+max_action_time = 90
+max_time = 180
 
 environment_set_time = 10
 info_count = 0
@@ -255,6 +255,10 @@ def handleViewer(*args):
     with open(".cache/meta_setting.json", "r") as f:
         config = json.load(f)
     arg_dict = config["evaluation_arg"]
+
+    global max_time
+    if arg_dict["item_position"] == "chest":
+        max_time += 40
 
     clear_w = 31
     clear_h = 6
@@ -515,10 +519,8 @@ def handleViewer(*args):
             bot.chat(f"/summon {target} {orx + room_width // 2 + 1} {ory + 4} {orz + 3} {{InLove:600,Age:0,Tame:1}}")
             if arg_dict["item_position"] == "inventory":
                 bot.chat(f"/give {agent_name} saddle 1")
-                bot.chat(f"/give {agent_name} wheat 20")
-                bot.chat(f"/give {agent_name} carrot_on_a_stick 1")
             elif arg_dict["item_position"] == "chest":
-                set_chest([], [{"name": "saddle", "count": 1}, {"name": "wheat", "count": 20}, {"name": "carrot_on_a_stick", "count": 1}], 3)
+                set_chest([], [{"name": "saddle", "count": 1}], 3)
 
         elif arg_dict["action"] == "boat":
             x, y, z = arg_dict["x"], arg_dict["y"], arg_dict["z"]
@@ -668,10 +670,6 @@ def handleViewer(*args):
     else:
         bot.chat("/tellraw @a {\"text\":\"INVALID SCENARIO!\", \"color\":\"red\"}")
 
-
-
-    global max_action_time, max_time
-    
     with open(".cache/load_status.cache", "w") as f:
         json.dump({"status": "loaded"}, f, indent=4)
     
