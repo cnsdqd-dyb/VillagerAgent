@@ -1,15 +1,15 @@
 {
-    "api_model": "deepseek_chat",
+    "api_model": "deepseek-chat",
     "api_base": "https://api.deepseek.com",
     "task_type": "meta",
     "task_idx": 0,
     "agent_num": 1,
     "dig_needed": false,
     "max_task_num": 0,
-    "task_goal": "Put the saddle on the pig and ride it, then dismount it. The saddle in your inventory.",
+    "task_goal": "After placing the saddle on the horse and riding it, dismount, and the saddle will remain in your inventory.",
     "task_scenario": "interact",
     "evaluation_arg": {
-        "target": "pig",
+        "target": "horse",
         "x": 0,
         "y": 0,
         "z": 0,
@@ -21,7 +21,7 @@
         "other_arg": []
     },
     "document_file": "",
-    "host": "10.192.0.137",
+    "host": "127.0.0.1",
     "port": 25565,
-    "task_name": "interact_saddle_id12_011721"
+    "task_name": "interact_saddle_id3_012414"
 }

@@ -278,6 +278,10 @@ def generate_config(task, api_model, host, port, agent_num=2):
         for j in tqdm.tqdm(range(0, args.meta_task_num)):
             # random_task = random.choices(["dig", "craft", "place", "useitem", "move", "interact"], [7, 16, 7, 1, 2, 67])[0]
             random_task = random.choices(["craft", "place", "move", "interact"], [16, 7, 2, 75])[0]
+
+            random_task = "interact"
+
+
             if random_task == "dig":
                 with open("data/blocks.json", "r") as f:
                     blocks = json.load(f)
@@ -497,8 +501,14 @@ def generate_config(task, api_model, host, port, agent_num=2):
                 for i in range(task_number):
                     # action = "feed"
                     task_level = random.choices(["basic", "advanced"], [39, 61])[0]
+
+                    # task_level = "advanced"
+
                     if task_level == "basic":
                         action = random.choices(action_list, [6, 8, 10, 4, 4, 3, 2, 2])[0]
+
+                        # action = "store"
+
                         config = template.copy()
                         arg_dict = arg_template.copy()
                         if action == "cook":
@@ -559,6 +569,9 @@ def generate_config(task, api_model, host, port, agent_num=2):
                         action = random.choices(additional_task_list, [7, 5, 8, 13, 5, 10, 4, 3, 3, 3])[0]
                         config = template.copy()
                         arg_dict = arg_template.copy()
+
+                        # action = "saddle"
+
                         arg_dict["action"] = action
 
                         if action == "till":

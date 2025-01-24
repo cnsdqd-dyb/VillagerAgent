@@ -75,8 +75,8 @@ if not os.path.exists("result"):
 last_time = time.time()
 start_time = None
 
-max_action_time = 90
-max_time = 180
+max_action_time = 290
+max_time = 440
 
 environment_set_time = 10
 info_count = 0
@@ -266,7 +266,7 @@ def handleViewer(*args):
     tree_list = ["acacia", "birch", "spruce", "oak", "jungle_tree", "dark_oak", "mangrove"]
     tree_weight = [5, 30, 5, 50, 4, 3, 3]
     invalid_pos = []
-    if config["task_scenario"] in ["dig", "place", "move"] or (config["task_scenario"] == "useitem" and "sign" in arg_dict["target"]) or (config["task_scenario"] == "interact" and arg_dict["action"] in ["store", "till", "fishing", "bone_meal", "sign", "boat", "minecart", "bed", "water"]):
+    if config["task_scenario"] in ["dig", "place", "move"] or (config["task_scenario"] == "useitem" and "sign" in arg_dict["target"]) or (config["task_scenario"] == "interact" and arg_dict["action"] in ["store", "till", "fishing", "bone_meal", "sign", "boat", "minecart", "bed", "water", "toggle"]):
         invalid_pos.append((arg_dict['x'], arg_dict['y'], arg_dict['z']))
     
     crx, cry, crz = random_position(orx + wall_width + 3, orz + wall_width + 3, orx + room_width + wall_width - 3, orz + room_width + wall_width - 3, 1, invalid_pos)

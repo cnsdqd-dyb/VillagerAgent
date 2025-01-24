@@ -932,8 +932,8 @@ def activate():
         command = f"setblock {x} {y} {z} {item_name}[{property_string}]"
         
         # 执行命令
-        bot.chat(f"{command}")
-        bot.chat(f"/{command}")
+        # bot.chat(f"{command}")
+        # bot.chat(f"/{command}")
     tag, flag, data = asyncio.run(interact_nearest(pathfinder, bot,  Vec3, envs_info, mcData, 3, item_name, target_position=Vec3(x, y, z)))
     
     item_now = bot.blockAt(Vec3(x, y, z))
